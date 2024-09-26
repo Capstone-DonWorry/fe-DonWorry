@@ -136,15 +136,17 @@
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="10dp">
 
                 <EditText
                     android:id="@+id/InputPhone"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:background="@drawable/round_shape_sky"
                     android:hint="전화번호를 입력해 주세요."
                     android:inputType="phone"
@@ -157,14 +159,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right|center_vertical"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp"
                     android:background="@drawable/round_shape_gray"
-                    android:minWidth="70dp"
-                    android:minHeight="30dp"
                     android:text="인증하기"
                     android:textColor="@color/dark_gray" />
 
-            </FrameLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/AuthPhoneText"

@@ -17,7 +17,7 @@
         android:layout_marginTop="200dp"/>
 
     <Button
-        android:id="@+id/startBtn"
+        android:id="@+id/StartBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
@@ -42,7 +42,7 @@
             android:textSize="12sp" />
 
         <TextView
-            android:id="@+id/startLoginBtn"
+            android:id="@+id/StartLoginBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"

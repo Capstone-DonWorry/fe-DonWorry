@@ -170,7 +170,7 @@
                     android:textSize="14sp" />
 
                 <Button
-                    android:id="@+id/certifyButton"
+                    android:id="@+id/CertifyButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right|center_vertical"
@@ -222,7 +222,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/signUPNextBtn"
+            android:id="@+id/SignUPNextBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="40dp"

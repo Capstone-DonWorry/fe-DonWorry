@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="이 달의 소비 금액 목표를 설정해 주세요."
+        android:text="이 달의 소비 금액 목표를 설정해 주세요.\n한 달 동안 지출할 최대 금액. ex) 50만원"
         android:textSize="12sp" />
 
     <LinearLayout
@@ -69,7 +69,8 @@
             android:hint="금액을 입력해주세요"
             android:inputType="number"
             android:padding="15dp"
-            android:textColor="@color/mid_gray"
+            android:textColor="@color/dark_gray"
+            android:textColorHint="@color/mid_gray"
             android:textSize="14sp"
             android:background="@android:color/transparent"/>
 
@@ -111,24 +112,14 @@
         android:layout_marginTop="10dp"
         android:gravity="right">
 
-        <ImageView
-            android:id="@+id/DownArrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/baseline_arrow_down_24" />
-
-        <EditText
+        <Spinner
             android:id="@+id/InputAge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right"
-            android:hint="연령"
-            android:inputType="number"
             android:padding="15dp"
-            android:textColor="@color/mid_gray"
+            android:entries="@array/age_array"
             android:textSize="14sp"
-            android:background="@android:color/transparent"/>
+            android:spinnerMode="dropdown"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -172,11 +163,12 @@
         android:inputType="textPassword"
         android:padding="15dp"
         android:textColor="@color/dark_gray"
+        android:textColorHint="@color/mid_gray"
         android:textSize="14sp" />
 
 
     <Button
-        android:id="@+id/signUPBtn"
+        android:id="@+id/SignUPBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"

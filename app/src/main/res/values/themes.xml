@@ -3,7 +3,19 @@
     <style name="Base.Theme.Capstone_DonWorry" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- spinner theme-->
+        <item name="android:spinnerItemStyle">@style/SpinnerItem</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerItem.DropDownItem</item>
     </style>
 
     <style name="Theme.Capstone_DonWorry" parent="Base.Theme.Capstone_DonWorry" />
+
+    <style name="SpinnerItem" parent="@android:style/Widget.TextView.SpinnerItem">
+        <item name="android:textColor">@color/mid_gray</item>
+    </style>
+    <style name="SpinnerItem.DropDownItem" parent="@android:style/Widget.DropDownItem.Spinner">
+        <item name="android:textColor">@color/dark_gray</item>
+    </style>
+
 </resources>

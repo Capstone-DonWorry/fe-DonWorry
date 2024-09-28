@@ -64,7 +64,8 @@
         android:text="전화번호"
         android:textColor="@color/black_gray"
         android:textSize="12sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="invisible"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -82,7 +83,8 @@
             android:inputType="phone"
             android:padding="15dp"
             android:textColor="@color/dark_gray"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:visibility="invisible"/>
 
         <Button
             android:id="@+id/CertifyButton"
@@ -92,7 +94,8 @@
             android:layout_marginLeft="10dp"
             android:background="@drawable/round_shape_gray"
             android:text="인증하기"
-            android:textColor="@color/dark_gray" />
+            android:textColor="@color/dark_gray"
+            android:visibility="invisible"/>
 
     </LinearLayout>
 

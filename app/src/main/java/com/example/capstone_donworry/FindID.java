@@ -22,14 +22,14 @@ public class FindID extends AppCompatActivity {
         setContentView(R.layout.activity_find_id);
 
         // id 값 찾기
-        AuthPhoneText = (TextView) findViewById(R.id.AuthPhoneText);
-        AuthNote = (TextView) findViewById(R.id.AuthNote);
+        //AuthPhoneText = (TextView) findViewById(R.id.AuthPhoneText);
+        //AuthNote = (TextView) findViewById(R.id.AuthNote);
 
         InputName = (EditText) findViewById(R.id.InputName);
-        InputPhone = (EditText) findViewById(R.id.InputPhone);
-        AuthPhone = (EditText) findViewById(R.id.AuthPhone);
+        //InputPhone = (EditText) findViewById(R.id.InputPhone);
+        //AuthPhone = (EditText) findViewById(R.id.AuthPhone);
 
-        CertifyButton = (Button) findViewById(R.id.CertifyButton);
+        //CertifyButton = (Button) findViewById(R.id.CertifyButton);
         FindIdBtn = (Button) findViewById(R.id.FindIdBtn);
 
         ImageView BackArrow = (ImageView) findViewById(R.id.BackArrow);

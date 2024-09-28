@@ -22,15 +22,15 @@ public class FindPassword extends AppCompatActivity {
         setContentView(R.layout.activity_find_password);
 
         // id 값 찾기
-        AuthPhoneText = (TextView) findViewById(R.id.AuthPhoneText);
-        AuthNote = (TextView) findViewById(R.id.AuthNote);
+        //AuthPhoneText = (TextView) findViewById(R.id.AuthPhoneText);
+        //AuthNote = (TextView) findViewById(R.id.AuthNote);
 
         InputID = (EditText) findViewById(R.id.InputID);
         InputName = (EditText) findViewById(R.id.InputName);
-        InputPhone = (EditText) findViewById(R.id.InputPhone);
-        AuthPhone = (EditText) findViewById(R.id.AuthPhone);
+        //InputPhone = (EditText) findViewById(R.id.InputPhone);
+        //AuthPhone = (EditText) findViewById(R.id.AuthPhone);
 
-        CertifyButton = (Button) findViewById(R.id.CertifyButton);
+        //CertifyButton = (Button) findViewById(R.id.CertifyButton);
         ResetPwNextBtn = (Button) findViewById(R.id.ResetPwNextBtn);
 
         ImageView BackArrow = (ImageView) findViewById(R.id.BackArrow);

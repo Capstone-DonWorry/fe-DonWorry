@@ -11,6 +11,10 @@ public class WelcomePage extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 스택에서 제거할 액티비티를 리스트에 저장
+        StartPage startPage = new StartPage();
+        startPage.actList().add(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_page);
 

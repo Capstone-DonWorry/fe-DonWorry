@@ -23,15 +23,15 @@ public class Login extends AppCompatActivity {
     private Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
         // 스택에서 제거할 액티비티를 리스트에 저장
         StartPage startPage = new StartPage();
         // ArrayList에 저장한 액티비티 finish한다.
         for(int i=0; i<startPage.actList().size(); i++){
             startPage.actList().get(i).finish();
         }
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
         // ID 값 찾기
         LoginID = (EditText) findViewById(R.id.LoginID);

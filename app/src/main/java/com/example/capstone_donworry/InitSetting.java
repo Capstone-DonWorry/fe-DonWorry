@@ -2,9 +2,9 @@ package com.example.capstone_donworry;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,37 +12,52 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 public class InitSetting extends AppCompatActivity {
 
-    private EditText InputMoney, InputAge, InputNickName;
+    private EditText InputMoney, InputNickName;
+    private Spinner InputAge;
     private Button SignUPBtn;
-    SQLiteDatabase database;
-    public static Context context;
+//    SQLiteDatabase database;
+    public Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_init_setting);
+
         // 스택에서 제거할 액티비티를 리스트에 저장
         StartPage startPage = new StartPage();
         startPage.actList().add(this);
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_init_setting);
-
         context = this;
 
+        // ID 값 찾기
+        InputMoney = (EditText) findViewById(R.id.InputMoney);
+        InputNickName = (EditText) findViewById(R.id.InputNickName);
+
+        InputAge = (Spinner) findViewById(R.id.InputAge);
+
+        SignUPBtn = (Button) findViewById(R.id.SignUPBtn);
+
+        // 뒤로가기 버튼
         ImageView BackArrow = (ImageView) findViewById(R.id.BackArrow);
         BackArrow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), SignUp.class);
                 startActivity(intent);
+                finish();
             }
         });
 
-        SignUPBtn = (Button) findViewById(R.id.SignUPBtn);
         SignUPBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Intent intent = new Intent(getApplicationContext(), Login.class);
+                startActivity(intent);
                 /*
                 String databaseName = 데이터베이스명;  // 데이터 베이스 이름 설정
                 openDatabase(databaseName);
@@ -63,8 +78,6 @@ public class InitSetting extends AppCompatActivity {
 
                 insertData(name, id, pw, money, age, nickName);
                 */
-                Intent intent = new Intent(getApplicationContext(), Login.class);
-                startActivity(intent);
             }
         });
 
@@ -80,6 +93,7 @@ public class InitSetting extends AppCompatActivity {
 
             }
 
+            @SuppressLint("UseCompatLoadingForColorStateLists")
             @Override
             public void afterTextChanged(Editable s) {
                 SignUPBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);

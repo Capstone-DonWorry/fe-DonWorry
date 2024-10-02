@@ -2,6 +2,7 @@ package com.example.capstone_donworry;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,15 +18,16 @@ public class ResetPassword extends AppCompatActivity {
     private TextView RightPassword;
     private EditText InputPassword, InputRePassword;
     private Button ResetPwBtn;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_reset_password);
+
         // 스택에서 제거할 액티비티를 리스트에 저장
         StartPage startPage = new StartPage();
         startPage.actList().add(this);
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reset_password);
 
         // id 값 찾기
         RightPassword = (TextView) findViewById(R.id.RightPassword);
@@ -34,6 +36,8 @@ public class ResetPassword extends AppCompatActivity {
         InputRePassword = (EditText) findViewById(R.id.InputRePassword);
 
         ResetPwBtn = (Button) findViewById(R.id.ResetPwBtn);
+
+        context = this;
 
         ImageView BackArrow = (ImageView) findViewById(R.id.BackArrow);
         BackArrow.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +65,13 @@ public class ResetPassword extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                if (InputPassword.getText().toString().equals(InputRePassword.getText().toString())) {
+                    ResetPwBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
+                    ResetPwBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+                }else {
+                    ResetPwBtn.setBackgroundResource(R.drawable.round_shape_gray);
+                    ResetPwBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+                }
             }
         });
 

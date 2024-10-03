@@ -7,18 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/NavView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
-        app:itemIconTint="@drawable/menu_click_color"
-        app:itemTextColor="@drawable/menu_click_color"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:labelVisibilityMode="unlabeled"
-        app:menu="@menu/nav_menu" />
-
     <fragment
         android:id="@+id/NavFragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -26,9 +14,22 @@
         android:layout_height="match_parent"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@id/NavView"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:navGraph="@navigation/nav_navigation"
-        tools:layout_editor_absoluteX="0dp" />
+        app:navGraph="@navigation/nav_navigation"/>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/NavView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="?android:attr/windowBackground"
+        app:itemIconTint="@drawable/menu_click_color"
+        app:itemTextColor="@drawable/menu_click_color"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/nav_menu"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

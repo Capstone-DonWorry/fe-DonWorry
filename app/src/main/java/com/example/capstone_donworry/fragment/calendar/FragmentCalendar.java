@@ -1,66 +1,36 @@
-package com.example.capstone_donworry.fragment;
+package com.example.capstone_donworry.fragment.calendar;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.capstone_donworry.R;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentCalendar#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
+
 public class FragmentCalendar extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private FragmentCalendarBinding binding;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        ViewModelCalendar viewModelCalendar =
+                new ViewModelProvider(this).get(ViewModelCalendar.class);
 
-    public FragmentCalendar() {
-        // Required empty public constructor
-    }
+        binding = FragmentCalendarBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FragmentCalendar.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FragmentCalendar newInstance(String param1, String param2) {
-        FragmentCalendar fragment = new FragmentCalendar();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+//        final TextView textView = binding.textCalendar;
+//        viewModelCalendar.getText().observe(getViewLifecycleOwner(), textView::setText);
+        return root;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_calendar, container, false);
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

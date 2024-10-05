@@ -1,40 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragment.chart.FragmentChart">
 
-    <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        tools:context=".MainActivity">
 
         <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-            android:id="@+id/calendar_view"
+            android:id="@+id/calendarView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="12dp"
-            android:theme="@style/CalenderViewCustom"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:mcv_dateTextAppearance="@style/CalenderViewDateCustomText"
-            app:mcv_firstDayOfWeek="sunday"
-            app:mcv_leftArrow="@drawable/baseline_arrow_back_24"
-            app:mcv_rightArrow="@drawable/baseline_arrow_back_24"
-            app:mcv_selectionMode="single"
+            android:layout_height="370.5dp"
+            app:mcv_tileSize="53dp"
+            android:layout_marginTop="32dp"
+            app:mcv_selectionColor="@color/black"
             app:mcv_showOtherDates="all"
-            app:mcv_weekDayTextAppearance="@style/CalenderViewWeekCustomText" />
+            tools:ignore="MissingConstraints" />
 
-        <TextView
-            android:id="@+id/selectedDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.selectedDate}"/>
-
-    </LinearLayout>
-
-</FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

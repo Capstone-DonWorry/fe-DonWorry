@@ -8,25 +8,25 @@
 
     <fragment
         android:id="@+id/navigation_calendar"
-        android:name="com.example.capstone_donworry.fragment.FragmentCalendar"
+        android:name="com.example.capstone_donworry.fragment.calendar.FragmentCalendar"
         android:label="@string/title_calendar"
         tools:layout="@layout/fragment_calendar" />
 
     <fragment
         android:id="@+id/navigation_chart"
-        android:name="com.example.capstone_donworry.fragment.FragmentChart"
+        android:name="com.example.capstone_donworry.fragment.chart.FragmentChart"
         android:label="@string/title_chart"
         tools:layout="@layout/fragment_chart" />
 
     <fragment
         android:id="@+id/navigation_message"
-        android:name="com.example.capstone_donworry.fragment.FragmentMessage"
+        android:name="com.example.capstone_donworry.fragment.message.FragmentMessage"
         android:label="@string/title_message"
         tools:layout="@layout/fragment_message" />
 
     <fragment
         android:id="@+id/navigation_person"
-        android:name="com.example.capstone_donworry.fragment.FragmentPerson"
+        android:name="com.example.capstone_donworry.fragment.person.FragmentPerson"
         android:label="@string/title_person"
         tools:layout="@layout/fragment_person" />
 </navigation>

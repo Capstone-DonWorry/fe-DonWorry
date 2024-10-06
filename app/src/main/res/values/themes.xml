@@ -19,18 +19,18 @@
     </style>
 
     <!-- 캘린더의 날짜(Day)의 스타일 설정 -->
-    <style name="CalenderViewCustom" parent="Theme.AppCompat">
+    <style name="CalendarViewCustom" parent="Theme.AppCompat">
         <item name="android:textColor">@drawable/calendar_selector_textcolor</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <!-- 캘린더의 날짜(Day)의 스타일 설정 -->
-    <style name="CalenderViewDateCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+    <style name="CalendarViewDateCustomText" parent="android:TextAppearance.DeviceDefault.Small">
         <item name="android:textColor">@drawable/calendar_selector_textcolor</item>
     </style>
 
     <!-- 캘린더의 요일에 적용되는 스타일 -->
-    <style name="CalenderViewWeekCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+    <style name="CalendarViewWeekCustomText" parent="android:TextAppearance.DeviceDefault.Small">
         <item name="android:textColor">@color/black</item>
     </style>
 

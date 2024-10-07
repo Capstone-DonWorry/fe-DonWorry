@@ -7,20 +7,156 @@
     android:layout_width="match_parent"
     android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/sky_blue"
+        android:padding="10dp">
 
-        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-            android:id="@+id/calendarView"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="목표 지출 금액"
+                    android:textSize="14dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_gray"/>
+                <TextView
+                    android:id="@+id/TargetAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:text="0원"
+                    android:textSize="14dp"
+                    android:textColor="@color/dark_gray"
+                    android:gravity="right"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="잔액"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_gray"/>
+                <TextView
+                    android:id="@+id/AbleAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:text="0원"
+                    android:textSize="12dp"
+                    android:textColor="@color/dark_gray"
+                    android:gravity="right"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/light_gray"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="10dp"
+                android:text="지출"
+                android:textColor="@color/dark_gray"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <CheckBox
+                    android:id="@+id/CheckBoxCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="카드" />
+
+                <CheckBox
+                    android:id="@+id/CheckBoxCash"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="현금" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/TotalExpense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0원"
+                android:textSize="14dp"
+                android:textColor="@color/dark_gray"
+                android:gravity="right"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:theme="@style/CalendarViewCustom"
+        app:mcv_selectionColor="@color/black"
+        app:mcv_showOtherDates="all"
+        app:mcv_tileSize="53dp"
+        tools:ignore="MissingConstraints" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/ButtonAdd"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:background="@drawable/round_shape_dark_grayline"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"/>
+
+        <ListView
+            android:id="@+id/ListView"
             android:layout_width="match_parent"
-            android:layout_height="370.5dp"
-            app:mcv_tileSize="53dp"
-            android:layout_marginTop="32dp"
-            app:mcv_selectionColor="@color/black"
-            app:mcv_showOtherDates="all"
-            tools:ignore="MissingConstraints" />
+            android:layout_height="wrap_content">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </ListView>
+
+    </FrameLayout>
+
 </LinearLayout>

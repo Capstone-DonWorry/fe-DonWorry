@@ -32,7 +32,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="목표 지출 금액"
-                    android:textSize="14dp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/dark_gray"/>
                 <TextView
@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="10dp"
                     android:text="0원"
-                    android:textSize="14dp"
+                    android:textSize="14sp"
                     android:textColor="@color/dark_gray"
                     android:gravity="right"/>
 
@@ -56,7 +56,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="잔액"
-                    android:textSize="12dp"
+                    android:textSize="12sp"
                     android:textStyle="bold"
                     android:textColor="@color/dark_gray"/>
                 <TextView
@@ -65,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="10dp"
                     android:text="0원"
-                    android:textSize="12dp"
+                    android:textSize="12sp"
                     android:textColor="@color/dark_gray"
                     android:gravity="right"/>
 
@@ -117,7 +117,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="0원"
-                android:textSize="14dp"
+                android:textSize="14sp"
                 android:textColor="@color/dark_gray"
                 android:gravity="right"
                 android:layout_gravity="center"/>
@@ -138,7 +138,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <Button
             android:id="@+id/ButtonAdd"
@@ -154,6 +154,7 @@
             android:id="@+id/ListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
 
         </ListView>
 

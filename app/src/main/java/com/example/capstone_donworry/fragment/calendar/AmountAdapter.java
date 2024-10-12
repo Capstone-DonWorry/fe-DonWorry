@@ -18,6 +18,11 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
 
     ArrayList<AmountItem> items = new ArrayList<AmountItem>();
 
+    OnItemClickListener listener;
+    public static interface OnItemClickListener {
+        public void onItemClick(ViewHolder holder, View view, int position);
+    }
+
     public AmountAdapter(Context context) {
         this.context = context;
     }
@@ -44,6 +49,7 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         AmountItem item = items.get(position);
         holder.setItem(item);
 
+        holder.setOnItemClickListener(listener);
     }
 
     // item 추가
@@ -59,12 +65,18 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         return items.get(position);
     }
 
+    public void setOnClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView itemName;
         TextView itemCard;
         TextView itemCategory;
         TextView itemAmount;
+
+        OnItemClickListener listener;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -73,6 +85,16 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
             itemCard = (TextView) itemView.findViewById(R.id.ItemCard);
             itemCategory = (TextView) itemView.findViewById(R.id.ItemCategory);
             itemAmount = (TextView) itemView.findViewById(R.id.ItemAmount);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if(listener != null) {
+                        listener.onItemClick(ViewHolder.this, view, position);
+                    }
+                }
+            });
         }
 
         public void setItem(AmountItem item) {
@@ -80,6 +102,10 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
             itemCard.setText(item.getCard());
             itemCategory.setText(item.getCategory());
             itemAmount.setText(item.getAmount());
+        }
+
+        public void setOnItemClickListener(OnItemClickListener listener){
+            this.listener = listener;
         }
     }
 }

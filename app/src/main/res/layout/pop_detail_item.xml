@@ -134,11 +134,12 @@
                 android:textSize="14sp"/>
 
             <TextView
-                android:id="@+id/ItemName"
+                android:id="@+id/DetailAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0원"
                 android:layout_weight="1"
+                android:gravity="right"
                 android:textColor="@color/black_gray"
                 android:textSize="12sp"/>
         </LinearLayout>
@@ -146,7 +147,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/SignUPNextBtn"
+        android:id="@+id/DetailOKBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="15dp"

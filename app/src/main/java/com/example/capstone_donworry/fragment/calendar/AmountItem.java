@@ -1,8 +1,12 @@
 package com.example.capstone_donworry.fragment.calendar;
 
-public class AmountItem {
+import java.io.Serializable;
+
+public class AmountItem implements Serializable {
     String name;
+    String date;
     String card;
+    String bank;
     String category;
     String amount;
 

@@ -1,5 +1,6 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.capstone_donworry.Login;
+import com.example.capstone_donworry.SignUp;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 public class FragmentCalendar extends Fragment {
 
     RecyclerView recyclerView;
+    AmountAdapter adapter;
     private FragmentCalendarBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -36,7 +40,7 @@ public class FragmentCalendar extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // adapter 설정
-        AmountAdapter adapter = new AmountAdapter(getActivity().getApplicationContext());
+        adapter = new AmountAdapter(getActivity().getApplicationContext());
 
         // 데이터 추가
         adapter.addItem(new AmountItem("가게1", "카드", "음식", "10000"));
@@ -49,10 +53,21 @@ public class FragmentCalendar extends Fragment {
         adapter.addItem(new AmountItem("가게8", "카드", "생활", "150000"));
 
         recyclerView.setAdapter(adapter);
+        adapter.setOnClickListener(new AmountAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(AmountAdapter.ViewHolder holder, View view, int position) {
+                AmountItem item = adapter.getItem(position);
+
+                // 아이템 클릭시 팝업 창 띄우기
+                PopDetailItem popDetail = PopDetailItem.newInstance(item);
+                popDetail.show(getChildFragmentManager(), "세부내역");
+            }
+        });
 //        final TextView textView = binding.textCalendar;
 //        viewModelCalendar.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
+
 
     @Override
     public void onDestroyView() {

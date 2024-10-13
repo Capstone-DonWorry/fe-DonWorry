@@ -1,12 +1,15 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstone_donworry.Login;
+import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.SignUp;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 
@@ -43,14 +47,14 @@ public class FragmentCalendar extends Fragment {
         adapter = new AmountAdapter(getActivity().getApplicationContext());
 
         // 데이터 추가
-        adapter.addItem(new AmountItem("가게1", "카드", "음식", "10000"));
-        adapter.addItem(new AmountItem("가게2", "현금", "간식", "8000"));
-        adapter.addItem(new AmountItem("가게3", "카드", "병원", "15000"));
-        adapter.addItem(new AmountItem("가게4", "카드", "쇼핑", "100000"));
-        adapter.addItem(new AmountItem("가게5", "현금", "음식", "14000"));
-        adapter.addItem(new AmountItem("가게6", "현금", "교통비", "1200"));
-        adapter.addItem(new AmountItem("가게7", "현금", "관리비", "90000"));
-        adapter.addItem(new AmountItem("가게8", "카드", "생활", "150000"));
+        adapter.addItem(new AmountItem("가게1", "2024-10-01", "카드", "우리은행", "음식", "10000"));
+        adapter.addItem(new AmountItem("가게2", "2024-10-02", "현금", "국민은행", "간식", "8000"));
+        adapter.addItem(new AmountItem("가게3", "2024-10-03", "카드", "카카오뱅크", "병원", "15000"));
+        adapter.addItem(new AmountItem("가게4", "2024-10-04", "카드", "신한은행", "쇼핑", "100000"));
+        adapter.addItem(new AmountItem("가게5", "2024-10-05", "현금", "농협은행", "음식", "14000"));
+        adapter.addItem(new AmountItem("가게6", "2024-10-06", "현금", "하나은행", "교통비", "1200"));
+        adapter.addItem(new AmountItem("가게7", "2024-10-07", "현금", "기업은행", "관리비", "90000"));
+        adapter.addItem(new AmountItem("가게8", "2024-10-08", "카드", "우리은행", "생활", "150000"));
 
         recyclerView.setAdapter(adapter);
         adapter.setOnClickListener(new AmountAdapter.OnItemClickListener() {
@@ -61,10 +65,13 @@ public class FragmentCalendar extends Fragment {
                 // 아이템 클릭시 팝업 창 띄우기
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
                 popDetail.show(getChildFragmentManager(), "세부내역");
+
+
+                // 토스트 메시지 확인
+//                Toast.makeText(getActivity(), item.getAmount(), Toast.LENGTH_SHORT).show();
             }
         });
-//        final TextView textView = binding.textCalendar;
-//        viewModelCalendar.getText().observe(getViewLifecycleOwner(), textView::setText);
+
         return root;
     }
 

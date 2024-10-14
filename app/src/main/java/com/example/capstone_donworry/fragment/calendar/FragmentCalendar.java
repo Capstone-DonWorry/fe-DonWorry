@@ -1,15 +1,10 @@
 package com.example.capstone_donworry.fragment.calendar;
 
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -17,12 +12,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.capstone_donworry.Login;
-import com.example.capstone_donworry.R;
-import com.example.capstone_donworry.SignUp;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 
-import java.util.ArrayList;
 
 public class FragmentCalendar extends Fragment {
 
@@ -56,6 +47,7 @@ public class FragmentCalendar extends Fragment {
         adapter.addItem(new AmountItem("가게7", "2024-10-07", "현금", "기업은행", "관리비", "90000"));
         adapter.addItem(new AmountItem("가게8", "2024-10-08", "카드", "우리은행", "생활", "150000"));
 
+        // 아이템 이벤트 처리
         recyclerView.setAdapter(adapter);
         adapter.setOnClickListener(new AmountAdapter.OnItemClickListener() {
             @Override
@@ -72,13 +64,21 @@ public class FragmentCalendar extends Fragment {
             }
         });
 
+        // 추가 버튼 이벤트 처리
+        Button addBtn = binding.ButtonAdd;
+        addBtn.setOnClickListener(view -> showAddItem());
+
         return root;
     }
-
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void showAddItem() {
+        PopAddItem popAddItem = new PopAddItem();
+        popAddItem.show(getChildFragmentManager(), "내용추가");
     }
 }

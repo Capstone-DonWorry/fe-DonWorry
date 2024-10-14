@@ -15,25 +15,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.capstone_donworry.R;
 
-public class PopDetailItem extends DialogFragment {
-    private static final String DETAIL_ITEM = "detailItem";
-
-    public static PopDetailItem newInstance(AmountItem item){
-        PopDetailItem fragment = new PopDetailItem();
-        Bundle args = new Bundle();
-        args.putSerializable(DETAIL_ITEM, item); // 아이템 데이터 전달
-        fragment.setArguments(args);
-        return fragment;
-    }
+public class PopAddItem extends DialogFragment {
 
     @Override
     public void onStart() {
         super.onStart();
-//        Log.d("PopDetailItem", "DialogFragment started");
         // Dialog의 윈도우 설정
         Dialog dialog = getDialog();
         if (dialog != null) {
@@ -45,12 +37,10 @@ public class PopDetailItem extends DialogFragment {
 
                 // 화면 크기의 90%를 계산
                 int width = (int) (displayMetrics.widthPixels * 0.9);
-//                int height = (int) (displayMetrics.heightPixels * 0.9);
 
                 // Dialog의 크기 설정
                 WindowManager.LayoutParams layoutParams = window.getAttributes();
                 layoutParams.width = width;
-//                layoutParams.height = height;
                 window.setAttributes(layoutParams);
             }
         }
@@ -72,42 +62,35 @@ public class PopDetailItem extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         // 팝업창 레이아웃 사용
-        View view = inflater.inflate(R.layout.pop_detail_item, container, false);
+        View view = inflater.inflate(R.layout.pop_add_item, container, false);
         if (view == null) {
             Log.d("PopDetailItem", "View inflation failed");
         } else {
             Log.d("PopDetailItem", "View inflated successfully");
         }
 
-        AmountItem item = (AmountItem) getArguments().getSerializable(DETAIL_ITEM);
-
-
-        // 로그 출력
-//        Log.d("PopDetailItem", "onCreateView called"+item.getBank());
-
         // UI text 설정
-        TextView nameTextView = view.findViewById(R.id.DetailName);
-        TextView dateTextView = view.findViewById(R.id.DetailDate);
-        TextView cardTextView = view.findViewById(R.id.DetailCard);
-        TextView bankTextView = view.findViewById(R.id.DetailBank);
-        TextView categoryTextView = view.findViewById(R.id.DetailCategory);
-        TextView amountTextView = view.findViewById(R.id.DetailAmount);
+        EditText contentEdit = view.findViewById(R.id.AddContent);
+        EditText amountEdit = view.findViewById(R.id.AddAmount);
+        EditText cardEdit = view.findViewById(R.id.AddCard);
+        TextView dateTextView = view.findViewById(R.id.AddDate);
 
-        // text 설정
-        if (item != null) {
-            nameTextView.setText(item.getName());
-            dateTextView.setText(item.getDate());
-            cardTextView.setText(item.getCard());
-            bankTextView.setText(item.getBank());
-            categoryTextView.setText(item.getCategory());
-            amountTextView.setText(item.getAmount());
-            // 로그 확인
-            Log.d("PopDetailItem", "Setting name: " + item.getName());
-            Log.d("PopDetailItem", "Getting name: " + nameTextView.getText());
-        }
+        // TODO:입력 받은 값 받아오기
+
+
+        // dateSelect 클릭 시 달력 표시
+        LinearLayout dateSelect = view.findViewById(R.id.AddDateSelect);
+        dateSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopAddDate popAddDate = new PopAddDate();
+                popAddDate.show(getChildFragmentManager(), "날짜 선택");
+            }
+        });
 
         // 버튼 클릭 처리
-        view.findViewById(R.id.DetailOKBtn).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.AddNEXTBtn).setOnClickListener(v -> dismiss());
 
         return view;
     }

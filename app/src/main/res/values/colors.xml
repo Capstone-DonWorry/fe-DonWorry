@@ -18,5 +18,7 @@
     <color name="err_red">#FFD91B1B</color>
 
     <color name="text_green">#FF56FF71</color>
+    
+    <color name="transparency">#000000FF</color>
 
 </resources>

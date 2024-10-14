@@ -1,7 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:orientation="vertical"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/round_shape_sky_blueline">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="25dp"
+        android:text="내용추가"
+        android:textColor="@color/black_gray"
+        android:textStyle="bold"
+        android:textSize="18sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내용"
+                android:textColor="@color/black_gray"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+
+            <EditText
+                android:id="@+id/AddContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:hint="내용을 입력해주세요"
+                android:textColor="@color/black_gray"
+                android:background="@color/transparency"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4px"
+            android:background="@color/light_gray"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="금액"
+                android:textColor="@color/black_gray"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+
+            <EditText
+                android:id="@+id/AddAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="금액을 작성해 주세요"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textColor="@color/black_gray"
+                android:background="@color/transparency"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4px"
+            android:background="@color/light_gray"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="결제수단"
+                android:textColor="@color/black_gray"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+
+            <EditText
+                android:id="@+id/AddCard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="결제수단을 입력해 주세요"
+                android:background="@color/transparency"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textColor="@color/black_gray"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4px"
+            android:background="@color/light_gray"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="날짜"
+                android:textColor="@color/black_gray"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+
+            <LinearLayout
+                android:id="@+id/AddDateSelect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="right">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_calendar_month_24"/>
+
+                <TextView
+                    android:id="@+id/AddDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="날짜를 선택해주세요"
+                    android:textColor="@color/black_gray"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/round_shape_mid_blue">
+
+        <Button
+            android:id="@+id/AddNOBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/transparency"
+            android:padding="15dp"
+            android:text="취소"
+            android:textColor="@color/white" />
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/light_gray"/>
+        <Button
+            android:id="@+id/AddNEXTBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/transparency"
+            android:padding="15dp"
+            android:text="다음"
+            android:textColor="@color/white" />
+    </LinearLayout>
 </LinearLayout>

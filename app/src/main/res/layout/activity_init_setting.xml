@@ -160,7 +160,7 @@
         android:background="@drawable/round_shape_dark_blueline"
         android:gravity="right"
         android:hint="닉네임을 입력해주세요."
-        android:inputType="textPassword"
+        android:inputType="text"
         android:padding="15dp"
         android:textColor="@color/dark_gray"
         android:textColorHint="@color/mid_gray"

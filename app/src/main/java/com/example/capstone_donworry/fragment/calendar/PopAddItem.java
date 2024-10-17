@@ -101,6 +101,7 @@ public class PopAddItem extends DialogFragment {
         return view;
     }
 
+    // 선택한 날짜로 텍스트 변경
     public void updateDate(String date) {
         dateTextView.setText(date);
     }

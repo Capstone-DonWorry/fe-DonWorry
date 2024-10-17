@@ -23,6 +23,8 @@ import com.example.capstone_donworry.R;
 
 public class PopAddItem extends DialogFragment {
 
+    private TextView dateTextView;
+
     @Override
     public void onStart() {
         super.onStart();
@@ -64,16 +66,16 @@ public class PopAddItem extends DialogFragment {
         // 팝업창 레이아웃 사용
         View view = inflater.inflate(R.layout.pop_add_item, container, false);
         if (view == null) {
-            Log.d("PopDetailItem", "View inflation failed");
+            Log.d("PopAddItem", "View inflation failed");
         } else {
-            Log.d("PopDetailItem", "View inflated successfully");
+            Log.d("PopAddItem", "View inflated successfully");
         }
 
         // UI text 설정
         EditText contentEdit = view.findViewById(R.id.AddContent);
         EditText amountEdit = view.findViewById(R.id.AddAmount);
         EditText cardEdit = view.findViewById(R.id.AddCard);
-        TextView dateTextView = view.findViewById(R.id.AddDate);
+        dateTextView = view.findViewById(R.id.AddDate);
 
         // TODO:입력 받은 값 받아오기
 
@@ -84,14 +86,23 @@ public class PopAddItem extends DialogFragment {
             @Override
             public void onClick(View view) {
                 PopAddDate popAddDate = new PopAddDate();
-                popAddDate.show(getChildFragmentManager(), "날짜 선택");
+                popAddDate.setTargetFragment(PopAddItem.this, 0); // 현재 Fragment를 Target으로 설정
+                popAddDate.show(getParentFragmentManager(), "날짜 선택");
             }
         });
 
         // 버튼 클릭 처리
         view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
-        view.findViewById(R.id.AddNEXTBtn).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.AddNEXTBtn).setOnClickListener(v -> {
+            PopAddCategory popAddCategory = new PopAddCategory();
+            popAddCategory.show(getChildFragmentManager(), "카테고리 선택");
+        });
 
         return view;
+    }
+
+    // 선택한 날짜로 텍스트 변경
+    public void updateDate(String date) {
+        dateTextView.setText(date);
     }
 }

@@ -111,4 +111,7 @@ public class PopDetailItem extends DialogFragment {
 
         return view;
     }
+    // TODO:입력한 데이터로 내용 추가
+    // TODO:입력한 데이터로 내용 변경
+
 }

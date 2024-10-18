@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 
 
-public class FragmentCalendar extends Fragment {
+public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener{
 
     RecyclerView recyclerView;
     AmountAdapter adapter;
@@ -79,6 +79,14 @@ public class FragmentCalendar extends Fragment {
 
     private void showAddItem() {
         PopAddItem popAddItem = new PopAddItem();
-        popAddItem.show(getChildFragmentManager(), "내용추가");
+        // FragmentCalendar를 타겟으로 설정
+        popAddItem.setTargetFragment(this, 0);
+        popAddItem.show(getParentFragmentManager(), "내용추가");
+    }
+
+    // 아이템 추가
+    public void onItemAdded(AmountItem item) {
+        adapter.addItem(item);
+        adapter.notifyDataSetChanged(); // recycler뷰 업데이트
     }
 }

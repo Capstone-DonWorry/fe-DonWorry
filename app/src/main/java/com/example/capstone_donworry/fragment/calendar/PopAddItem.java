@@ -15,15 +15,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.capstone_donworry.R;
 
 public class PopAddItem extends DialogFragment {
 
+    private EditText contentEdit, amountEdit, bankEdit;
+    private CheckBox cardCheck, cashCheck;
     private TextView dateTextView;
+    private View viewLine;
+    private LinearLayout viewLayout;
+    private ItemAddListener itemAddListener;
 
     @Override
     public void onStart() {
@@ -59,6 +66,15 @@ public class PopAddItem extends DialogFragment {
         return dialog;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if(getTargetFragment() instanceof ItemAddListener) {
+            itemAddListener = (ItemAddListener) getTargetFragment();
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -72,13 +88,20 @@ public class PopAddItem extends DialogFragment {
         }
 
         // UI text 설정
-        EditText contentEdit = view.findViewById(R.id.AddContent);
-        EditText amountEdit = view.findViewById(R.id.AddAmount);
-        EditText cardEdit = view.findViewById(R.id.AddCard);
+        contentEdit = view.findViewById(R.id.AddContent);
+        amountEdit = view.findViewById(R.id.AddAmount);
+        cardCheck = view.findViewById(R.id.AddCard);
+        cashCheck = view.findViewById(R.id.AddCash);
+        bankEdit = view.findViewById(R.id.AddBank);
+        viewLine = view.findViewById(R.id.visibleLine);
+        viewLayout = view.findViewById(R.id.visibleLayout);
         dateTextView = view.findViewById(R.id.AddDate);
 
         // TODO:입력 받은 값 받아오기
 
+        // card/cash 체크 박스 선택 시 이벤트
+        cardCheck.setOnClickListener(checkC);
+        cashCheck.setOnClickListener(checkC);
 
         // dateSelect 클릭 시 달력 표시
         LinearLayout dateSelect = view.findViewById(R.id.AddDateSelect);
@@ -94,15 +117,78 @@ public class PopAddItem extends DialogFragment {
         // 버튼 클릭 처리
         view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.AddNEXTBtn).setOnClickListener(v -> {
+            String contents = contentEdit.getText().toString();
+            String amount = amountEdit.getText().toString();
+            String bank = bankEdit.getText().toString();
+            String card = cardCheck.isChecked() ? "카드" : "현금";
+            String date = dateTextView.getText().toString();
+
             PopAddCategory popAddCategory = new PopAddCategory();
-            popAddCategory.show(getChildFragmentManager(), "카테고리 선택");
+
+            // Bundle을 이용한 데이터 전달
+            Bundle args = new Bundle();
+            args.putString("content", contents);
+            args.putString("amount", amount);
+            args.putString("bank", bank);
+            args.putString("card", card);
+            args.putString("date", date);
+            popAddCategory.setArguments(args);
+
+            popAddCategory.setTargetFragment(PopAddItem.this, 0);
+            popAddCategory.show(getParentFragmentManager(), "카테고리 선택");
         });
 
         return view;
     }
 
+    // 체크 박스 이벤트 처리
+    View.OnClickListener checkC = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            boolean checked = ((CheckBox) view).isChecked();
+            int itemID = view.getId();
+
+            if (itemID == R.id.AddCard) {
+                if(checked) {
+                    cashCheck.setChecked(false);
+                    viewLine.setVisibility(View.VISIBLE);
+                    viewLayout.setVisibility(View.VISIBLE);
+                }else {
+                    viewLine.setVisibility(View.GONE);
+                    viewLayout.setVisibility(View.GONE);
+                }
+            } else if (itemID == R.id.AddCash) {
+                if(checked) {
+                    cardCheck.setChecked(false);
+                    viewLine.setVisibility(View.GONE);
+                    viewLayout.setVisibility(View.GONE);
+                    // TODO: 현금 선택 시 기능 설정
+                }else {
+
+                }
+            }
+        }
+    };
+
     // 선택한 날짜로 텍스트 변경
     public void updateDate(String date) {
         dateTextView.setText(date);
+    }
+
+    // 리스너 인터페이스
+    public interface ItemAddListener {
+        void onItemAdded(AmountItem item);
+    }
+
+    // AmountItem 생성
+    public void createAmountItem(String content, String amount, String card, String bank, String date, String category) {
+
+//        Toast.makeText(getActivity(), "createAmountItem"+content + category, Toast.LENGTH_SHORT).show();
+        if (itemAddListener != null) {
+//            Toast.makeText(getActivity(), "null"+content + category, Toast.LENGTH_SHORT).show();
+            AmountItem item = new AmountItem(content, date, card, bank, category, amount);
+            itemAddListener.onItemAdded(item);
+            dismiss();
+        }
     }
 }

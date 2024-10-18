@@ -2,10 +2,10 @@ package com.example.capstone_donworry.fragment.calendar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -17,13 +17,16 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.capstone_donworry.R;
 
 public class PopAddCategory extends DialogFragment {
 
+    private String content, amount, bank, card, date;
     private Button foodBtn, shopBtn, hobbyBtn, hospitalBtn, lifeBtn, vehicleBtn, etcBtn, plusBtn;
-    private Context context;
+    private String selectedCategory;
+    private PopAddItem.ItemAddListener itemAddListener;
 
     @Override
     public void onStart() {
@@ -59,6 +62,18 @@ public class PopAddCategory extends DialogFragment {
         return dialog;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(getArguments() != null) {
+            content = getArguments().getString("content");
+            amount = getArguments().getString("amount");
+            bank = getArguments().getString("bank");
+            card = getArguments().getString("card");
+            date = getArguments().getString("date");
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -85,37 +100,44 @@ public class PopAddCategory extends DialogFragment {
         foodBtn.setOnClickListener(v -> {
             resetCategoryButton();
             foodBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-            foodBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+            foodBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+            selectCategory("식비");
         });
         shopBtn.setOnClickListener(v -> {
             resetCategoryButton();
             shopBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-            shopBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+            shopBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+            selectCategory("쇼핑");
         });
         hobbyBtn.setOnClickListener(v -> {
             resetCategoryButton();
             hobbyBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-            hobbyBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+            hobbyBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+            selectCategory("여가");
         });
         hospitalBtn.setOnClickListener(v -> {
             resetCategoryButton();
             hospitalBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-            hospitalBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+            hospitalBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+            selectCategory("병원");
         });
         lifeBtn.setOnClickListener(v -> {
             resetCategoryButton();
             lifeBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-            lifeBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+            lifeBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+            selectCategory("생활비");
         });
         vehicleBtn.setOnClickListener(v -> {
             resetCategoryButton();
             vehicleBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-            vehicleBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+            vehicleBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+            selectCategory("교통비");
         });
         etcBtn.setOnClickListener(v -> {
             resetCategoryButton();
             etcBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-            etcBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+            etcBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+            selectCategory("기타");
         });
 
         //TODO: 카테고리 입력&저장 기능
@@ -123,11 +145,21 @@ public class PopAddCategory extends DialogFragment {
             resetCategoryButton();
         });
 
+        // ItemAddListener 설정
+        if (getTargetFragment() instanceof PopAddItem.ItemAddListener) {
+            itemAddListener = (PopAddItem.ItemAddListener) getTargetFragment();
+        }
         // 버튼 클릭 처리
         //TODO:확인 버튼 클릭 시 데이터 저장
-        view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.AddBackBtn).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.AddOKBtn).setOnClickListener(v -> {
+            if(getTargetFragment()instanceof PopAddItem) {
+                PopAddItem targetFragment = (PopAddItem) getTargetFragment();
+                targetFragment.createAmountItem(content, amount, card, bank, date, selectedCategory);
 
+//                Toast.makeText(getActivity(), content + selectedCategory, Toast.LENGTH_SHORT).show();
+            }
+            dismiss();
         });
 
         return view;
@@ -135,18 +167,22 @@ public class PopAddCategory extends DialogFragment {
 
     private void resetCategoryButton() {
         foodBtn.setBackgroundResource(R.drawable.round_shape_gray);
-        foodBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+        foodBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
         shopBtn.setBackgroundResource(R.drawable.round_shape_gray);
-        shopBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+        shopBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
         hobbyBtn.setBackgroundResource(R.drawable.round_shape_gray);
-        hobbyBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+        hobbyBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
         hospitalBtn.setBackgroundResource(R.drawable.round_shape_gray);
-        hospitalBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+        hospitalBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
         lifeBtn.setBackgroundResource(R.drawable.round_shape_gray);
-        lifeBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+        lifeBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
         vehicleBtn.setBackgroundResource(R.drawable.round_shape_gray);
-        vehicleBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+        vehicleBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
         etcBtn.setBackgroundResource(R.drawable.round_shape_gray);
-        etcBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+        etcBtn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
+    }
+
+    private void selectCategory (String category) {
+        this.selectedCategory = category;
     }
 }

@@ -56,9 +56,13 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
     public void addItem(AmountItem item){
         items.add(item);
     }
+    public void addItemPo(int po, AmountItem item){
+        items.add(po, item);
+    }
 
-    public void addItems(ArrayList<AmountItem> items) {
-        this.items = items;
+    // item 삭제
+    public void removeItem(int position) {
+        items.remove(position);
     }
 
     public AmountItem getItem(int position) {
@@ -98,7 +102,7 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         }
 
         public void setItem(AmountItem item) {
-            itemName.setText(item.getName());
+            itemName.setText(item.getContent());
             itemCard.setText(item.getCard());
             itemCategory.setText(item.getCategory());
             itemAmount.setText(item.getAmount());

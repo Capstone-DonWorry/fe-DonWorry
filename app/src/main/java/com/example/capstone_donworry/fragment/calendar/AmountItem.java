@@ -3,15 +3,15 @@ package com.example.capstone_donworry.fragment.calendar;
 import java.io.Serializable;
 
 public class AmountItem implements Serializable {
-    String name;
+    String content;
     String date;
     String card;
     String bank;
     String category;
     String amount;
 
-    public AmountItem(String name, String date, String card, String bank, String category, String amount) {
-        this.name = name;
+    public AmountItem(String content, String date, String card, String bank, String category, String amount) {
+        this.content = content;
         this.date = date;
         this.card = card;
         this.bank = bank;
@@ -19,12 +19,12 @@ public class AmountItem implements Serializable {
         this.amount = amount;
     }
 
-    public String getName() {
-        return name;
+    public String getContent() {
+        return content;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getDate() {

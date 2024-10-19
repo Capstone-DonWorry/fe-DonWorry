@@ -1,5 +1,7 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,12 +9,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 
 public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener{
@@ -20,6 +31,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private FragmentCalendarBinding binding;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -64,6 +76,51 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             }
         });
 
+        // TODO: 아이템 삭제
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+
+                switch(direction) {
+                    case ItemTouchHelper.LEFT:
+                        // 삭제할 아이템 담아두기
+                        AmountItem deleteItem = adapter.getItem(position);
+
+                        // 삭제
+                        adapter.removeItem(position);
+                        adapter.notifyItemRemoved(position);
+
+                        // 복구
+                        Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                adapter.addItemPo(position, deleteItem);
+                                adapter.notifyItemInserted(position);
+                            }
+                        }).show();
+                        break;
+                }
+            }
+
+            @Override
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
+                new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), R.color.err_red))
+                                .addSwipeLeftActionIcon(R.drawable.baseline_delete_forever_24)
+                                        .addSwipeLeftLabel("삭제")
+                                                .setSwipeLeftLabelColor(ContextCompat.getColor(getContext(), R.color.white))
+                                                        .create().decorate();
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        }).attachToRecyclerView(recyclerView);
+
         // 추가 버튼 이벤트 처리
         Button addBtn = binding.ButtonAdd;
         addBtn.setOnClickListener(view -> showAddItem());
@@ -88,5 +145,13 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     public void onItemAdded(AmountItem item) {
         adapter.addItem(item);
         adapter.notifyDataSetChanged(); // recycler뷰 업데이트
+    }
+
+    // 캘린더 뷰
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+//        initView();
+//        initViewModel();
     }
 }

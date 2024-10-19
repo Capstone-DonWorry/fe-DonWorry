@@ -95,14 +95,14 @@ public class PopDetailItem extends DialogFragment {
 
         // text 설정
         if (item != null) {
-            nameTextView.setText(item.getName());
+            nameTextView.setText(item.getContent());
             dateTextView.setText(item.getDate());
             cardTextView.setText(item.getCard());
             bankTextView.setText(item.getBank());
             categoryTextView.setText(item.getCategory());
             amountTextView.setText(item.getAmount());
             // 로그 확인
-            Log.d("PopDetailItem", "Setting name: " + item.getName());
+            Log.d("PopDetailItem", "Setting name: " + item.getContent());
             Log.d("PopDetailItem", "Getting name: " + nameTextView.getText());
         }
 

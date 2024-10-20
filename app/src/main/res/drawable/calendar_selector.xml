@@ -2,9 +2,9 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:state_checked="true"
-        android:color="@color/black" />/>
+        android:drawable="@color/transparency" />
 
     <item
         android:state_checked="false"
-        android:color="@color/mid_gray" /> />
+        android:drawable="@color/light_gray" />
 </selector>

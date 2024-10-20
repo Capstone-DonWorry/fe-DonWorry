@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CalendarView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 import com.google.android.material.snackbar.Snackbar;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
@@ -31,6 +36,14 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private FragmentCalendarBinding binding;
+    private AmountAdapter amountListAdapter;
+//    private final ViewModelCalendar viewModelCalendar = new ViewModelCalendar();
+
+    private DayViewDecorator dayViewDecorator;
+    private DayViewDecorator todayViewDecorator;
+    private DayViewDecorator selectedMonthDecorator;
+    private DayViewDecorator sundayDecorator;
+    private DayViewDecorator saturdayDecorator;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -76,7 +89,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             }
         });
 
-        // TODO: 아이템 삭제
+        // 아이템 삭제
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -151,7 +164,44 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        initView();
+        initView();
 //        initViewModel();
     }
+
+    private void initView() {
+//        binding.RecyclerView.setAdapter(amountListAdapter);
+        MaterialCalendarView calendarView = binding.calendarView;
+
+        dayViewDecorator = CalendarDeco.dayViewDecorator(requireContext());
+        todayViewDecorator = CalendarDeco.todayViewDecorator(requireContext());
+        sundayDecorator = CalendarDeco.sundayDecorator();
+        saturdayDecorator = CalendarDeco.saturdayDecorator();
+        selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), CalendarDay.today().getMonth());
+
+        calendarView.addDecorators(dayViewDecorator, todayViewDecorator, sundayDecorator, saturdayDecorator, selectedMonthDecorator);
+
+        calendarView.setOnMonthChangedListener(((widget, date) -> {
+            widget.clearSelection();
+            widget.removeDecorators();
+            widget.invalidateDecorators();
+            selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), date.getMonth());
+            widget.addDecorators(dayViewDecorator, todayViewDecorator, sundayDecorator, saturdayDecorator, selectedMonthDecorator);
+
+            CalendarDay clickedDay = CalendarDay.from(date.getYear(), date.getMonth(), 1);
+            widget.setDateSelected(clickedDay, true);
+//            viewModel.filterScheduleListByDate(date.toLocalDate());
+//            viewModel.filterDataByMonth(date.toLocalDate());
+        }));
+
+        calendarView.setOnDateChangedListener(((widget, date, selected) -> {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                LocalDate localDate = LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
+            }
+//            viewModel.filterScheduleListByDate(localDate);
+        }));
+    }
+
+//    private void initViewModel() {
+//
+//    }
 }

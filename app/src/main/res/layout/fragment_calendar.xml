@@ -131,9 +131,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/CalendarViewCustom"
-        app:mcv_selectionColor="@color/black"
-        app:mcv_showOtherDates="all"
+        app:mcv_dateTextAppearance="@style/CalendarViewDateCustomText"
+        app:mcv_headerTextAppearance="@style/CalendarWidgetHeader"
+        app:mcv_firstDayOfWeek="sunday"
+        app:mcv_selectionColor="@color/mid_blue"
+        app:mcv_selectionMode="single"
+        app:mcv_showOtherDates="none"
         app:mcv_tileSize="53dp"
+        app:mcv_weekDayTextAppearance="@style/CalendarViewWeekCustomText"
+        
         tools:ignore="MissingConstraints" />
 
     <FrameLayout

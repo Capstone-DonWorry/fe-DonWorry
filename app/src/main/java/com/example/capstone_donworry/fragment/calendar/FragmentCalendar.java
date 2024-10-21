@@ -2,7 +2,9 @@ package com.example.capstone_donworry.fragment.calendar;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +25,12 @@ import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -187,15 +191,17 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), date.getMonth());
             widget.addDecorators(dayViewDecorator, todayViewDecorator, sundayDecorator, saturdayDecorator, selectedMonthDecorator);
 
-            CalendarDay clickedDay = CalendarDay.from(date.getYear(), date.getMonth(), 1);
+            CalendarDay clickedDay = CalendarDay.from(date.getYear(), date.getMonth(), date.getDay());
             widget.setDateSelected(clickedDay, true);
 //            viewModel.filterScheduleListByDate(date.toLocalDate());
 //            viewModel.filterDataByMonth(date.toLocalDate());
         }));
 
+        // 날짜 변경 시 처리
         calendarView.setOnDateChangedListener(((widget, date, selected) -> {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 LocalDate localDate = LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
+
             }
 //            viewModel.filterScheduleListByDate(localDate);
         }));

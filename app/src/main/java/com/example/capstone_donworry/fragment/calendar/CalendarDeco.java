@@ -50,7 +50,7 @@ public class CalendarDeco {
             @Override
             public void decorate(DayViewFacade view) {
                 view.setBackgroundDrawable(drawable);
-                view.addSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.board_red)));
+                view.addSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.black)));
             }
         };
     }
@@ -75,6 +75,7 @@ public class CalendarDeco {
     public static DayViewDecorator sundayDecorator () {
         return new DayViewDecorator() {
 
+            private CalendarDay selectedDay;
             @Override
             public boolean shouldDecorate(CalendarDay day) {
                 Calendar calendar = Calendar.getInstance();
@@ -84,7 +85,7 @@ public class CalendarDeco {
 
             @Override
             public void decorate(DayViewFacade view) {
-                view.addSpan(new ForegroundColorSpan(Color.BLUE));
+                view.addSpan(new ForegroundColorSpan(Color.RED));
             }
         };
     }

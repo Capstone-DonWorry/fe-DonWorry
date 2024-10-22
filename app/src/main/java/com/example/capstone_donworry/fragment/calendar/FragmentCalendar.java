@@ -28,9 +28,13 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -41,7 +45,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     AmountAdapter adapter;
     private FragmentCalendarBinding binding;
     private AmountAdapter amountListAdapter;
-//    private final ViewModelCalendar viewModelCalendar = new ViewModelCalendar();
+    private HashMap<CalendarDay, ArrayList<AmountItem>> amountMap;
 
     private DayViewDecorator dayViewDecorator;
     private DayViewDecorator todayViewDecorator;
@@ -68,12 +72,12 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 데이터 추가
         adapter.addItem(new AmountItem("가게1", "2024-10-01", "카드", "우리은행", "음식", "10000"));
-        adapter.addItem(new AmountItem("가게2", "2024-10-02", "현금", "국민은행", "간식", "8000"));
+        adapter.addItem(new AmountItem("가게2", "2024-10-02", "현금", "", "간식", "8000"));
         adapter.addItem(new AmountItem("가게3", "2024-10-03", "카드", "카카오뱅크", "병원", "15000"));
         adapter.addItem(new AmountItem("가게4", "2024-10-04", "카드", "신한은행", "쇼핑", "100000"));
-        adapter.addItem(new AmountItem("가게5", "2024-10-05", "현금", "농협은행", "음식", "14000"));
-        adapter.addItem(new AmountItem("가게6", "2024-10-06", "현금", "하나은행", "교통비", "1200"));
-        adapter.addItem(new AmountItem("가게7", "2024-10-07", "현금", "기업은행", "관리비", "90000"));
+        adapter.addItem(new AmountItem("가게5", "2024-10-05", "현금", "", "음식", "14000"));
+        adapter.addItem(new AmountItem("가게6", "2024-10-06", "현금", "", "교통비", "1200"));
+        adapter.addItem(new AmountItem("가게7", "2024-10-07", "현금", "", "관리비", "90000"));
         adapter.addItem(new AmountItem("가게8", "2024-10-08", "카드", "우리은행", "생활", "150000"));
 
         // 아이템 이벤트 처리
@@ -158,6 +162,9 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         popAddItem.show(getParentFragmentManager(), "내용추가");
     }
 
+
+
+
     // 아이템 추가
     public void onItemAdded(AmountItem item) {
         adapter.addItem(item);
@@ -182,6 +189,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         saturdayDecorator = CalendarDeco.saturdayDecorator();
         selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), CalendarDay.today().getMonth());
 
+        amountMap = new HashMap<>();
+
         calendarView.addDecorators(dayViewDecorator, todayViewDecorator, sundayDecorator, saturdayDecorator, selectedMonthDecorator);
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
@@ -201,11 +210,16 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         calendarView.setOnDateChangedListener(((widget, date, selected) -> {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 LocalDate localDate = LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
-
+                PopShowDaylist popShowDaylist = new PopShowDaylist();
+                popShowDaylist.show(getParentFragmentManager(), "특정날짜");
             }
 //            viewModel.filterScheduleListByDate(localDate);
         }));
+
+
     }
+
+
 
 //    private void initViewModel() {
 //

@@ -1,15 +1,11 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CalendarView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,16 +21,10 @@ import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
-import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -44,20 +34,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private FragmentCalendarBinding binding;
-    private AmountAdapter amountListAdapter;
-    private HashMap<CalendarDay, ArrayList<AmountItem>> amountMap;
+    private HashMap<String, ArrayList<AmountItem>> amountMap;
 
-    private DayViewDecorator dayViewDecorator;
     private DayViewDecorator todayViewDecorator;
-    private DayViewDecorator selectedMonthDecorator;
     private DayViewDecorator sundayDecorator;
     private DayViewDecorator saturdayDecorator;
 
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        ViewModelCalendar viewModelCalendar =
-                new ViewModelProvider(this).get(ViewModelCalendar.class);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ViewModelCalendar viewModelCalendar = new ViewModelProvider(this).get(ViewModelCalendar.class);
 
         binding = FragmentCalendarBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -70,7 +55,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         // adapter 설정
         adapter = new AmountAdapter(getActivity().getApplicationContext());
 
-        // 데이터 추가
+        // 예시 데이터 추가
         adapter.addItem(new AmountItem("가게1", "2024-10-01", "카드", "우리은행", "음식", "10000"));
         adapter.addItem(new AmountItem("가게2", "2024-10-02", "현금", "", "간식", "8000"));
         adapter.addItem(new AmountItem("가게3", "2024-10-03", "카드", "카카오뱅크", "병원", "15000"));
@@ -166,9 +151,16 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
 
     // 아이템 추가
-    public void onItemAdded(AmountItem item) {
-        adapter.addItem(item);
-        adapter.notifyDataSetChanged(); // recycler뷰 업데이트
+    public void onItemAdded(String date, AmountItem item) {
+        amountMap.putIfAbsent(date, new ArrayList<>());
+        amountMap.get(date).add(item);
+        // recycler뷰 업데이트
+        updateRecycler(date);
+    }
+
+    private void updateRecycler(String date) {
+        ArrayList<AmountItem> item = amountMap.get(date);
+        adapter.addItems(item != null ? item : new ArrayList<>());
     }
 
     // 캘린더 뷰
@@ -183,22 +175,22 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 //        binding.RecyclerView.setAdapter(amountListAdapter);
         MaterialCalendarView calendarView = binding.calendarView;
 
-        dayViewDecorator = CalendarDeco.dayViewDecorator(requireContext());
+//        dayViewDecorator = CalendarDeco.dayViewDecorator(requireContext());
         todayViewDecorator = CalendarDeco.todayViewDecorator(requireContext());
         sundayDecorator = CalendarDeco.sundayDecorator();
         saturdayDecorator = CalendarDeco.saturdayDecorator();
-        selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), CalendarDay.today().getMonth());
+//        selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), CalendarDay.today().getMonth());
 
         amountMap = new HashMap<>();
 
-        calendarView.addDecorators(dayViewDecorator, todayViewDecorator, sundayDecorator, saturdayDecorator, selectedMonthDecorator);
+        calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
             widget.clearSelection();
             widget.removeDecorators();
             widget.invalidateDecorators();
-            selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), date.getMonth());
-            widget.addDecorators(dayViewDecorator, todayViewDecorator, sundayDecorator, saturdayDecorator, selectedMonthDecorator);
+//            selectedMonthDecorator = CalendarDeco.selectedMonthDecorator(requireContext(), date.getMonth());
+            widget.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
 
             CalendarDay clickedDay = CalendarDay.from(date.getYear(), date.getMonth(), date.getDay());
             widget.setDateSelected(clickedDay, true);
@@ -208,18 +200,17 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 날짜 변경 시 처리
         calendarView.setOnDateChangedListener(((widget, date, selected) -> {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                LocalDate localDate = LocalDate.of(date.getYear(), date.getMonth(), date.getDay());
-                PopShowDaylist popShowDaylist = new PopShowDaylist();
-                popShowDaylist.show(getParentFragmentManager(), "특정날짜");
-            }
-//            viewModel.filterScheduleListByDate(localDate);
+            showDateAmount(date);
         }));
 
 
     }
 
-
+    private void showDateAmount(CalendarDay date) {
+        ArrayList<AmountItem> dateAmount = amountMap.get(date);
+            PopShowDaylist popShowDaylist = new PopShowDaylist(dateAmount);
+            popShowDaylist.show(getChildFragmentManager(), "특정날짜");
+    }
 
 //    private void initViewModel() {
 //

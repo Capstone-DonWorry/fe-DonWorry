@@ -1,5 +1,6 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
+import com.example.capstone_donworry.databinding.PopShowDaylistBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
@@ -35,11 +37,14 @@ public class PopShowDaylist  extends DialogFragment {
 
     RecyclerView recyclerView;
     AmountAdapter adapter;
-    private FragmentCalendarBinding binding;
+    private PopShowDaylistBinding binding;
 
     private CalendarDay selectedDate;
-    private HashMap<CalendarDay, ArrayList<AmountItem>> amountMap;
+    private ArrayList<AmountItem> amountList;
 
+    public PopShowDaylist(ArrayList<AmountItem> amountItems) {
+        this.amountList = amountItems;
+    }
     @Override
     public void onStart() {
         super.onStart();
@@ -86,19 +91,28 @@ public class PopShowDaylist  extends DialogFragment {
             Log.d("PopAddItem", "View inflated successfully");
         }
 
-        binding = FragmentCalendarBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        binding = PopShowDaylistBinding.bind(view);
 
         // recyclerView 설정
-        recyclerView = binding.RecyclerView;
+        recyclerView = binding.DayRecyclerView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
         // adapter 설정
         adapter = new AmountAdapter(getActivity().getApplicationContext());
 
-        // 아이템 이벤트 처리
         recyclerView.setAdapter(adapter);
+        // 예시 데이터 추가
+        adapter.addItem(new AmountItem("가게1", "2024-10-01", "카드", "우리은행", "음식", "10000"));
+        adapter.addItem(new AmountItem("가게2", "2024-10-01", "현금", "", "간식", "8000"));
+        adapter.addItem(new AmountItem("가게3", "2024-10-01", "카드", "카카오뱅크", "병원", "15000"));
+        adapter.addItem(new AmountItem("가게4", "2024-10-01", "카드", "신한은행", "쇼핑", "100000"));
+        adapter.addItem(new AmountItem("가게5", "2024-10-01", "현금", "", "음식", "14000"));
+        adapter.addItem(new AmountItem("가게6", "2024-10-01", "현금", "", "교통비", "1200"));
+        adapter.addItem(new AmountItem("가게7", "2024-10-01", "현금", "", "관리비", "90000"));
+        adapter.addItem(new AmountItem("가게8", "2024-10-01", "카드", "우리은행", "생활", "150000"));
+
+        // 아이템 이벤트 처리
         adapter.setOnClickListener(new AmountAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(AmountAdapter.ViewHolder holder, View view, int position) {
@@ -159,9 +173,6 @@ public class PopShowDaylist  extends DialogFragment {
             }
         }).attachToRecyclerView(recyclerView);
 
-
-        amountMap = new HashMap<>();
-
         // 버튼 클릭 처리
         view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.AddADDBtn).setOnClickListener(v -> {
@@ -171,14 +182,14 @@ public class PopShowDaylist  extends DialogFragment {
             popAddItem.show(getParentFragmentManager(), "내용추가");
         });
 
-        return view;
+        return binding.getRoot();
     }
 
     // 아이템 추가
     public void onItemAdded(AmountItem item) {
-        if (selectedDate != null) {
-            addExpense(selectedDate, item);
-        }
+//        if (selectedDate != null) {
+//            addExpense(selectedDate, item);
+//        }
 //        adapter.addItem(item);
         adapter.notifyDataSetChanged(); // recycler뷰 업데이트
     }
@@ -186,20 +197,20 @@ public class PopShowDaylist  extends DialogFragment {
     private void updateRecyclerView(CalendarDay date) {
 //        adapter.items.clear();
 
-        if (amountMap.containsKey(date)) {
-            ArrayList<AmountItem> items = amountMap.get(date);
-            for (AmountItem item : items) {
-                adapter.addItem(item);
-            }
-        }
+//        if (amountMap.containsKey(date)) {
+//            ArrayList<AmountItem> items = amountMap.get(date);
+//            for (AmountItem item : items) {
+//                adapter.addItem(item);
+//            }
+//        }
         // RecyclerView 업데이트
         adapter.notifyDataSetChanged();
     }
 
     // 지출 추가하는 메소드
     private void addExpense(CalendarDay date, AmountItem item) {
-        amountMap.putIfAbsent(date, new ArrayList<>());
-        amountMap.get(date).add(item);
-        updateRecyclerView(date);
+//        amountMap.putIfAbsent(date, new ArrayList<>());
+//        amountMap.get(date).add(item);
+//        updateRecyclerView(date);
     }
 }

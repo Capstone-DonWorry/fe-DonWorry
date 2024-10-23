@@ -19,10 +19,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.capstone_donworry.R;
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 public class PopAddItem extends DialogFragment {
 
@@ -178,7 +176,7 @@ public class PopAddItem extends DialogFragment {
 
     // 리스너 인터페이스
     public interface ItemAddListener {
-        void onItemAdded(AmountItem item);
+        void onItemAdded(String date, AmountItem item);
     }
 
     // AmountItem 생성
@@ -188,7 +186,7 @@ public class PopAddItem extends DialogFragment {
         if (itemAddListener != null) {
 //            Toast.makeText(getActivity(), "null"+content + category, Toast.LENGTH_SHORT).show();
             AmountItem item = new AmountItem(content, date, card, bank, category, amount);
-            itemAddListener.onItemAdded(item);
+            itemAddListener.onItemAdded(date, item);
             dismiss();
         }
     }

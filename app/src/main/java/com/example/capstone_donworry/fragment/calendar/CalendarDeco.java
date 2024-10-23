@@ -18,24 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 
 public class CalendarDeco {
-    // 날짜 표시
-    public static DayViewDecorator dayViewDecorator (Context context) {
-        return new DayViewDecorator() {
-//            private final Drawable drawable = ContextCompat.getDrawable(context, R.drawable.calendar_selector);
-
-            // 모든 날짜를 띄울 때 데코레이션이 필요한지 판단
-            @Override
-            public boolean shouldDecorate(CalendarDay day) {
-                return true;
-            }
-
-            @Override
-            public void decorate(DayViewFacade view) {
-//                view.setSelectionDrawable(drawable);
-            }
-        };
-    }
-
     // 현재 날짜
     public static DayViewDecorator todayViewDecorator (Context context) {
         return new DayViewDecorator() {
@@ -51,22 +33,6 @@ public class CalendarDeco {
             public void decorate(DayViewFacade view) {
                 view.setBackgroundDrawable(drawable);
                 view.addSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.black)));
-            }
-        };
-    }
-
-    // 다른 달의 날짜
-    public static DayViewDecorator selectedMonthDecorator (Context context, int selectedMonth) {
-        return new DayViewDecorator() {
-
-            @Override
-            public boolean shouldDecorate(CalendarDay day) {
-                return day.getMonth() != selectedMonth;
-            }
-
-            @Override
-            public void decorate(DayViewFacade view) {
-                view.addSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)));
             }
         };
     }

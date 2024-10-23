@@ -59,6 +59,10 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
     public void addItemPo(int po, AmountItem item){
         items.add(po, item);
     }
+    public void addItems(ArrayList<AmountItem> item){
+        items=item;
+        notifyDataSetChanged();
+    }
 
     // item 삭제
     public void removeItem(int position) {

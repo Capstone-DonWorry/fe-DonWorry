@@ -189,10 +189,10 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             ArrayList<AmountItem> existingItems = adapter.getItems();
 
             for (AmountItem newItem : item) {
-                boolean exists = existingItems.stream().anyMatch(existingItem -> existingItem.getDate().equals(newItem.getDate())
-                && existingItem.getContent().equals(newItem.getContent()));
-
-                if (!exists) {
+                int index = existingItems.indexOf(newItem);
+                if (index != -1) {
+                    existingItems.set(index, newItem);
+                } else {
                     adapter.addItem(newItem);
                 }
             }

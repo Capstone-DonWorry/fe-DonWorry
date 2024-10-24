@@ -1,6 +1,5 @@
 package com.example.capstone_donworry.fragment.calendar;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,13 +22,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstone_donworry.R;
-import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 import com.example.capstone_donworry.databinding.PopShowDaylistBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -203,6 +200,13 @@ public class PopShowDaylist  extends DialogFragment {
 //                adapter.addItem(item);
 //            }
 //        }
+//
+//        // 리사이클러 뷰 업데이트
+//        private void updateRecycler(String date) {
+//            ArrayList<AmountItem> item = amountMap.get(date);
+//            adapter.addItems(item != null ? item : new ArrayList<>());
+//        }
+//
         // RecyclerView 업데이트
         adapter.notifyDataSetChanged();
     }

@@ -60,7 +60,7 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         items.add(po, item);
     }
     public void addItems(ArrayList<AmountItem> item){
-        items=item;
+        items.addAll(item);
         notifyDataSetChanged();
     }
 
@@ -69,8 +69,22 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         items.remove(position);
     }
 
+    public void clearItems() {
+        items.clear();
+        notifyDataSetChanged();
+    }
+
     public AmountItem getItem(int position) {
         return items.get(position);
+    }
+
+    public ArrayList<AmountItem> getItems() {
+        return items;
+    }
+
+    public void updateItems(ArrayList<AmountItem> newItems) {
+        this.items = newItems;
+        notifyDataSetChanged();
     }
 
     public void setOnClickListener(OnItemClickListener listener) {

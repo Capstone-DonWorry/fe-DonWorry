@@ -78,6 +78,15 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         return items.get(position);
     }
 
+    public ArrayList<AmountItem> getItems() {
+        return items;
+    }
+
+    public void updateItems(ArrayList<AmountItem> newItems) {
+        this.items = newItems;
+        notifyDataSetChanged();
+    }
+
     public void setOnClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }

@@ -184,12 +184,23 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     // 리사이클러 뷰 업데이트
     private void updateRecycler(String date) {
         ArrayList<AmountItem> item = amountMap.get(date);
-        // 날짜 순서로 정렬
-        Collections.sort(item, (item1, item2) ->
-                item1.getDate().compareTo(item2.getDate()));
 
-        if (item != null && !item.isEmpty()){
-            adapter.addItems(item);
+        if (item != null){
+            ArrayList<AmountItem> existingItems = adapter.getItems();
+
+            for (AmountItem newItem : item) {
+                boolean exists = existingItems.stream().anyMatch(existingItem -> existingItem.getDate().equals(newItem.getDate())
+                && existingItem.getContent().equals(newItem.getContent()));
+
+                if (!exists) {
+                    adapter.addItem(newItem);
+                }
+            }
+            // 날짜 순서로 정렬
+            Collections.sort(item, (item1, item2) ->
+                    item1.getDate().compareTo(item2.getDate()));
+
+            adapter.updateItems(existingItems);
         }
     }
 

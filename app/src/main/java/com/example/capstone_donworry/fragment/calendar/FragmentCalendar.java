@@ -2,10 +2,12 @@ package com.example.capstone_donworry.fragment.calendar;
 
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -226,7 +228,9 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     }
 
     private void showDateAmount(CalendarDay date) {
-        PopShowDaylist popShowDaylist = new PopShowDaylist(amountMap.get(date));
+        String dateKey = date.toString();
+//        Toast.makeText(getActivity(), amountMap.get(dateKey).toString(), Toast.LENGTH_SHORT).show();
+        PopShowDaylist popShowDaylist = new PopShowDaylist(amountMap.get(dateKey));
         popShowDaylist.show(getChildFragmentManager(), "특정날짜");
     }
 

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -89,7 +90,7 @@ public class PopShowDaylist  extends DialogFragment {
         }
 
         binding = PopShowDaylistBinding.bind(view);
-
+//        Toast.makeText(getActivity(), amountList.toString(), Toast.LENGTH_SHORT).show();
         // recyclerView 설정
         recyclerView = binding.DayRecyclerView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);

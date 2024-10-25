@@ -186,21 +186,21 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         ArrayList<AmountItem> item = amountMap.get(date);
 
         if (item != null){
-            ArrayList<AmountItem> existingItems = adapter.getItems();
+            ArrayList<AmountItem> existItems = adapter.getItems();
 
             for (AmountItem newItem : item) {
-                int index = existingItems.indexOf(newItem);
+                int index = existItems.indexOf(newItem);
                 if (index != -1) {
-                    existingItems.set(index, newItem);
+                    existItems.set(index, newItem);
                 } else {
-                    adapter.addItem(newItem);
+                    existItems.add(newItem);
                 }
             }
             // 날짜 순서로 정렬
-            Collections.sort(item, (item1, item2) ->
+            Collections.sort(existItems, (item1, item2) ->
                     item1.getDate().compareTo(item2.getDate()));
 
-            adapter.updateItems(existingItems);
+            adapter.updateItems(existItems);
         }
     }
 
@@ -223,8 +223,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         calendarView.setOnDateChangedListener(((widget, date, selected) -> {
             showDateAmount(date);
         }));
-
-
     }
 
     private void showDateAmount(CalendarDay date) {

@@ -25,7 +25,7 @@ public class PopDetailItem extends DialogFragment {
     public static PopDetailItem newInstance(AmountItem item){
         PopDetailItem fragment = new PopDetailItem();
         Bundle args = new Bundle();
-        args.putSerializable(DETAIL_ITEM, item); // 아이템 데이터 전달
+        args.putParcelable(DETAIL_ITEM, item); // 아이템 데이터 전달
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,7 +79,7 @@ public class PopDetailItem extends DialogFragment {
             Log.d("PopDetailItem", "View inflated successfully");
         }
 
-        AmountItem item = (AmountItem) getArguments().getSerializable(DETAIL_ITEM);
+        AmountItem item = (AmountItem) getArguments().getParcelable(DETAIL_ITEM);
 
 
         // 로그 출력

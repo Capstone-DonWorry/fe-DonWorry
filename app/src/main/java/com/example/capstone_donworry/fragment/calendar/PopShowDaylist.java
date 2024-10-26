@@ -37,12 +37,24 @@ public class PopShowDaylist  extends DialogFragment {
     AmountAdapter adapter;
     private PopShowDaylistBinding binding;
 
-    private CalendarDay selectedDate;
     private ArrayList<AmountItem> amountList;
 
-    public PopShowDaylist(ArrayList<AmountItem> amountItems) {
-        this.amountList = amountItems;
+    public static PopShowDaylist newInstance(ArrayList<AmountItem> amountDay) {
+        PopShowDaylist popShowDaylist = new PopShowDaylist();
+        Bundle args = new Bundle();
+        args.putParcelableArrayList("amountDay", amountDay);
+        popShowDaylist.setArguments(args);
+        return popShowDaylist;
     }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(getArguments() != null) {
+            amountList = getArguments().getParcelableArrayList("amountDay");
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -90,7 +102,7 @@ public class PopShowDaylist  extends DialogFragment {
         }
 
         binding = PopShowDaylistBinding.bind(view);
-//        Toast.makeText(getActivity(), amountList.toString(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), amountList.toString(), Toast.LENGTH_SHORT).show();
         // recyclerView 설정
         recyclerView = binding.DayRecyclerView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
@@ -100,15 +112,6 @@ public class PopShowDaylist  extends DialogFragment {
         adapter = new AmountAdapter(getActivity().getApplicationContext());
 
         recyclerView.setAdapter(adapter);
-        // 예시 데이터 추가
-        adapter.addItem(new AmountItem("가게1", "2024-10-01", "카드", "우리은행", "음식", "10000"));
-        adapter.addItem(new AmountItem("가게2", "2024-10-01", "현금", "", "간식", "8000"));
-        adapter.addItem(new AmountItem("가게3", "2024-10-01", "카드", "카카오뱅크", "병원", "15000"));
-        adapter.addItem(new AmountItem("가게4", "2024-10-01", "카드", "신한은행", "쇼핑", "100000"));
-        adapter.addItem(new AmountItem("가게5", "2024-10-01", "현금", "", "음식", "14000"));
-        adapter.addItem(new AmountItem("가게6", "2024-10-01", "현금", "", "교통비", "1200"));
-        adapter.addItem(new AmountItem("가게7", "2024-10-01", "현금", "", "관리비", "90000"));
-        adapter.addItem(new AmountItem("가게8", "2024-10-01", "카드", "우리은행", "생활", "150000"));
 
         // 아이템 이벤트 처리
         adapter.setOnClickListener(new AmountAdapter.OnItemClickListener() {
@@ -183,15 +186,6 @@ public class PopShowDaylist  extends DialogFragment {
         return binding.getRoot();
     }
 
-    // 아이템 추가
-    public void onItemAdded(AmountItem item) {
-//        if (selectedDate != null) {
-//            addExpense(selectedDate, item);
-//        }
-//        adapter.addItem(item);
-        adapter.notifyDataSetChanged(); // recycler뷰 업데이트
-    }
-
     private void updateRecyclerView(CalendarDay date) {
 //        adapter.items.clear();
 
@@ -210,12 +204,5 @@ public class PopShowDaylist  extends DialogFragment {
 //
         // RecyclerView 업데이트
         adapter.notifyDataSetChanged();
-    }
-
-    // 지출 추가하는 메소드
-    private void addExpense(CalendarDay date, AmountItem item) {
-//        amountMap.putIfAbsent(date, new ArrayList<>());
-//        amountMap.get(date).add(item);
-//        updateRecyclerView(date);
     }
 }

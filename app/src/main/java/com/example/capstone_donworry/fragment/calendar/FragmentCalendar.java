@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,7 +28,6 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -38,6 +39,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private MaterialCalendarView calendarView;
+    private CheckBox checkBoxCard;
+    private CheckBox checkBoxCash;
     private FragmentCalendarBinding binding;
     private HashMap<String, ArrayList<AmountItem>> amountMap;
 
@@ -68,15 +71,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         currentYear = calendarDay.getYear();
         currentMonth = calendarDay.getMonth();
 
-        // 예시 데이터 추가
-        adapter.addItem(new AmountItem("가게1", "2024-10-01", "카드", "우리은행", "음식", "10000"));
-        adapter.addItem(new AmountItem("가게2", "2024-10-02", "현금", "", "간식", "8000"));
-        adapter.addItem(new AmountItem("가게3", "2024-10-03", "카드", "카카오뱅크", "병원", "15000"));
-        adapter.addItem(new AmountItem("가게4", "2024-10-04", "카드", "신한은행", "쇼핑", "100000"));
-        adapter.addItem(new AmountItem("가게5", "2024-10-05", "현금", "", "음식", "14000"));
-        adapter.addItem(new AmountItem("가게6", "2024-10-06", "현금", "", "교통비", "1200"));
-        adapter.addItem(new AmountItem("가게7", "2024-10-07", "현금", "", "관리비", "90000"));
-        adapter.addItem(new AmountItem("가게8", "2024-10-08", "카드", "우리은행", "생활", "150000"));
+        // CheckBox
+        checkBoxCard = binding.CheckBoxCard;
+        checkBoxCash = binding.CheckBoxCash;
+
+        checkBoxCard.setChecked(true);
+        checkBoxCash.setChecked(true);
+
+        checkBoxCard.setOnCheckedChangeListener((buttonView, isChecked) -> sumTotalExpense());
+        checkBoxCash.setOnCheckedChangeListener((buttonView, isChecked) -> sumTotalExpense());
 
         // 아이템 이벤트 처리
         recyclerView.setAdapter(adapter);
@@ -85,6 +88,11 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             public void onItemClick(AmountAdapter.ViewHolder holder, View view, int position) {
                 AmountItem item = adapter.getItem(position);
 
+                if (item != null) {
+                    Log.d("FragmentCalendar", "Clicked item: " + item.getContent());
+                } else {
+                    Log.d("FragmentCalendar", "Item is null");
+                }
                 // 아이템 클릭시 팝업 창 띄우기
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
                 popDetail.show(getChildFragmentManager(), "세부내역");
@@ -204,6 +212,26 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
             adapter.updateItems(existItems);
         }
+
+        sumTotalExpense();
+    }
+
+    private void sumTotalExpense() {
+        int total = 0;
+        boolean isCardChecked = checkBoxCard.isChecked();
+        boolean isCashChecked = checkBoxCash.isChecked();
+
+        for (AmountItem item : adapter.getItems()) {
+            int amountValue = Integer.parseInt(item.getAmount().replace("원", "").trim());
+
+            if ((isCardChecked && item.getCard().equals("카드")) ||
+                    (isCashChecked && item.getCard().equals("현금")) ||
+                    (isCardChecked && isCashChecked)) {
+                total += amountValue;
+            }
+        }
+        TextView totalExpenseTV = binding.TotalExpense;
+        totalExpenseTV.setText(total + "원");
     }
 
     private void initView() {
@@ -229,9 +257,12 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
     private void showDateAmount(CalendarDay date) {
         String dateKey = date.toString();
-//        Toast.makeText(getActivity(), amountMap.get(dateKey).toString(), Toast.LENGTH_SHORT).show();
-        PopShowDaylist popShowDaylist = new PopShowDaylist(amountMap.get(dateKey));
-        popShowDaylist.show(getChildFragmentManager(), "특정날짜");
+        ArrayList<AmountItem> amountList = amountMap.get(dateKey);
+
+        if (amountList != null){
+            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance(amountList);
+            popShowDaylist.show(getChildFragmentManager(), "특정날짜");
+        }
     }
 
     private void showMonthAmount(CalendarDay date) {
@@ -255,6 +286,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         adapter.clearItems();
         adapter.addItems(dateAmount);
+
+        sumTotalExpense(); // 월 별경 시 총 금액 변경
     }
 
 }

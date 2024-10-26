@@ -1,8 +1,13 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
-public class AmountItem implements Serializable {
+public class AmountItem implements Parcelable {
     String content;
     String date;
     String card;
@@ -18,6 +23,27 @@ public class AmountItem implements Serializable {
         this.category = category;
         this.amount = amount;
     }
+
+    protected AmountItem(Parcel in) {
+        content = in.readString();
+        date = in.readString();
+        card = in.readString();
+        bank = in.readString();
+        category = in.readString();
+        amount = in.readString();
+    }
+
+    public static final Creator<AmountItem> CREATOR = new Creator<AmountItem>() {
+        @Override
+        public AmountItem createFromParcel(Parcel in) {
+            return new AmountItem(in);
+        }
+
+        @Override
+        public AmountItem[] newArray(int size) {
+            return new AmountItem[size];
+        }
+    };
 
     public String getContent() {
         return content;
@@ -67,4 +93,18 @@ public class AmountItem implements Serializable {
         this.amount = amount;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeString(content);
+        parcel.writeString(date);
+        parcel.writeString(card);
+        parcel.writeString(bank);
+        parcel.writeString(category);
+        parcel.writeString(amount);
+    }
 }

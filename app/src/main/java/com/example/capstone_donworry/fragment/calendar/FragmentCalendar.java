@@ -88,6 +88,11 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             public void onItemClick(AmountAdapter.ViewHolder holder, View view, int position) {
                 AmountItem item = adapter.getItem(position);
 
+                if (item != null) {
+                    Log.d("FragmentCalendar", "Clicked item: " + item.getContent());
+                } else {
+                    Log.d("FragmentCalendar", "Item is null");
+                }
                 // 아이템 클릭시 팝업 창 띄우기
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
                 popDetail.show(getChildFragmentManager(), "세부내역");

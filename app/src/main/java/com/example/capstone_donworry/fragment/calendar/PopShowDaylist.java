@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,11 +39,13 @@ public class PopShowDaylist  extends DialogFragment {
     private PopShowDaylistBinding binding;
 
     private ArrayList<AmountItem> amountList;
+    private String selectDate;
 
-    public static PopShowDaylist newInstance(ArrayList<AmountItem> amountDay) {
+    public static PopShowDaylist newInstance(ArrayList<AmountItem> amountDay, String date) {
         PopShowDaylist popShowDaylist = new PopShowDaylist();
         Bundle args = new Bundle();
         args.putParcelableArrayList("amountDay", amountDay);
+        args.putString("selectDate", date);
         popShowDaylist.setArguments(args);
         return popShowDaylist;
     }
@@ -52,6 +55,7 @@ public class PopShowDaylist  extends DialogFragment {
         super.onCreate(savedInstanceState);
         if(getArguments() != null) {
             amountList = getArguments().getParcelableArrayList("amountDay");
+            selectDate = getArguments().getString("selectDate");
         }
     }
 
@@ -102,7 +106,7 @@ public class PopShowDaylist  extends DialogFragment {
         }
 
         binding = PopShowDaylistBinding.bind(view);
-        Toast.makeText(getActivity(), amountList.toString(), Toast.LENGTH_SHORT).show();
+
         // recyclerView 설정
         recyclerView = binding.DayRecyclerView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
@@ -112,6 +116,12 @@ public class PopShowDaylist  extends DialogFragment {
         adapter = new AmountAdapter(getActivity().getApplicationContext());
 
         recyclerView.setAdapter(adapter);
+
+        // 날짜 입력
+        TextView dateTextView = binding.DayTextView;
+        dateTextView.setText(selectDate);
+
+        updateRecyclerView();
 
         // 아이템 이벤트 처리
         adapter.setOnClickListener(new AmountAdapter.OnItemClickListener() {
@@ -186,22 +196,13 @@ public class PopShowDaylist  extends DialogFragment {
         return binding.getRoot();
     }
 
-    private void updateRecyclerView(CalendarDay date) {
-//        adapter.items.clear();
+    private void updateRecyclerView() {
+        adapter.items.clear();
 
-//        if (amountMap.containsKey(date)) {
-//            ArrayList<AmountItem> items = amountMap.get(date);
-//            for (AmountItem item : items) {
-//                adapter.addItem(item);
-//            }
-//        }
-//
-//        // 리사이클러 뷰 업데이트
-//        private void updateRecycler(String date) {
-//            ArrayList<AmountItem> item = amountMap.get(date);
-//            adapter.addItems(item != null ? item : new ArrayList<>());
-//        }
-//
+        for (AmountItem item : amountList) {
+            adapter.addItem(item);
+        }
+
         // RecyclerView 업데이트
         adapter.notifyDataSetChanged();
     }

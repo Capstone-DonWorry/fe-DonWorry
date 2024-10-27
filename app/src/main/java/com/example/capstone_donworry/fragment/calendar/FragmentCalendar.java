@@ -1,6 +1,8 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,9 +29,17 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -212,8 +222,9 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
             adapter.updateItems(existItems);
         }
-
+        // 총 금액 업데이트
         sumTotalExpense();
+
     }
 
     private void sumTotalExpense() {
@@ -242,11 +253,19 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         amountMap = new HashMap<>();
 
         calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
+        Collection<String> dates = new ArrayList<>();
+
+        // 예를 들어 2024년 10월 27일을 추가합니다.
+        dates.add("2024-10-1");
+        dates.add("2024-10-13");
+
+        calendarView.addDecorator(new CalendarTextDeco(Color.RED, dates));
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
             currentYear = date.getYear();
             currentMonth = date.getMonth();
             showMonthAmount(date);
+            sumTotalExpense(); // 월 별경 시 총 금액 변경
         }));
 
         // 날짜 변경 시 처리
@@ -256,12 +275,20 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     }
 
     private void showDateAmount(CalendarDay date) {
-        String dateKey = date.toString();
+        String dateKey = date.getYear() +"-"+ date.getMonth() +"-"+ date.getDay();
         ArrayList<AmountItem> amountList = amountMap.get(dateKey);
 
         if (amountList != null){
-            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance(amountList);
+            Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
+            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance(amountList, dateKey);
             popShowDaylist.show(getChildFragmentManager(), "특정날짜");
+        }
+        else {
+            Log.d("showDateAmount", "null amountList");
+        }
+        for (String key : amountMap.keySet()) {
+            Log.d("AmountMap", "Key: " + key + ", Value: " + amountMap.get(key));
+            Log.d("AmountMap", "dateKey: " + dateKey + ", Value: " + amountList);
         }
     }
 
@@ -286,8 +313,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         adapter.clearItems();
         adapter.addItems(dateAmount);
-
-        sumTotalExpense(); // 월 별경 시 총 금액 변경
     }
 
 }

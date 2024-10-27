@@ -2,6 +2,8 @@ package com.example.capstone_donworry.fragment.calendar;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.style.ForegroundColorSpan;
 
@@ -14,10 +16,16 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 public class CalendarDeco {
+
+    private static final HashMap<CalendarDay, String> dateTextMap = new HashMap<>();
+    public static void addText(CalendarDay day, String text) {
+        dateTextMap.put(day, text);
+    }
     // 현재 날짜
     public static DayViewDecorator todayViewDecorator (Context context) {
         return new DayViewDecorator() {
@@ -70,22 +78,6 @@ public class CalendarDeco {
             @Override
             public void decorate(DayViewFacade view) {
                 view.addSpan(new ForegroundColorSpan(Color.BLUE));
-            }
-        };
-    }
-
-    // 이벤트가 있는 날짜 표시
-    public static DayViewDecorator eventDecorator (Context context, List<AmountItem> amountItemList) {
-        return new DayViewDecorator() {
-            private final HashSet<CalendarDay> eventDates = new HashSet<>();
-            @Override
-            public boolean shouldDecorate(CalendarDay day) {
-                return eventDates.contains(day);
-            }
-
-            @Override
-            public void decorate(DayViewFacade view) {
-                view.addSpan(new DotSpan(10F, ContextCompat.getColor(context, R.color.mid_blue)));
             }
         };
     }

@@ -10,11 +10,11 @@ import java.util.HashSet;
 
 public class CalendarTextDeco implements DayViewDecorator {
     private final int color;
-    private final HashSet<String> dates;
+    private final String dates;
 
-    public CalendarTextDeco(int color, Collection<String> dates) {
+    public CalendarTextDeco(int color, String dates) {
         this.color = color;
-        this.dates = new HashSet<>(dates);
+        this.dates = dates;
     }
 
     @Override

@@ -199,6 +199,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             updateRecycler(date);
         }
 
+        // 해당 날짜 점 표시
+        calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date));
     }
 
     // 리사이클러 뷰 업데이트
@@ -253,13 +255,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         amountMap = new HashMap<>();
 
         calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
-        Collection<String> dates = new ArrayList<>();
-
-        // 예를 들어 2024년 10월 27일을 추가합니다.
-        dates.add("2024-10-1");
-        dates.add("2024-10-13");
-
-        calendarView.addDecorator(new CalendarTextDeco(Color.RED, dates));
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
             currentYear = date.getYear();

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "779774864576",
+    "project_id": "capstone-donworry",
+    "storage_bucket": "capstone-donworry.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779774864576:android:9be3b92d5acaf135555125",
+        "android_client_info": {
+          "package_name": "com.example.capstone_donworry"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcy1FdhAgl9-_gBXXnwss-spsHG4coSRc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

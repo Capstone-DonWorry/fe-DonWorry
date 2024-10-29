@@ -1,5 +1,6 @@
 package com.example.capstone_donworry;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -15,18 +16,36 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class InitSetting extends AppCompatActivity {
+    private FirebaseAuth firebaseAuth; // 파이어 베이스 인증
+    private DatabaseReference databaseReference; // 실시간 데이터 베이스
 
     private EditText InputMoney, InputNickName;
     private Spinner InputAge;
     private Button SignUPBtn;
-//    SQLiteDatabase database;
     public Context context;
+    private String loginId, pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init_setting);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        // 회원가입 처리
+        Intent intent = getIntent();
+        loginId = intent.getStringExtra("loginId");
+        pw = intent.getStringExtra("pw");
 
         // 스택에서 제거할 액티비티를 리스트에 저장
         StartPage startPage = new StartPage();
@@ -58,6 +77,16 @@ public class InitSetting extends AppCompatActivity {
 
                 Intent intent = new Intent(getApplicationContext(), Login.class);
                 startActivity(intent);
+
+                firebaseAuth.createUserWithEmailAndPassword(loginId, pw).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                        }
+
+                    }
+                });
                 /*
                 String databaseName = 데이터베이스명;  // 데이터 베이스 이름 설정
                 openDatabase(databaseName);
@@ -98,25 +127,9 @@ public class InitSetting extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 SignUPBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
                 SignUPBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+                SignUPBtn.setEnabled(true);
             }
         });
     }
-
-
-
-    /*
-    public void openDatabase(String databaseName) {
-        database = openOrCreateDatabase(databaseName, MODE_PRIVATE, null);
-    }
-
-    public void insertData(String name, String id, String pw, int money, int age, String nickName){
-        if(database != null){
-            String sql = "insert into 데이터베이스명(name, id, pw, money, age, nickName) values(?, ?, ?, ?, ?, ?)";
-            Object[] params = {name, id, pw, money, age, nickName};
-
-            database.execSQL(sql, params);
-        }
-    }
-    */
 
 }

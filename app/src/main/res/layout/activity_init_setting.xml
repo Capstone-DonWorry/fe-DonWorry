@@ -175,7 +175,8 @@
         android:background="@drawable/round_shape_gray"
         android:padding="15dp"
         android:text="회원가입"
-        android:textColor="@color/dark_gray" />
+        android:textColor="@color/dark_gray"
+        android:enabled="false"/>
 
 
 </LinearLayout>

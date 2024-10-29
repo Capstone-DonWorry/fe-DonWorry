@@ -16,10 +16,10 @@ import android.widget.TextView;
 
 public class SignUp extends AppCompatActivity {
     private TextView RightPassword;
-    private EditText InputName, InputID, InputPassword, InputRePassword;
+    private EditText InputID, InputPassword, InputRePassword;
     private Button SignUPNextBtn;
 
-    public String name, loginId, pw;
+    public String loginId, pw;
     public Context context;
 
     @Override
@@ -34,7 +34,6 @@ public class SignUp extends AppCompatActivity {
         // id 값 찾기
         RightPassword = (TextView) findViewById(R.id.RightPassword);
 
-        InputName = (EditText) findViewById(R.id.InputName);
         InputID = (EditText) findViewById(R.id.InputID);
         InputPassword = (EditText) findViewById(R.id.InputPassword);
         InputRePassword = (EditText) findViewById(R.id.InputRePassword);
@@ -65,9 +64,11 @@ public class SignUp extends AppCompatActivity {
                 if (InputPassword.getText().toString().equals(InputRePassword.getText().toString())) {
                     SignUPNextBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
                     SignUPNextBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+                    SignUPNextBtn.setEnabled(true);
                 }else {
                     SignUPNextBtn.setBackgroundResource(R.drawable.round_shape_gray);
                     SignUPNextBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+                    SignUPNextBtn.setEnabled(false);
                 }
             }
         });
@@ -76,11 +77,15 @@ public class SignUp extends AppCompatActivity {
         SignUPNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //name = InputName.getText().toString().trim();
-                //loginId = InputID.getText().toString().trim();
-                //pw = InputPassword.getText().toString().trim();
+                // 회원가입 처리
+                loginId = InputID.getText().toString().trim();
+                pw = InputPassword.getText().toString().trim();
+
 
                 Intent intent = new Intent(getApplicationContext(), InitSetting.class);
+                intent.putExtra("loginId", loginId);
+                intent.putExtra("pw", "pw");
+
                 startActivity(intent);
             }
         });

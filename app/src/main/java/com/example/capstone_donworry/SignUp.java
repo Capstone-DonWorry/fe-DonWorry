@@ -84,7 +84,7 @@ public class SignUp extends AppCompatActivity {
 
                 Intent intent = new Intent(getApplicationContext(), InitSetting.class);
                 intent.putExtra("loginId", loginId);
-                intent.putExtra("pw", "pw");
+                intent.putExtra("pw", pw);
 
                 startActivity(intent);
             }

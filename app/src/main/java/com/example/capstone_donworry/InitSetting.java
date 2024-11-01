@@ -14,38 +14,31 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class InitSetting extends AppCompatActivity {
     private FirebaseAuth firebaseAuth; // 파이어 베이스 인증
     private DatabaseReference databaseReference; // 실시간 데이터 베이스
 
+    private String loginId, pw;
     private EditText InputMoney, InputNickName;
-    private Spinner InputAge;
+    private EditText InputAge;
     private Button SignUPBtn;
     public Context context;
-    private String loginId, pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init_setting);
-
-        firebaseAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        // 회원가입 처리
-        Intent intent = getIntent();
-        loginId = intent.getStringExtra("loginId");
-        pw = intent.getStringExtra("pw");
 
         // 스택에서 제거할 액티비티를 리스트에 저장
         StartPage startPage = new StartPage();
@@ -53,11 +46,15 @@ public class InitSetting extends AppCompatActivity {
 
         context = this;
 
+        // 회원가입 처리
+        Intent intent = getIntent();
+        loginId = intent.getStringExtra("loginId");
+        pw = intent.getStringExtra("pw");
+
         // ID 값 찾기
         InputMoney = (EditText) findViewById(R.id.InputMoney);
         InputNickName = (EditText) findViewById(R.id.InputNickName);
-
-        InputAge = (Spinner) findViewById(R.id.InputAge);
+        InputAge = (EditText) findViewById(R.id.InputAge);
 
         SignUPBtn = (Button) findViewById(R.id.SignUPBtn);
 
@@ -71,42 +68,39 @@ public class InitSetting extends AppCompatActivity {
             }
         });
 
+        // 회원 가입 버튼
         SignUPBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent(getApplicationContext(), Login.class);
-                startActivity(intent);
-
-                firebaseAuth.createUserWithEmailAndPassword(loginId, pw).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                        }
-
-                    }
-                });
-                /*
-                String databaseName = 데이터베이스명;  // 데이터 베이스 이름 설정
-                openDatabase(databaseName);
-
-                String name = ((SignUp)SignUp.context).name;
-                String id = ((SignUp)SignUp.context).id;
-                String pw = ((SignUp)SignUp.context).pw;
-                String moneyStr = InputMoney.getText().toString().trim();
-                String ageStr = InputAge.getText().toString().trim();
+                int expenseGoal = Integer.parseInt(InputMoney.getText().toString());
+                int age = Integer.parseInt(InputAge.getText().toString());
                 String nickName = InputNickName.getText().toString().trim();
+                Toast.makeText(getApplicationContext(), expenseGoal + nickName+ age+ loginId+ pw, Toast.LENGTH_SHORT).show();
 
-                int money = -1;
-                int age = -1;
-                try{
-                    money = Integer.parseInt(moneyStr);
-                    age = Integer.parseInt(ageStr);
-                }catch (Exception e){}
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            boolean success = jsonObject.getBoolean("success");
+                            if (success) {
+                                Toast.makeText(getApplicationContext(), "회원 가입 성공", Toast.LENGTH_SHORT).show();
 
-                insertData(name, id, pw, money, age, nickName);
-                */
+                                Intent intent = new Intent(getApplicationContext(), Login.class);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "회원 가입 실패", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
+                // Volley를 이용해서 서버로 요청
+                RegisterRequest registerRequest = new RegisterRequest(loginId, pw, nickName, age, expenseGoal, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(context);
+                queue.add(registerRequest);
             }
         });
 

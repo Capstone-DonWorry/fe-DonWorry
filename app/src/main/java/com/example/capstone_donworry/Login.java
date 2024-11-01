@@ -11,14 +11,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Login extends AppCompatActivity {
 
     private EditText LoginID, LoginPassword;
     private TextView SignUp, FindId, RePassword;
     private Button LoginButton;
-
-    public String id, pw;
 
     private Context context;
     @Override
@@ -76,11 +82,36 @@ public class Login extends AppCompatActivity {
         LoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //id = LoginID.getText().toString().trim();
-                //pw = LoginPassword.getText().toString().trim();
+                String loginId = LoginID.getText().toString().trim();
+                String pw = LoginPassword.getText().toString().trim();
 
-                Intent intent = new Intent(Login.this, MainActivity.class);
-                startActivity(intent);
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            boolean success = jsonObject.getBoolean("success");
+                            if (success) {
+                                String expenseGoal = jsonObject.getString("expenseGoal");
+
+                                Toast.makeText(getApplicationContext(), "로그인 성공", Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(Login.this, MainActivity.class);
+                                intent.putExtra("expenseGoal", expenseGoal);
+
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
+                LoginRequest loginRequest = new LoginRequest(loginId, pw, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(context);
+                queue.add(loginRequest);
             }
         });
 

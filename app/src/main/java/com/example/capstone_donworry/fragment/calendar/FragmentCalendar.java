@@ -1,8 +1,6 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,12 +9,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,17 +27,9 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -48,7 +38,10 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
     RecyclerView recyclerView;
     AmountAdapter adapter;
+    private ViewModelCalendar viewModelCalendar;
+
     private MaterialCalendarView calendarView;
+    private TextView targetAmount;
     private CheckBox checkBoxCard;
     private CheckBox checkBoxCash;
     private FragmentCalendarBinding binding;
@@ -61,8 +54,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private int currentYear;
     private int currentMonth;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Activity에서 ViewModel 가져오기 - 같은 인스턴스 공유
+        viewModelCalendar = new ViewModelProvider(requireActivity()).get(ViewModelCalendar.class);
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ViewModelCalendar viewModelCalendar = new ViewModelProvider(this).get(ViewModelCalendar.class);
 
         binding = FragmentCalendarBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -80,6 +80,22 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         CalendarDay calendarDay = calendarView.getCurrentDate();
         currentYear = calendarDay.getYear();
         currentMonth = calendarDay.getMonth();
+
+        // 목표 금액 설정
+        targetAmount = binding.TargetAmount;
+        viewModelCalendar.getExpenseGoal().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String goal) {
+                Log.d("expenseGoal", "El: " + goal);
+                targetAmount.setText(goal+"원"); // TextView 업데이트
+            }
+        });
+//        viewModelCalendar.getExpenseGoal().observe(getViewLifecycleOwner(), goal -> {
+//
+//            Log.d("expenseGoal", "El: " + goal);
+//            targetAmount.setText(goal);
+//        });
+//        viewModelCalendar.setExpenseGoal("19999");
 
         // CheckBox
         checkBoxCard = binding.CheckBoxCard;

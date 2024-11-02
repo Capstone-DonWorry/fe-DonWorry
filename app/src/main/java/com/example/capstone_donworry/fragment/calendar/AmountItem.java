@@ -15,6 +15,15 @@ public class AmountItem implements Parcelable {
     String category;
     String amount;
 
+    public AmountItem() {
+        this.content = "";
+        this.date = "";
+        this.card = "";
+        this.bank = "";
+        this.category = "";
+        this.amount = "";
+    }
+
     public AmountItem(String content, String date, String card, String bank, String category, String amount) {
         this.content = content;
         this.date = date;

@@ -90,12 +90,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 targetAmount.setText(goal+"원"); // TextView 업데이트
             }
         });
-//        viewModelCalendar.getExpenseGoal().observe(getViewLifecycleOwner(), goal -> {
-//
-//            Log.d("expenseGoal", "El: " + goal);
-//            targetAmount.setText(goal);
-//        });
-//        viewModelCalendar.setExpenseGoal("19999");
 
         // CheckBox
         checkBoxCard = binding.CheckBoxCard;

@@ -35,7 +35,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
         android:paddingLeft="10dp"
-        android:background="@drawable/round_shape_sky"
+        android:background="@drawable/round_shape_sky_blue"
         android:textColorHint="@color/mid_gray"
         android:hint="아이디를 입력해 주세요."
         android:inputType="text"/>
@@ -55,7 +55,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:paddingLeft="10dp"
-        android:background="@drawable/round_shape_sky"
+        android:background="@drawable/round_shape_sky_blue"
         android:textColorHint="@color/mid_gray"
         android:hint="비밀번호를 입력해 주세요."
         android:inputType="textPassword"/>

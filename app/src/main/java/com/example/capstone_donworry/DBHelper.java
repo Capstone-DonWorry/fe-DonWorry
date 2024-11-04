@@ -57,7 +57,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public List<AmountItem> getAllItems() {
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME;
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
@@ -75,6 +75,29 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return items;
+    }
+
+    // db에 저장되어 있는 특정 항목 정보
+    @SuppressLint("Range")
+    public AmountItem getItem(AmountItem amountItem) {
+        AmountItem item = new AmountItem();
+        String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + COL_CONTENT + " = ? AND " + COL_AMOUNT + " = ? AND " + COL_DATE + " = ?";
+        String[] selectionArgs = {amountItem.getContent(), amountItem.getAmount(), amountItem.getDate()};
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, selectionArgs);
+
+        if (cursor.moveToFirst()) {
+            item.setContent(cursor.getString(cursor.getColumnIndex(COL_CONTENT)));
+            item.setDate(cursor.getString(cursor.getColumnIndex(COL_DATE)));
+            item.setCard(cursor.getString(cursor.getColumnIndex(COL_CARD)));
+            item.setBank(cursor.getString(cursor.getColumnIndex(COL_BANK)));
+            item.setCategory(cursor.getString(cursor.getColumnIndex(COL_CATEGORY)));
+            item.setAmount(cursor.getString(cursor.getColumnIndex(COL_AMOUNT)));
+        }
+        cursor.close();
+        db.close();
+        return item;
     }
 
     // 새로운 item 추가
@@ -110,7 +133,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // item 삭제
     public void deleteItem(AmountItem amountItem) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(item_TABLE_NAME, COL_CONTENT + "=?", new String[]{amountItem.getContent()});
+        db.delete(item_TABLE_NAME, COL_CONTENT + "=?" , new String[]{amountItem.getContent()});
         db.close();
     }
 }

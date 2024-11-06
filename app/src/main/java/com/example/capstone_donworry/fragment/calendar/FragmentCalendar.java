@@ -1,5 +1,6 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.capstone_donworry.DBHelper;
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
 import com.google.android.material.snackbar.Snackbar;
@@ -30,6 +32,7 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -39,13 +42,14 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private ViewModelCalendar viewModelCalendar;
+    private DBHelper db;
 
     private MaterialCalendarView calendarView;
     private TextView targetAmount;
     private CheckBox checkBoxCard;
     private CheckBox checkBoxCash;
     private FragmentCalendarBinding binding;
-    private HashMap<String, ArrayList<AmountItem>> amountMap;
+//    private HashMap<String, ArrayList<AmountItem>> amountMap;
 
     private DayViewDecorator todayViewDecorator;
     private DayViewDecorator sundayDecorator;
@@ -81,13 +85,16 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         currentYear = calendarDay.getYear();
         currentMonth = calendarDay.getMonth();
 
+        // db 설정
+        db = new DBHelper(getContext());
+
         // 목표 금액 설정
         targetAmount = binding.TargetAmount;
         viewModelCalendar.getExpenseGoal().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String goal) {
                 Log.d("expenseGoal", "El: " + goal);
-                targetAmount.setText(goal+"원"); // TextView 업데이트
+                targetAmount.setText(goal); // TextView 업데이트
             }
         });
 
@@ -138,6 +145,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         // 삭제
                         adapter.removeItem(position);
                         adapter.notifyItemRemoved(position);
+
+                        db.deleteItem(deleteItem);
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -196,18 +205,14 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
     // 아이템 추가
     public void onItemAdded(String date, AmountItem item) {
-
-        String[] datePart = date.split("-");
-        int itemYear = Integer.parseInt(datePart[0]);
-        int itemMonth = Integer.parseInt(datePart[1]);
-
-        amountMap.putIfAbsent(date, new ArrayList<>());
-        amountMap.get(date).add(item);
-
-        if (itemYear == currentYear && itemMonth == currentMonth) {
-            // recycler뷰 업데이트
-            updateRecycler(date);
+        // db에 item 등록
+        long uid = db.addItem(item);
+        if (uid != -1) {
+            item.setUid(uid);
         }
+
+        // recycler뷰 업데이트
+        updateRecycler(date);
 
         // 해당 날짜 점 표시
         calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date));
@@ -215,10 +220,11 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
     // 리사이클러 뷰 업데이트
     private void updateRecycler(String date) {
-        ArrayList<AmountItem> item = amountMap.get(date);
 
+        List<AmountItem> item = new ArrayList<>();
+        item = db.getDateItems(date);
         if (item != null){
-            ArrayList<AmountItem> existItems = adapter.getItems();
+            List<AmountItem> existItems = adapter.getItems();
 
             for (AmountItem newItem : item) {
                 int index = existItems.indexOf(newItem);
@@ -245,7 +251,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         boolean isCashChecked = checkBoxCash.isChecked();
 
         for (AmountItem item : adapter.getItems()) {
-            int amountValue = Integer.parseInt(item.getAmount().replace("원", "").trim());
+            int amountValue = Integer.parseInt(item.getAmount());
 
             if ((isCardChecked && item.getCard().equals("카드")) ||
                     (isCashChecked && item.getCard().equals("현금")) ||
@@ -254,15 +260,13 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             }
         }
         TextView totalExpenseTV = binding.TotalExpense;
-        totalExpenseTV.setText(total + "원");
+        totalExpenseTV.setText(String.valueOf(total));
     }
 
     private void initView() {
         todayViewDecorator = CalendarDeco.todayViewDecorator(requireContext());
         sundayDecorator = CalendarDeco.sundayDecorator();
         saturdayDecorator = CalendarDeco.saturdayDecorator();
-
-        amountMap = new HashMap<>();
 
         calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
 
@@ -281,43 +285,32 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
     private void showDateAmount(CalendarDay date) {
         String dateKey = date.getYear() +"-"+ date.getMonth() +"-"+ date.getDay();
-        ArrayList<AmountItem> amountList = amountMap.get(dateKey);
+        List<AmountItem> amountList = new ArrayList<>();
+        amountList = db.getDateItems(dateKey);
 
         if (amountList != null){
             Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
-            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance(amountList, dateKey);
+            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
             popShowDaylist.show(getChildFragmentManager(), "특정날짜");
         }
         else {
             Log.d("showDateAmount", "null amountList");
         }
-        for (String key : amountMap.keySet()) {
-            Log.d("AmountMap", "Key: " + key + ", Value: " + amountMap.get(key));
-            Log.d("AmountMap", "dateKey: " + dateKey + ", Value: " + amountList);
-        }
     }
 
     private void showMonthAmount(CalendarDay date) {
-        int month = date.getMonth();
-        int year = date.getYear();
+        String month = String.valueOf(date.getMonth());
+        String year = String.valueOf(date.getYear());
 
-        ArrayList<AmountItem> dateAmount = new ArrayList<>();
-        for (String key : amountMap.keySet()) {
-            String[] datePart = key.split("-");
-            int itemYear = Integer.parseInt(datePart[0]);
-            int itemMonth = Integer.parseInt(datePart[1]);
-
-            if (itemYear == year && itemMonth == month) {
-                dateAmount.addAll(amountMap.get(key));
-            }
-        }
+        List<AmountItem> dateAmount = new ArrayList<>();
+        dateAmount = db.getMonthItems(year, month);
 
         // 날짜 순서로 정렬
         Collections.sort(dateAmount, (item1, item2) ->
             item1.getDate().compareTo(item2.getDate()));
 
         adapter.clearItems();
-        adapter.addItems(dateAmount);
+        adapter.addItems((ArrayList<AmountItem>) dateAmount);
     }
 
 }

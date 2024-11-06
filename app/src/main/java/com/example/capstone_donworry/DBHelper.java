@@ -55,13 +55,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // db에 저장되어 있는 같은 달 항목 정보
     @SuppressLint("Range")
-    public List<AmountItem> getMonthItems(String date) {
+    public List<AmountItem> getMonthItems(String year, String month) {
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME +
-                " WHERE strftime('%Y', " + COL_DATE + ") = strftime('%Y', ?) " +
-                " AND strftime('%m', " + COL_DATE + ") = strftime('%m', ?)";
+                " WHERE strftime('%Y-%m', " + COL_DATE + ") = ? ";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{date, date});
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{year+'-'+month});
 
         if (cursor.moveToFirst()) {
             do {
@@ -151,11 +150,15 @@ public class DBHelper extends SQLiteOpenHelper {
             // 삽입 후 생성된 UID 값 반환
             uid = db.insert(item_TABLE_NAME, null, values);
 
-            // UID 값은 삽입된 항목의 고유 ID
-            amountItem.setUid((int) uid);
-            Toast.makeText(this.context, "아이템 등록", Toast.LENGTH_SHORT).show();
+            if (uid != -1) {
+                // UID 값은 삽입된 항목의 고유 ID
+                amountItem.setUid((int) uid);
+                Toast.makeText(this.context, "아이템 등록", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this.context, "아이템 등록 실패", Toast.LENGTH_SHORT).show();
+            }
         }catch (Exception e) {
-            Toast.makeText(this.context, "아이템 등록 실패", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, "아이템 등록 dhfb", Toast.LENGTH_SHORT).show();
         } finally {
             if (db!= null) {
                 db.close();

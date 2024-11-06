@@ -15,7 +15,7 @@ public class ViewModelCalendar extends ViewModel {
         mText = new MutableLiveData<>();
         expenseGoal = new MutableLiveData<>();
         mText.setValue("This is Calendar fragment");
-        expenseGoal.setValue("0원");
+        expenseGoal.setValue("0");
     }
 
     public LiveData<String> getText() {

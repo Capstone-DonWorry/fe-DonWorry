@@ -8,12 +8,13 @@ import androidx.annotation.NonNull;
 import java.io.Serializable;
 
 public class AmountItem implements Parcelable {
-    String content;
-    String date;
-    String card;
-    String bank;
-    String category;
-    String amount;
+    private long uid;
+    private String content;
+    private String date;
+    private String card;
+    private String bank;
+    private String category;
+    private String amount;
 
     public AmountItem() {
         this.content = "";
@@ -34,6 +35,7 @@ public class AmountItem implements Parcelable {
     }
 
     protected AmountItem(Parcel in) {
+        uid = in.readLong();
         content = in.readString();
         date = in.readString();
         card = in.readString();
@@ -53,6 +55,14 @@ public class AmountItem implements Parcelable {
             return new AmountItem[size];
         }
     };
+
+    public long getUid() {
+        return uid;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
 
     public String getContent() {
         return content;
@@ -109,6 +119,7 @@ public class AmountItem implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeLong(uid);
         parcel.writeString(content);
         parcel.writeString(date);
         parcel.writeString(card);

@@ -12,11 +12,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.capstone_donworry.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder> {
     Context context;
 
-    ArrayList<AmountItem> items = new ArrayList<AmountItem>();
+    List<AmountItem> items = new ArrayList<AmountItem>();
 
     OnItemClickListener listener;
     public static interface OnItemClickListener {
@@ -78,11 +79,11 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         return items.get(position);
     }
 
-    public ArrayList<AmountItem> getItems() {
+    public List<AmountItem> getItems() {
         return items;
     }
 
-    public void updateItems(ArrayList<AmountItem> newItems) {
+    public void updateItems(List<AmountItem> newItems) {
         this.items = newItems;
         notifyDataSetChanged();
     }

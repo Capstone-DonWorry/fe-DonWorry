@@ -49,7 +49,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private CheckBox checkBoxCard;
     private CheckBox checkBoxCash;
     private FragmentCalendarBinding binding;
-//    private HashMap<String, ArrayList<AmountItem>> amountMap;
 
     private DayViewDecorator todayViewDecorator;
     private DayViewDecorator sundayDecorator;
@@ -212,34 +211,25 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         }
 
         // recycler뷰 업데이트
-        updateRecycler(date);
+        updateRecycler(item);
 
         // 해당 날짜 점 표시
         calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date));
     }
 
     // 리사이클러 뷰 업데이트
-    private void updateRecycler(String date) {
+    private void updateRecycler(AmountItem item) {
 
-        List<AmountItem> item = new ArrayList<>();
-        item = db.getDateItems(date);
-        if (item != null){
-            List<AmountItem> existItems = adapter.getItems();
+        AmountItem newItem = db.getItem(item);
+        List<AmountItem> existItems = adapter.getItems();
+        existItems.add(newItem);
 
-            for (AmountItem newItem : item) {
-                int index = existItems.indexOf(newItem);
-                if (index != -1) {
-                    existItems.set(index, newItem);
-                } else {
-                    existItems.add(newItem);
-                }
-            }
-            // 날짜 순서로 정렬
-            Collections.sort(existItems, (item1, item2) ->
+        // 날짜 순서로 정렬
+        Collections.sort(existItems, (item1, item2) ->
                     item1.getDate().compareTo(item2.getDate()));
 
-            adapter.updateItems(existItems);
-        }
+        adapter.updateItems(existItems);
+
         // 총 금액 업데이트
         sumTotalExpense();
 
@@ -269,6 +259,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         saturdayDecorator = CalendarDeco.saturdayDecorator();
 
         calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
+        showMonthAmount(calendarView.getCurrentDate());
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
             currentYear = date.getYear();

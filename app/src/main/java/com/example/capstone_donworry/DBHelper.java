@@ -56,6 +56,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // db에 저장되어 있는 같은 달 항목 정보
     @SuppressLint("Range")
     public List<AmountItem> getMonthItems(String year, String month) {
+        Toast.makeText(this.context, "Month 아이템 호출", Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME +
                 " WHERE strftime('%Y-%m', " + COL_DATE + ") = ? ";
@@ -85,6 +86,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // db에 저장되어 있는 같은 날짜 항목 정보
     @SuppressLint("Range")
     public List<AmountItem> getDateItems(String date) {
+        Toast.makeText(this.context, "Date 아이템 호출", Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + COL_DATE + " = ?";
         SQLiteDatabase db = this.getReadableDatabase();
@@ -112,6 +114,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // db에 저장되어 있는 특정 항목 정보
     @SuppressLint("Range")
     public AmountItem getItem(AmountItem amountItem) {
+        Toast.makeText(this.context, "getItem 호출", Toast.LENGTH_SHORT).show();
         AmountItem item = new AmountItem();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + COL_CONTENT + " = ? AND " + COL_DATE + " = ? AND " + UID + " = ?";
         String[] selectionArgs = {amountItem.getContent(), amountItem.getDate(), String.valueOf(amountItem.getUid())};
@@ -153,12 +156,12 @@ public class DBHelper extends SQLiteOpenHelper {
             if (uid != -1) {
                 // UID 값은 삽입된 항목의 고유 ID
                 amountItem.setUid((int) uid);
-                Toast.makeText(this.context, "아이템 등록", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.context, "아이템 등록" + amountItem.getUid(), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this.context, "아이템 등록 실패", Toast.LENGTH_SHORT).show();
             }
         }catch (Exception e) {
-            Toast.makeText(this.context, "아이템 등록 dhfb", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, "아이템 등록 오류", Toast.LENGTH_SHORT).show();
         } finally {
             if (db!= null) {
                 db.close();

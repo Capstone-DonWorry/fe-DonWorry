@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.capstone_donworry.fragment.calendar.AmountItem;
@@ -20,6 +21,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // Table
     private static final String item_TABLE_NAME = "EXPENSE";
     private static final String UID = "UID";
+    private static final String USERID = "USERID";
     private static final String COL_CONTENT = "CONTENT";
     private static final String COL_DATE = "DATE";
     private static final String COL_CARD = "CARD";
@@ -33,10 +35,15 @@ public class DBHelper extends SQLiteOpenHelper {
         this.context = context;
     }
 
+    public String getDatabasePath() {
+        return context.getDatabasePath("donworry.db").getAbsolutePath();
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         String sql = "CREATE TABLE IF NOT EXISTS " + item_TABLE_NAME + " (" +
                 UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                USERID + " CHAR(20), " +
                 COL_CONTENT + " CHAR(20), " +
                 COL_DATE + " DATE, " +
                 COL_CARD + " CHAR(20), " +
@@ -55,13 +62,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // db에 저장되어 있는 같은 달 항목 정보
     @SuppressLint("Range")
-    public List<AmountItem> getMonthItems(String year, String month) {
+    public List<AmountItem> getMonthItems(String userid, String year, String month) {
+
+        Log.d("Database Path", context.getDatabasePath("donworry.db").getAbsolutePath());
         Toast.makeText(this.context, "Month 아이템 호출", Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME +
-                " WHERE strftime('%Y-%m', " + COL_DATE + ") = ? ";
+                " WHERE " + USERID + " = ? AND strftime('%Y-%m', " + COL_DATE + ") = ? ";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{year+'-'+month});
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{userid, year+'-'+month});
 
         if (cursor.moveToFirst()) {
             do {
@@ -85,12 +94,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // db에 저장되어 있는 같은 날짜 항목 정보
     @SuppressLint("Range")
-    public List<AmountItem> getDateItems(String date) {
+    public List<AmountItem> getDateItems(String userid, String date) {
         Toast.makeText(this.context, "Date 아이템 호출", Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + COL_DATE + " = ?";
+        String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + USERID + " = ? AND " + COL_DATE + " = ?";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{date});
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{userid, date});
 
         if (cursor.moveToFirst()) {
             do {

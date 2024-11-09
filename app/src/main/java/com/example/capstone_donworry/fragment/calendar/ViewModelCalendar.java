@@ -10,12 +10,15 @@ public class ViewModelCalendar extends ViewModel {
 
     private final MutableLiveData<String> mText;
     private final MutableLiveData<String> expenseGoal;
+    private final MutableLiveData<String> userId;
 
     public ViewModelCalendar() {
         mText = new MutableLiveData<>();
         expenseGoal = new MutableLiveData<>();
+        userId = new MutableLiveData<>();
         mText.setValue("This is Calendar fragment");
         expenseGoal.setValue("0");
+        userId.setValue("");
     }
 
     public LiveData<String> getText() {
@@ -30,5 +33,13 @@ public class ViewModelCalendar extends ViewModel {
 
     public LiveData<String> getExpenseGoal() {
         return expenseGoal;
+    }
+
+    public void setUserId(String userid) {
+        userId.setValue(userid);
+    }
+
+    public MutableLiveData<String> getUserId() {
+        return userId;
     }
 }

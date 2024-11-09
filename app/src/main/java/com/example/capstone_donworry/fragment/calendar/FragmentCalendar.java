@@ -43,6 +43,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     AmountAdapter adapter;
     private ViewModelCalendar viewModelCalendar;
     private DBHelper db;
+    private String userID;
 
     private MaterialCalendarView calendarView;
     private TextView targetAmount;
@@ -97,6 +98,14 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             }
         });
 
+        // 로그인 사용자
+        viewModelCalendar.getUserId().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String user) {
+                userID = user;
+            }
+        });
+
         // CheckBox
         checkBoxCard = binding.CheckBoxCard;
         checkBoxCash = binding.CheckBoxCash;
@@ -145,7 +154,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         adapter.removeItem(position);
                         adapter.notifyItemRemoved(position);
 
-                        db.deleteItem(deleteItem);
+                        db.deleteItem(userID, deleteItem);
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -205,7 +214,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     // 아이템 추가
     public void onItemAdded(String date, AmountItem item) {
         // db에 item 등록
-        long uid = db.addItem(item);
+        long uid = db.addItem(userID, item);
         if (uid != -1) {
             item.setUid(uid);
         }
@@ -220,7 +229,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     // 리사이클러 뷰 업데이트
     private void updateRecycler(AmountItem item) {
 
-        AmountItem newItem = db.getItem(item);
+        AmountItem newItem = db.getItem(userID, item);
         List<AmountItem> existItems = adapter.getItems();
         existItems.add(newItem);
 
@@ -277,7 +286,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private void showDateAmount(CalendarDay date) {
         String dateKey = date.getYear() +"-"+ date.getMonth() +"-"+ date.getDay();
         List<AmountItem> amountList = new ArrayList<>();
-        amountList = db.getDateItems(dateKey);
+        amountList = db.getDateItems(userID, dateKey);
 
         if (amountList != null){
             Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
@@ -294,7 +303,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         String year = String.valueOf(date.getYear());
 
         List<AmountItem> dateAmount = new ArrayList<>();
-        dateAmount = db.getMonthItems(year, month);
+        dateAmount = db.getMonthItems(userID, year, month);
 
         // 날짜 순서로 정렬
         Collections.sort(dateAmount, (item1, item2) ->

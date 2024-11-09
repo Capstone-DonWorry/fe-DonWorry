@@ -25,7 +25,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Intent에서 expenseGoal 가져오기
         String expenseGoal = getIntent().getStringExtra("expenseGoal");
+        String userID = getIntent().getStringExtra("userID");
         viewModelCalendar.setExpenseGoal(expenseGoal);
+        viewModelCalendar.setExpenseGoal(userID);
 
         // BottomNavigationView 설정
         BottomNavigationView navView = findViewById(R.id.NavView);

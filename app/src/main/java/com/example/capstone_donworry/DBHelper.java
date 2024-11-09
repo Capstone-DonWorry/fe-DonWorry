@@ -122,11 +122,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // db에 저장되어 있는 특정 항목 정보
     @SuppressLint("Range")
-    public AmountItem getItem(AmountItem amountItem) {
+    public AmountItem getItem(String userid, AmountItem amountItem) {
         Toast.makeText(this.context, "getItem 호출", Toast.LENGTH_SHORT).show();
         AmountItem item = new AmountItem();
-        String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + COL_CONTENT + " = ? AND " + COL_DATE + " = ? AND " + UID + " = ?";
-        String[] selectionArgs = {amountItem.getContent(), amountItem.getDate(), String.valueOf(amountItem.getUid())};
+        String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + USERID + " = ? AND " + COL_CONTENT + " = ? AND " + COL_DATE + " = ? AND " + UID + " = ?";
+        String[] selectionArgs = {userid, amountItem.getContent(), amountItem.getDate(), String.valueOf(amountItem.getUid())};
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, selectionArgs);
@@ -146,12 +146,13 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // 새로운 item 추가
-    public long addItem(AmountItem amountItem) {
+    public long addItem(String userid, AmountItem amountItem) {
         SQLiteDatabase db = null;
         long uid = -1;
         try {
             db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
+            values.put(USERID, userid);
             values.put(COL_CONTENT, amountItem.getContent());
             values.put(COL_DATE, amountItem.getDate());
             values.put(COL_CARD, amountItem.getCard());
@@ -180,9 +181,10 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // item 정보 업데이트
-    public int updateItem(AmountItem amountItem) {
+    public int updateItem(String userid, AmountItem amountItem) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(USERID, userid);
         values.put(COL_CONTENT, amountItem.getContent());
         values.put(COL_DATE, amountItem.getDate());
         values.put(COL_CARD, amountItem.getCard());
@@ -190,15 +192,15 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COL_CATEGORY, amountItem.getCategory());
         values.put(COL_AMOUNT, amountItem.getAmount());
 
-        String whereClause =  COL_DATE + "=? AND " + COL_CONTENT + "=? AND " + UID + "=?";
-        String[] whereArgs = {amountItem.getDate(), amountItem.getContent(), String.valueOf(amountItem.getUid())};
+        String whereClause =  USERID + "=? AND " + COL_DATE + "=? AND " + COL_CONTENT + "=? AND " + UID + "=?";
+        String[] whereArgs = {userid, amountItem.getDate(), amountItem.getContent(), String.valueOf(amountItem.getUid())};
         return db.update(item_TABLE_NAME, values, whereClause, whereArgs);
     }
 
     // item 삭제
-    public void deleteItem(AmountItem amountItem) {
+    public void deleteItem(String userid, AmountItem amountItem) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(item_TABLE_NAME, COL_CONTENT + "=? AND " + UID + "=?" , new String[]{amountItem.getContent(), String.valueOf(amountItem.getUid())});
+        db.delete(item_TABLE_NAME, USERID + "=? AND " + COL_CONTENT + "=? AND " + UID + "=?" , new String[]{userid, amountItem.getContent(), String.valueOf(amountItem.getUid())});
         db.close();
     }
 }

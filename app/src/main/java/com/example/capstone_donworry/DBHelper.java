@@ -63,9 +63,9 @@ public class DBHelper extends SQLiteOpenHelper {
     // db에 저장되어 있는 같은 달 항목 정보
     @SuppressLint("Range")
     public List<AmountItem> getMonthItems(String userid, String year, String month) {
-
         Log.d("Database Path", context.getDatabasePath("donworry.db").getAbsolutePath());
         Toast.makeText(this.context, "Month 아이템 호출", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this.context, userid, Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME +
                 " WHERE " + USERID + " = ? AND strftime('%Y-%m', " + COL_DATE + ") = ? ";
@@ -166,7 +166,7 @@ public class DBHelper extends SQLiteOpenHelper {
             if (uid != -1) {
                 // UID 값은 삽입된 항목의 고유 ID
                 amountItem.setUid((int) uid);
-                Toast.makeText(this.context, "아이템 등록" + amountItem.getUid(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.context, "아이템 등록" + amountItem.getUid() + userid, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this.context, "아이템 등록 실패", Toast.LENGTH_SHORT).show();
             }

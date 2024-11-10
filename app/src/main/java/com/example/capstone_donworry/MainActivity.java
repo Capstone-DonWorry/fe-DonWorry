@@ -9,6 +9,7 @@ import androidx.navigation.ui.NavigationUI;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.example.capstone_donworry.fragment.calendar.FragmentCalendar;
 import com.example.capstone_donworry.fragment.calendar.ViewModelCalendar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         String expenseGoal = getIntent().getStringExtra("expenseGoal");
         String userID = getIntent().getStringExtra("userID");
         viewModelCalendar.setExpenseGoal(expenseGoal);
-        viewModelCalendar.setExpenseGoal(userID);
+        viewModelCalendar.setUserId(userID);
 
         // BottomNavigationView 설정
         BottomNavigationView navView = findViewById(R.id.NavView);

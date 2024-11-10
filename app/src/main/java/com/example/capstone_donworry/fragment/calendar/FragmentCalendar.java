@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -93,16 +94,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         viewModelCalendar.getExpenseGoal().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String goal) {
-                Log.d("expenseGoal", "El: " + goal);
                 targetAmount.setText(goal); // TextView 업데이트
-            }
-        });
-
-        // 로그인 사용자
-        viewModelCalendar.getUserId().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String user) {
-                userID = user;
             }
         });
 
@@ -198,7 +190,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initView();
+        // 로그인 사용자
+        viewModelCalendar.getUserId().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String user) {
+                userID = user;
+
+                initView();
+            }
+        });
 //        initViewModel();
     }
 
@@ -231,7 +231,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         AmountItem newItem = db.getItem(userID, item);
         List<AmountItem> existItems = adapter.getItems();
-        existItems.add(newItem);
+//        existItems.add(newItem);
 
         // 날짜 순서로 정렬
         Collections.sort(existItems, (item1, item2) ->
@@ -268,6 +268,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         saturdayDecorator = CalendarDeco.saturdayDecorator();
 
         calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
+
         showMonthAmount(calendarView.getCurrentDate());
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
@@ -303,14 +304,18 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         String year = String.valueOf(date.getYear());
 
         List<AmountItem> dateAmount = new ArrayList<>();
+//        Log.d("showDateAmount", userID);
         dateAmount = db.getMonthItems(userID, year, month);
 
         // 날짜 순서로 정렬
         Collections.sort(dateAmount, (item1, item2) ->
             item1.getDate().compareTo(item2.getDate()));
 
-        adapter.clearItems();
-        adapter.addItems((ArrayList<AmountItem>) dateAmount);
+        for (AmountItem item : dateAmount) {
+            if (!item.getContent().isEmpty()) {
+                adapter.clearItems();
+                adapter.addItems((ArrayList<AmountItem>) dateAmount);
+            }
+        }
     }
-
 }

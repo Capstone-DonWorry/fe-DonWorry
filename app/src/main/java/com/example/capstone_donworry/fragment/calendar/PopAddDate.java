@@ -22,7 +22,9 @@ public class PopAddDate extends DialogFragment implements DatePickerDialog.OnDat
     }
 
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        String msg = year + "-" + (month+1) + "-" + day;
+        String strMon = String.format("%02d", month+1);
+        String strDay = String.format("%02d", day);
+        String msg = year + "-" + strMon + "-" + strDay;
 
         PopAddItem targetFragment = (PopAddItem) getTargetFragment();
         if(targetFragment != null) {

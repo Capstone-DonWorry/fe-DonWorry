@@ -71,7 +71,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 " WHERE " + USERID + " = ? AND strftime('%Y-%m', " + COL_DATE + ") = ? ";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, new String[]{userid, date});
-        Log.d("Database sql", selectQuery);
+        Log.d("showMonthAmoun", cursor.getCount()+"");
 
         if (cursor.moveToFirst()) {
             do {
@@ -84,6 +84,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 amountItem.setCategory(cursor.getString(cursor.getColumnIndex(COL_CATEGORY)));
                 amountItem.setAmount(cursor.getString(cursor.getColumnIndex(COL_AMOUNT)));
                 items.add(amountItem);
+                Log.d("showMonthAmoun", amountItem.getDate());
             } while (cursor.moveToNext());
         }
         cursor.close();

@@ -285,7 +285,9 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     }
 
     private void showDateAmount(CalendarDay date) {
-        String dateKey = date.getYear() +"-"+ date.getMonth() +"-"+ date.getDay();
+        String strMon = String.format("%02d", date.getMonth());
+        String strDay = String.format("%02d", date.getDay());
+        String dateKey = date.getYear() +"-"+ strMon +"-"+ strDay;
         List<AmountItem> amountList = new ArrayList<>();
         amountList = db.getDateItems(userID, dateKey);
 
@@ -312,6 +314,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         for (AmountItem item : dateAmount) {
             calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate()));
+            Log.d("showMonthAmount", item.getDate() + dateKey);
         }
 
         adapter.clearItems();

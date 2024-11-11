@@ -45,7 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 USERID + " CHAR(20), " +
                 COL_CONTENT + " CHAR(20), " +
-                COL_DATE + " DATE, " +
+                COL_DATE + " CHAR(20), " +
                 COL_CARD + " CHAR(20), " +
                 COL_BANK + " CHAR(20), " +
                 COL_CATEGORY + " CHAR(20), " +
@@ -62,15 +62,16 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // db에 저장되어 있는 같은 달 항목 정보
     @SuppressLint("Range")
-    public List<AmountItem> getMonthItems(String userid, String year, String month) {
-        Log.d("Database Path", context.getDatabasePath("donworry.db").getAbsolutePath());
+    public List<AmountItem> getMonthItems(String userid, String date) {
+//        Log.d("Database Path", context.getDatabasePath("donworry.db").getAbsolutePath());
         Toast.makeText(this.context, "Month 아이템 호출", Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this.context, userid, Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME +
                 " WHERE " + USERID + " = ? AND strftime('%Y-%m', " + COL_DATE + ") = ? ";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{userid, year+'-'+month});
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{userid, date});
+        Log.d("showMonthAmoun", cursor.getCount()+"");
 
         if (cursor.moveToFirst()) {
             do {
@@ -83,6 +84,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 amountItem.setCategory(cursor.getString(cursor.getColumnIndex(COL_CATEGORY)));
                 amountItem.setAmount(cursor.getString(cursor.getColumnIndex(COL_AMOUNT)));
                 items.add(amountItem);
+                Log.d("showMonthAmoun", amountItem.getDate());
             } while (cursor.moveToNext());
         }
         cursor.close();

@@ -32,11 +32,9 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
-
 
 public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener{
 
@@ -47,14 +45,10 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private String userID;
 
     private MaterialCalendarView calendarView;
-    private TextView targetAmount;
-    private CheckBox checkBoxCard;
-    private CheckBox checkBoxCash;
+    private TextView targetAmount, totalExpenseTV, ableAmount;
+    private CheckBox checkBoxCard, checkBoxCash;
     private FragmentCalendarBinding binding;
-
-    private DayViewDecorator todayViewDecorator;
-    private DayViewDecorator sundayDecorator;
-    private DayViewDecorator saturdayDecorator;
+    private DayViewDecorator todayViewDecorator, sundayDecorator, saturdayDecorator;
 
     private int currentYear;
     private int currentMonth;
@@ -97,6 +91,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 targetAmount.setText(goal); // TextView 업데이트
             }
         });
+        // 잔액 설정
+        ableAmount = binding.AbleAmount;
 
         // CheckBox
         checkBoxCard = binding.CheckBoxCard;
@@ -147,6 +143,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         adapter.notifyItemRemoved(position);
 
                         db.deleteItem(userID, deleteItem);
+                        ableAmount.setText(String.valueOf(Integer.parseInt(ableAmount.getText().toString()) + Integer.parseInt(deleteItem.getAmount())));
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -222,20 +219,22 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         // recycler뷰 업데이트
         updateRecycler(item);
 
+        ableAmount.setText(String.valueOf(Integer.parseInt(ableAmount.getText().toString()) - Integer.parseInt(item.getAmount())));
+
         // 해당 날짜 점 표시
         calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date));
     }
 
     // 리사이클러 뷰 업데이트
     private void updateRecycler(AmountItem item) {
-
-        AmountItem newItem = db.getItem(userID, item);
+//
+//        AmountItem newItem = db.getItem(userID, item);
         List<AmountItem> existItems = adapter.getItems();
-//        existItems.add(newItem);
+        existItems.add(item);
 
-        // 날짜 순서로 정렬
+        // 날짜 순서로 내림차순 정렬
         Collections.sort(existItems, (item1, item2) ->
-                    item1.getDate().compareTo(item2.getDate()));
+                    item2.getDate().compareTo(item1.getDate()));
 
         adapter.updateItems(existItems);
 
@@ -258,8 +257,23 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 total += amountValue;
             }
         }
-        TextView totalExpenseTV = binding.TotalExpense;
+        totalExpenseTV = binding.TotalExpense;
         totalExpenseTV.setText(String.valueOf(total));
+    }
+
+    // 잔액 계산
+    private void ableExpense() {
+        int total = 0;
+
+        for (AmountItem item : adapter.getItems()) {
+            int amountValue = Integer.parseInt(item.getAmount());
+
+            total += amountValue;
+        }
+
+        int target = Integer.parseInt(targetAmount.getText().toString());
+        String ableValue = String.valueOf(target - total);
+        ableAmount.setText(ableValue);
     }
 
     private void initView() {
@@ -270,10 +284,10 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
 
         showMonthAmount(calendarView.getCurrentDate());
+        sumTotalExpense();
+        ableExpense();
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
-            currentYear = date.getYear();
-            currentMonth = date.getMonth();
             showMonthAmount(date);
             sumTotalExpense(); // 월 별경 시 총 금액 변경
         }));
@@ -302,15 +316,16 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     }
 
     private void showMonthAmount(CalendarDay date) {
-        String dateKey = date.getYear() +"-"+ date.getMonth();
+        String strMon = String.format("%02d", date.getMonth());
+        String dateKey = date.getYear() +"-"+ strMon;
 
         List<AmountItem> dateAmount = new ArrayList<>();
 //        Log.d("showDateAmount", userID);
         dateAmount = db.getMonthItems(userID, dateKey);
 
-        // 날짜 순서로 정렬
+        // 날짜 순서로 내림차순 정렬
         Collections.sort(dateAmount, (item1, item2) ->
-            item1.getDate().compareTo(item2.getDate()));
+            item2.getDate().compareTo(item1.getDate()));
 
         for (AmountItem item : dateAmount) {
             calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate()));

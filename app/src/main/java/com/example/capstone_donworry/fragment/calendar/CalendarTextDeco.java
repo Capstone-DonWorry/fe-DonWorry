@@ -19,7 +19,9 @@ public class CalendarTextDeco implements DayViewDecorator {
 
     @Override
     public boolean shouldDecorate(CalendarDay day) {
-        String date = day.getYear() +"-"+ day.getMonth() +"-"+ day.getDay();
+        String strMon = String.format("%02d", day.getMonth());
+        String strDay = String.format("%02d", day.getDay());
+        String date = day.getYear() +"-"+ strMon +"-"+ strDay;
         return dates.contains(date);
     }
 

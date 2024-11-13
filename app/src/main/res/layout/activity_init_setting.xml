@@ -112,14 +112,27 @@
         android:layout_marginTop="10dp"
         android:gravity="right">
 
-        <Spinner
+        <EditText
             android:id="@+id/InputAge"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:hint="연령대를 입력해주세요"
+            android:inputType="number"
             android:padding="15dp"
-            android:entries="@array/age_array"
+            android:textColor="@color/dark_gray"
+            android:textColorHint="@color/mid_gray"
             android:textSize="14sp"
-            android:spinnerMode="dropdown"/>
+            android:background="@android:color/transparent"/>
+<!--        <Spinner-->
+<!--            android:id="@+id/InputAge"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:padding="15dp"-->
+<!--            android:entries="@array/age_array"-->
+<!--            android:textSize="14sp"-->
+<!--            android:spinnerMode="dropdown"/>-->
 
         <TextView
             android:layout_width="wrap_content"

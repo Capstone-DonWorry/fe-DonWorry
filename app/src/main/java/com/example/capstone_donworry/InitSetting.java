@@ -53,6 +53,7 @@ public class InitSetting extends AppCompatActivity {
 
         // ID 값 찾기
         InputMoney = (EditText) findViewById(R.id.InputMoney);
+        InputMoney.addTextChangedListener(new CustomComma(InputMoney));
         InputNickName = (EditText) findViewById(R.id.InputNickName);
         InputAge = (EditText) findViewById(R.id.InputAge);
 
@@ -72,7 +73,7 @@ public class InitSetting extends AppCompatActivity {
         SignUPBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int expenseGoal = Integer.parseInt(InputMoney.getText().toString());
+                int expenseGoal = Integer.parseInt(InputMoney.getText().toString().replace(",", ""));
                 int age = Integer.parseInt(InputAge.getText().toString());
                 String nickName = InputNickName.getText().toString().trim();
                 Toast.makeText(getApplicationContext(), expenseGoal + nickName+ age+ loginId+ pw, Toast.LENGTH_SHORT).show();

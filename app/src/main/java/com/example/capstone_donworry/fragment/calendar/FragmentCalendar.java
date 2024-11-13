@@ -30,6 +30,7 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private CheckBox checkBoxCard, checkBoxCash;
     private FragmentCalendarBinding binding;
     private DayViewDecorator todayViewDecorator, sundayDecorator, saturdayDecorator;
+    private DecimalFormat decimalFormat;
 
     private int currentYear;
     private int currentMonth;
@@ -88,7 +90,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         viewModelCalendar.getExpenseGoal().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String goal) {
-                targetAmount.setText(goal); // TextView 업데이트
+                targetAmount.setText(decimalFormat.format(Integer.parseInt(goal.replace(",", "")))); // TextView 업데이트
             }
         });
         // 잔액 설정
@@ -103,6 +105,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         checkBoxCard.setOnCheckedChangeListener((buttonView, isChecked) -> sumTotalExpense());
         checkBoxCash.setOnCheckedChangeListener((buttonView, isChecked) -> sumTotalExpense());
+
+        decimalFormat = new DecimalFormat("#,###");
 
         // 아이템 이벤트 처리
         recyclerView.setAdapter(adapter);
@@ -143,7 +147,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         adapter.notifyItemRemoved(position);
 
                         db.deleteItem(userID, deleteItem);
-                        ableAmount.setText(String.valueOf(Integer.parseInt(ableAmount.getText().toString()) + Integer.parseInt(deleteItem.getAmount())));
+                        String decimalAble = decimalFormat.format(Integer.parseInt(ableAmount.getText().toString().replace(",", "")) + deleteItem.getAmount());
+                        ableAmount.setText(decimalAble);
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -219,7 +224,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         // recycler뷰 업데이트
         updateRecycler(item);
 
-        ableAmount.setText(String.valueOf(Integer.parseInt(ableAmount.getText().toString()) - Integer.parseInt(item.getAmount())));
+        String formattedAble = decimalFormat.format(Integer.parseInt(ableAmount.getText().toString().replace(",", "")) - item.getAmount());
+        ableAmount.setText(formattedAble);
 
         // 해당 날짜 점 표시
         calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date));
@@ -249,7 +255,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         boolean isCashChecked = checkBoxCash.isChecked();
 
         for (AmountItem item : adapter.getItems()) {
-            int amountValue = Integer.parseInt(item.getAmount());
+            int amountValue = item.getAmount();
 
             if ((isCardChecked && item.getCard().equals("카드")) ||
                     (isCashChecked && item.getCard().equals("현금")) ||
@@ -258,7 +264,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             }
         }
         totalExpenseTV = binding.TotalExpense;
-        totalExpenseTV.setText(String.valueOf(total));
+        totalExpenseTV.setText(decimalFormat.format(total));
     }
 
     // 잔액 계산
@@ -266,14 +272,13 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         int total = 0;
 
         for (AmountItem item : adapter.getItems()) {
-            int amountValue = Integer.parseInt(item.getAmount());
+            int amountValue = item.getAmount();
 
             total += amountValue;
         }
 
-        int target = Integer.parseInt(targetAmount.getText().toString());
-        String ableValue = String.valueOf(target - total);
-        ableAmount.setText(ableValue);
+        int target = Integer.parseInt(targetAmount.getText().toString().replace(",", ""));
+        ableAmount.setText(decimalFormat.format(target - total));
     }
 
     private void initView() {

@@ -82,7 +82,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 amountItem.setCard(cursor.getString(cursor.getColumnIndex(COL_CARD)));
                 amountItem.setBank(cursor.getString(cursor.getColumnIndex(COL_BANK)));
                 amountItem.setCategory(cursor.getString(cursor.getColumnIndex(COL_CATEGORY)));
-                amountItem.setAmount(cursor.getString(cursor.getColumnIndex(COL_AMOUNT)));
+                amountItem.setAmount(cursor.getInt(cursor.getColumnIndex(COL_AMOUNT)));
                 items.add(amountItem);
                 Log.d("showMonthAmoun", amountItem.getDate());
             } while (cursor.moveToNext());
@@ -112,7 +112,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 amountItem.setCard(cursor.getString(cursor.getColumnIndex(COL_CARD)));
                 amountItem.setBank(cursor.getString(cursor.getColumnIndex(COL_BANK)));
                 amountItem.setCategory(cursor.getString(cursor.getColumnIndex(COL_CATEGORY)));
-                amountItem.setAmount(cursor.getString(cursor.getColumnIndex(COL_AMOUNT)));
+                amountItem.setAmount(cursor.getInt(cursor.getColumnIndex(COL_AMOUNT)));
                 items.add(amountItem);
             } while (cursor.moveToNext());
         }
@@ -140,7 +140,7 @@ public class DBHelper extends SQLiteOpenHelper {
             item.setCard(cursor.getString(cursor.getColumnIndex(COL_CARD)));
             item.setBank(cursor.getString(cursor.getColumnIndex(COL_BANK)));
             item.setCategory(cursor.getString(cursor.getColumnIndex(COL_CATEGORY)));
-            item.setAmount(cursor.getString(cursor.getColumnIndex(COL_AMOUNT)));
+            item.setAmount(cursor.getInt(cursor.getColumnIndex(COL_AMOUNT)));
         }
         cursor.close();
         db.close();

@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.capstone_donworry.CustomComma;
 import com.example.capstone_donworry.R;
 
 public class PopAddItem extends DialogFragment {
@@ -89,6 +90,7 @@ public class PopAddItem extends DialogFragment {
         // UI text 설정
         contentEdit = view.findViewById(R.id.AddContent);
         amountEdit = view.findViewById(R.id.AddAmount);
+        amountEdit.addTextChangedListener(new CustomComma(amountEdit));
         cardCheck = view.findViewById(R.id.AddCard);
         cashCheck = view.findViewById(R.id.AddCash);
         bankEdit = view.findViewById(R.id.AddBank);
@@ -117,7 +119,7 @@ public class PopAddItem extends DialogFragment {
         view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.AddNEXTBtn).setOnClickListener(v -> {
             String contents = contentEdit.getText().toString();
-            String amount = amountEdit.getText().toString();
+            int amount = Integer.parseInt(amountEdit.getText().toString().replace(",", ""));
             String bank = bankEdit.getText().toString();
             String card = cardCheck.isChecked() ? "카드" : "현금";
             String date = dateTextView.getText().toString();
@@ -127,7 +129,7 @@ public class PopAddItem extends DialogFragment {
             // Bundle을 이용한 데이터 전달
             Bundle args = new Bundle();
             args.putString("content", contents);
-            args.putString("amount", amount);
+            args.putInt("amount", amount);
             args.putString("bank", bank);
             args.putString("card", card);
             args.putString("date", date);
@@ -180,7 +182,7 @@ public class PopAddItem extends DialogFragment {
     }
 
     // AmountItem 생성
-    public void createAmountItem(String content, String amount, String card, String bank, String date, String category) {
+    public void createAmountItem(String content, int amount, String card, String bank, String date, String category) {
 
 //        Toast.makeText(getActivity(), "createAmountItem"+content + category, Toast.LENGTH_SHORT).show();
         if (itemAddListener != null) {

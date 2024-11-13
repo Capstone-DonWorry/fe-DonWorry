@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstone_donworry.R;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,7 +125,8 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
             itemName.setText(item.getContent());
             itemCard.setText(item.getCard());
             itemCategory.setText(item.getCategory());
-            itemAmount.setText(item.getAmount());
+            DecimalFormat decimalFormat = new DecimalFormat("#,###");
+            itemAmount.setText(decimalFormat.format(item.getAmount()));
         }
 
         public void setOnItemClickListener(OnItemClickListener listener){

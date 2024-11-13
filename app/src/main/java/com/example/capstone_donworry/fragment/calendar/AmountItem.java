@@ -14,7 +14,7 @@ public class AmountItem implements Parcelable {
     private String card;
     private String bank;
     private String category;
-    private String amount;
+    private int amount;
 
     public AmountItem() {
         this.content = "";
@@ -22,10 +22,10 @@ public class AmountItem implements Parcelable {
         this.card = "";
         this.bank = "";
         this.category = "";
-        this.amount = "";
+        this.amount = 0;
     }
 
-    public AmountItem(String content, String date, String card, String bank, String category, String amount) {
+    public AmountItem(String content, String date, String card, String bank, String category, int amount) {
         this.content = content;
         this.date = date;
         this.card = card;
@@ -41,7 +41,7 @@ public class AmountItem implements Parcelable {
         card = in.readString();
         bank = in.readString();
         category = in.readString();
-        amount = in.readString();
+        amount = in.readInt();
     }
 
     public static final Creator<AmountItem> CREATOR = new Creator<AmountItem>() {
@@ -104,11 +104,11 @@ public class AmountItem implements Parcelable {
         this.category = category;
     }
 
-    public String getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 
@@ -125,6 +125,6 @@ public class AmountItem implements Parcelable {
         parcel.writeString(card);
         parcel.writeString(bank);
         parcel.writeString(category);
-        parcel.writeString(amount);
+        parcel.writeInt(amount);
     }
 }

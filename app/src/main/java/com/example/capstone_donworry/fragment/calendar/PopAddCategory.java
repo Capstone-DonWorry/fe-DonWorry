@@ -23,7 +23,8 @@ import com.example.capstone_donworry.R;
 
 public class PopAddCategory extends DialogFragment {
 
-    private String content, amount, bank, card, date;
+    private String content, bank, card, date;
+    private int amount;
     private Button foodBtn, shopBtn, hobbyBtn, hospitalBtn, lifeBtn, vehicleBtn, etcBtn, plusBtn;
     private String selectedCategory;
     private PopAddItem.ItemAddListener itemAddListener;
@@ -67,7 +68,7 @@ public class PopAddCategory extends DialogFragment {
         super.onCreate(savedInstanceState);
         if(getArguments() != null) {
             content = getArguments().getString("content");
-            amount = getArguments().getString("amount");
+            amount = getArguments().getInt("amount");
             bank = getArguments().getString("bank");
             card = getArguments().getString("card");
             date = getArguments().getString("date");

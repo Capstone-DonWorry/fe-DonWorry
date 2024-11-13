@@ -19,6 +19,8 @@ import android.widget.TextView;
 
 import com.example.capstone_donworry.R;
 
+import java.text.DecimalFormat;
+
 public class PopDetailItem extends DialogFragment {
     private static final String DETAIL_ITEM = "detailItem";
 
@@ -100,7 +102,8 @@ public class PopDetailItem extends DialogFragment {
             cardTextView.setText(item.getCard());
             bankTextView.setText(item.getBank());
             categoryTextView.setText(item.getCategory());
-            amountTextView.setText(item.getAmount());
+            DecimalFormat decimalFormat = new DecimalFormat("#,###");
+            amountTextView.setText(decimalFormat.format(item.getAmount()));
             // 로그 확인
             Log.d("PopDetailItem", "Setting name: " + item.getContent());
             Log.d("PopDetailItem", "Getting name: " + nameTextView.getText());

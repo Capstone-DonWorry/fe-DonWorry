@@ -81,4 +81,19 @@ public class CalendarDeco {
             }
         };
     }
+
+    // 데코 삭제
+    public static DayViewDecorator removeDecorator() {
+        return new DayViewDecorator() {
+            @Override
+            public boolean shouldDecorate(CalendarDay day) {
+                return false;
+            }
+
+            @Override
+            public void decorate(DayViewFacade view) {
+
+            }
+        };
+    }
 }

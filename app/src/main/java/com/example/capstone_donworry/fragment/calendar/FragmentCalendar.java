@@ -33,7 +33,11 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -51,6 +55,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private FragmentCalendarBinding binding;
     private DayViewDecorator todayViewDecorator, sundayDecorator, saturdayDecorator;
     private DecimalFormat decimalFormat;
+    private Map<String, CalendarTextDeco> dots;
 
     private int currentYear;
     private int currentMonth;
@@ -107,6 +112,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         checkBoxCash.setOnCheckedChangeListener((buttonView, isChecked) -> sumTotalExpense());
 
         decimalFormat = new DecimalFormat("#,###");
+        // 점이 찍힌 날짜
+        dots = new HashMap<>();
 
         // 아이템 이벤트 처리
         recyclerView.setAdapter(adapter);
@@ -142,13 +149,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         // 삭제할 아이템 담아두기
                         AmountItem deleteItem = adapter.getItem(position);
 
-                        // 삭제
-                        adapter.removeItem(position);
-                        adapter.notifyItemRemoved(position);
-
-                        db.deleteItem(userID, deleteItem);
-                        String decimalAble = decimalFormat.format(Integer.parseInt(ableAmount.getText().toString().replace(",", "")) + deleteItem.getAmount());
-                        ableAmount.setText(decimalAble);
+                        // 삭제 후 점 업데이트
+                        deleteItemDot(position);
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -227,8 +229,12 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         String formattedAble = decimalFormat.format(Integer.parseInt(ableAmount.getText().toString().replace(",", "")) - item.getAmount());
         ableAmount.setText(formattedAble);
 
-        // 해당 날짜 점 표시
-        calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date));
+        if (!dots.containsKey(date)) {
+            // 해당 날짜 점 표시
+            CalendarTextDeco deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date);
+            calendarView.addDecorator(deco);
+            dots.put(date, deco);
+        }
     }
 
     // 리사이클러 뷰 업데이트
@@ -332,13 +338,46 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         Collections.sort(dateAmount, (item1, item2) ->
             item2.getDate().compareTo(item1.getDate()));
 
+
         for (AmountItem item : dateAmount) {
-            calendarView.addDecorator(new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate()));
+            CalendarTextDeco deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate());
+            calendarView.addDecorator(deco);
+            dots.put(item.getDate(), deco);
             Log.d("showMonthAmount", item.getDate() + dateKey);
         }
 
         adapter.clearItems();
         adapter.addItems((ArrayList<AmountItem>) dateAmount);
 
+    }
+
+    private void deleteItemDot(int position){
+        AmountItem deleteItem = adapter.getItem(position);
+        String deleteDate = deleteItem.getDate();
+
+        // 삭제
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
+
+        // db 삭제
+        db.deleteItem(userID, deleteItem);
+
+        // 잔액 업데이트
+        String decimalAble = decimalFormat.format(Integer.parseInt(ableAmount.getText().toString().replace(",", "")) + deleteItem.getAmount());
+        ableAmount.setText(decimalAble);
+
+        // 항목이 없으면 점 삭제
+        updateDot(deleteDate);
+    }
+    private void updateDot(String date) {
+        List<AmountItem> items = db.getDateItems(userID, date);
+        if (items == null || items.isEmpty()) {
+            // 점이 있을 경우 제거
+            if(dots.containsKey(date)) {
+                CalendarTextDeco deco = dots.get(date);
+                calendarView.removeDecorator(deco);
+                dots.remove(date);
+            }
+        }
     }
 }

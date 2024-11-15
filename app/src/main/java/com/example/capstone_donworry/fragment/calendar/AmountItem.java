@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import java.io.Serializable;
 
-public class AmountItem implements Parcelable {
+public class AmountItem extends Item implements Parcelable {
     private long uid;
     private String content;
     private String date;
@@ -17,6 +17,7 @@ public class AmountItem implements Parcelable {
     private int amount;
 
     public AmountItem() {
+        super(Item.TYPE_AMOUNT);
         this.content = "";
         this.date = "";
         this.card = "";
@@ -26,6 +27,7 @@ public class AmountItem implements Parcelable {
     }
 
     public AmountItem(String content, String date, String card, String bank, String category, int amount) {
+        super(Item.TYPE_AMOUNT);
         this.content = content;
         this.date = date;
         this.card = card;
@@ -35,6 +37,7 @@ public class AmountItem implements Parcelable {
     }
 
     protected AmountItem(Parcel in) {
+        super(Item.TYPE_AMOUNT);
         uid = in.readLong();
         content = in.readString();
         date = in.readString();

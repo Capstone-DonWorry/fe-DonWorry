@@ -14,15 +14,18 @@ import com.example.capstone_donworry.R;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder> {
+public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int TYPE_DATE = 0;
+    private static final int TYPE_ITEM = 1;
+
     Context context;
-
-    List<AmountItem> items = new ArrayList<AmountItem>();
-
+    List<Item> items = new ArrayList<>(); // AmountItem, DateItem
     OnItemClickListener listener;
+
     public static interface OnItemClickListener {
-        public void onItemClick(ViewHolder holder, View view, int position);
+        void onItemClick(ViewHolder holder, View view, int position);
     }
 
     public AmountAdapter(Context context) {
@@ -34,29 +37,49 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
         return items.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (items.get(position) instanceof DateItem) {
+            return TYPE_DATE;
+        } else {
+            return TYPE_ITEM;
+        }
+    }
+
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // 뷰 홀더가 만들어지는 시점에서 호출
         // 아이템을 위한 뷰 홀더가 재사용 될 수 있다면 호출되지 않는다.
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View itemView = inflater.inflate(R.layout.recycler_amount_item, parent, false);
+        View itemView;
 
-        return new ViewHolder(itemView);
+        if (viewType == TYPE_DATE) {
+            itemView = inflater.inflate(R.layout.recycler_date_text, parent, false);
+            return new DateViewHolder(itemView);
+        } else {
+            itemView = inflater.inflate(R.layout.recycler_amount_item, parent, false);
+            return new ViewHolder(itemView);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         // 뷰 홀더가 바인딩되는 시점에 데이터 설정
-        AmountItem item = items.get(position);
-        holder.setItem(item);
+        if (holder instanceof DateViewHolder) {
+            DateItem dateItem = (DateItem) items.get(position);
+            ((DateViewHolder) holder).bind(dateItem);
+        } else if (holder instanceof ViewHolder) {
+            AmountItem amountItem = (AmountItem) items.get(position);
+            ((ViewHolder) holder).bind(amountItem);
+        }
 
-        holder.setOnItemClickListener(listener);
     }
 
     // item 추가
     public void addItem(AmountItem item){
         items.add(item);
+        notifyItemInserted(items.size() -1);
     }
     public void addItemPo(int po, AmountItem item){
         items.add(po, item);
@@ -64,6 +87,11 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
     public void addItems(ArrayList<AmountItem> item){
         items.addAll(item);
         notifyDataSetChanged();
+    }
+
+    public void addDateItem(DateItem dateItem) {
+        items.add(dateItem);
+        notifyItemInserted(items.size() -1);
     }
 
     // item 삭제
@@ -77,15 +105,43 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
     }
 
     public AmountItem getItem(int position) {
-        return items.get(position);
+        Item item = items.get(position);
+        if (item instanceof AmountItem) {
+            return (AmountItem) item;
+        } else {
+            // 처리할 로직: 예를 들어 null 반환하거나 예외 던지기
+            return null;
+        }
     }
 
     public List<AmountItem> getItems() {
-        return items;
+        List<AmountItem> amountItems = new ArrayList<>();
+        for (Item item : items) {
+            if (item instanceof AmountItem) {
+                amountItems.add((AmountItem) item);  // AmountItem으로 형변환하여 추가
+            }
+        }
+        return amountItems;
     }
 
+    // 날짜별로 그룹화
     public void updateItems(List<AmountItem> newItems) {
-        this.items = newItems;
+        items.clear();
+
+        if (newItems.isEmpty()) {
+            return;
+        }
+        String lastDate = "";
+
+        for (AmountItem item : newItems) {
+            String itemDate = item.getDate();
+
+            if (!itemDate.equals(lastDate)){
+                addDateItem(new DateItem(itemDate));
+                lastDate = itemDate;
+            }
+            addItem(item);
+        }
         notifyDataSetChanged();
     }
 
@@ -131,6 +187,26 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
 
         public void setOnItemClickListener(OnItemClickListener listener){
             this.listener = listener;
+        }
+
+        public void bind(AmountItem item) {
+            itemName.setText(item.getContent());
+            itemCard.setText(item.getCard());
+            itemCategory.setText(item.getCategory());
+            itemAmount.setText(item.getAmount());
+        }
+    }
+
+    static class DateViewHolder extends RecyclerView.ViewHolder {
+        TextView dateText;
+
+        public DateViewHolder(@NonNull View itemView) {
+            super(itemView);
+            dateText = itemView.findViewById(R.id.DateText);
+        }
+
+        public void bind(DateItem dateItem) {
+            dateText.setText(dateItem.getDate());
         }
     }
 }

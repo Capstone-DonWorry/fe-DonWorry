@@ -9,7 +9,9 @@ public class DateItem extends Item{
     }
 
     public String getDate() {
-        return date;
+        String[] dateEdit = date.split("-");
+        String dateText = dateEdit[1] + "/" + dateEdit[2];
+        return dateText;
     }
 
     public void setDate(String date) {

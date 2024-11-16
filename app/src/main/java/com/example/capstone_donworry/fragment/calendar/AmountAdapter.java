@@ -1,6 +1,7 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,9 +70,11 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (holder instanceof DateViewHolder) {
             DateItem dateItem = (DateItem) items.get(position);
             ((DateViewHolder) holder).bind(dateItem);
+
         } else if (holder instanceof ViewHolder) {
             AmountItem amountItem = (AmountItem) items.get(position);
-            ((ViewHolder) holder).bind(amountItem);
+            ((ViewHolder) holder).setItem(amountItem);
+            ((ViewHolder) holder).setOnItemClickListener(listener);
         }
 
     }
@@ -79,7 +82,7 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     // item 추가
     public void addItem(AmountItem item){
         items.add(item);
-        notifyItemInserted(items.size() -1);
+        notifyDataSetChanged();
     }
     public void addItemPo(int po, AmountItem item){
         items.add(po, item);
@@ -91,12 +94,21 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public void addDateItem(DateItem dateItem) {
         items.add(dateItem);
-        notifyItemInserted(items.size() -1);
+        notifyDataSetChanged();
     }
 
     // item 삭제
     public void removeItem(int position) {
         items.remove(position);
+    }
+    // Date 삭제
+    public void removeDateItem(int position) {
+        Item item = items.get(position);
+
+        if (item instanceof DateItem) {
+            items.remove(position);
+            notifyItemRemoved(position);  // RecyclerView에서 해당 항목 제거
+        }
     }
 
     public void clearItems() {
@@ -132,9 +144,10 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             return;
         }
         String lastDate = "";
-
         for (AmountItem item : newItems) {
             String itemDate = item.getDate();
+            Log.d("fragmentU2", itemDate);
+            Log.d("fragmentU3", lastDate);
 
             if (!itemDate.equals(lastDate)){
                 addDateItem(new DateItem(itemDate));
@@ -189,12 +202,6 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             this.listener = listener;
         }
 
-        public void bind(AmountItem item) {
-            itemName.setText(item.getContent());
-            itemCard.setText(item.getCard());
-            itemCategory.setText(item.getCategory());
-            itemAmount.setText(item.getAmount());
-        }
     }
 
     static class DateViewHolder extends RecyclerView.ViewHolder {

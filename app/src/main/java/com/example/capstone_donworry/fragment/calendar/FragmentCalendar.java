@@ -156,8 +156,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                adapter.addItemPo(position, deleteItem);
-                                adapter.notifyItemInserted(position);
+                                db.addItem(userID, deleteItem);
+                                updateRecycler(deleteItem);
                             }
                         }).show();
                         break;
@@ -295,8 +295,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
 
         showMonthAmount(calendarView.getCurrentDate());
-        sumTotalExpense();
         ableExpense();
+        sumTotalExpense();
 
         calendarView.setOnMonthChangedListener(((widget, date) -> {
             showMonthAmount(date);
@@ -330,14 +330,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         String strMon = String.format("%02d", date.getMonth());
         String dateKey = date.getYear() +"-"+ strMon;
 
-        List<AmountItem> dateAmount = new ArrayList<>();
+        List<AmountItem> dateAmount = db.getMonthItems(userID, dateKey);
 //        Log.d("showDateAmount", userID);
-        dateAmount = db.getMonthItems(userID, dateKey);
 
         // 날짜 순서로 내림차순 정렬
         Collections.sort(dateAmount, (item1, item2) ->
             item2.getDate().compareTo(item1.getDate()));
 
+        adapter.updateItems(dateAmount);
+        Log.d("fragmentU", "fragment update");
 
         for (AmountItem item : dateAmount) {
             CalendarTextDeco deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate());
@@ -345,9 +346,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             dots.put(item.getDate(), deco);
             Log.d("showMonthAmount", item.getDate() + dateKey);
         }
-
-        adapter.clearItems();
-        adapter.addItems((ArrayList<AmountItem>) dateAmount);
 
     }
 
@@ -367,9 +365,9 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         ableAmount.setText(decimalAble);
 
         // 항목이 없으면 점 삭제
-        updateDot(deleteDate);
+        updateDot(deleteDate, position);
     }
-    private void updateDot(String date) {
+    private void updateDot(String date, int po) {
         List<AmountItem> items = db.getDateItems(userID, date);
         if (items == null || items.isEmpty()) {
             // 점이 있을 경우 제거
@@ -378,6 +376,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 calendarView.removeDecorator(deco);
                 dots.remove(date);
             }
+            adapter.removeDateItem(po -1);
         }
     }
 }

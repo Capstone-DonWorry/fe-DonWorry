@@ -162,6 +162,7 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.listener = listener;
     }
 
+    // 항목
     static class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView itemName;
@@ -204,6 +205,7 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     }
 
+    // 날짜
     static class DateViewHolder extends RecyclerView.ViewHolder {
         TextView dateText;
 

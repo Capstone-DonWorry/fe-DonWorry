@@ -178,7 +178,7 @@ public class PopAddItem extends DialogFragment {
 
     // 리스너 인터페이스
     public interface ItemAddListener {
-        void onItemAdded(String date, AmountItem item);
+        void onItemAdded(AmountItem item);
     }
 
     // AmountItem 생성
@@ -188,7 +188,7 @@ public class PopAddItem extends DialogFragment {
         if (itemAddListener != null) {
 //            Toast.makeText(getActivity(), "null"+content + category, Toast.LENGTH_SHORT).show();
             AmountItem item = new AmountItem(content, date, card, bank, category, amount);
-            itemAddListener.onItemAdded(date, item);
+            itemAddListener.onItemAdded(item);
             dismiss();
         }
     }

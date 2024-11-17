@@ -19,27 +19,33 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.capstone_donworry.DBHelper;
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.PopShowDaylistBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class PopShowDaylist  extends DialogFragment {
+public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAddListener{
 
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private PopShowDaylistBinding binding;
+    private DBHelper db;
 
     private ArrayList<AmountItem> amountList;
     private String selectDate;
+    private String userId;
 
     public static PopShowDaylist newInstance(ArrayList<AmountItem> amountDay, String date) {
         PopShowDaylist popShowDaylist = new PopShowDaylist();
@@ -50,9 +56,17 @@ public class PopShowDaylist  extends DialogFragment {
         return popShowDaylist;
     }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    public void setDb(DBHelper db) {
+        this.db = db;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if(getArguments() != null) {
             amountList = getArguments().getParcelableArrayList("amountDay");
             selectDate = getArguments().getString("selectDate");
@@ -158,13 +172,15 @@ public class PopShowDaylist  extends DialogFragment {
                         // 삭제
                         adapter.removeItem(position);
                         adapter.notifyItemRemoved(position);
+                        // db 삭제
+                        db.deleteItem(userId, deleteItem);
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                adapter.addItemPo(position, deleteItem);
-                                adapter.notifyItemInserted(position);
+                                db.addItem(userId, deleteItem);
+                                updateRecyclerView();
                             }
                         }).show();
                         break;
@@ -186,16 +202,44 @@ public class PopShowDaylist  extends DialogFragment {
 
         // 버튼 클릭 처리
         view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
-        view.findViewById(R.id.AddADDBtn).setOnClickListener(v -> {
-            PopAddItem popAddItem = new PopAddItem();
-            // FragmentCalendar를 타겟으로 설정
-            popAddItem.setTargetFragment(this, 0);
-            popAddItem.show(getParentFragmentManager(), "내용추가");
-        });
+        view.findViewById(R.id.AddADDBtn).setOnClickListener(v -> showAddItem());
 
         return binding.getRoot();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    // 캘린더 뷰
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initView();
+//        initViewModel();
+    }
+
+
+    // 항목추가 다이얼로그 표시
+    private void showAddItem() {
+        PopAddItem popAddItem = new PopAddItem();
+        // FragmentCalendar를 타겟으로 설정
+        popAddItem.setTargetFragment(this, 0);
+        popAddItem.show(getParentFragmentManager(), "내용추가");
+    }
+
+    // 아이템 추가
+    public void onItemAdded(AmountItem item) {
+        // db에 item 등록
+        db.addItem(userId, item);
+
+        // recycler뷰 업데이트
+        updateRecyclerView();
+    }
+
+    // 리사이클러 뷰 업데이트
     private void updateRecyclerView() {
         adapter.items.clear();
 
@@ -205,5 +249,31 @@ public class PopShowDaylist  extends DialogFragment {
 
         // RecyclerView 업데이트
         adapter.notifyDataSetChanged();
+
+    }
+
+    // TODO: 일일 추천 금액 계산
+
+    private void initView() {
+
+    }
+
+    private void showDateAmount(CalendarDay date) {
+        String strMon = String.format("%02d", date.getMonth());
+        String strDay = String.format("%02d", date.getDay());
+        String dateKey = date.getYear() +"-"+ strMon +"-"+ strDay;
+        List<AmountItem> amountList = new ArrayList<>();
+        amountList = db.getDateItems(userId, dateKey);
+
+        if (amountList != null){
+            Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
+            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
+            popShowDaylist.setUserId(userId);
+            popShowDaylist.setDb(db);
+            popShowDaylist.show(getChildFragmentManager(), "특정날짜");
+        }
+        else {
+            Log.d("showDateAmount", "null amountList");
+        }
     }
 }

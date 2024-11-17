@@ -216,7 +216,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     }
 
     // 아이템 추가
-    public void onItemAdded(String date, AmountItem item) {
+    public void onItemAdded(AmountItem item) {
+        String date = item.getDate();
         // db에 item 등록
         long uid = db.addItem(userID, item);
         if (uid != -1) {
@@ -319,6 +320,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         if (amountList != null){
             Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
             PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
+            popShowDaylist.setUserId(userID);
+            popShowDaylist.setDb(db);
             popShowDaylist.show(getChildFragmentManager(), "특정날짜");
         }
         else {

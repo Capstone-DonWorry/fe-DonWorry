@@ -41,13 +41,14 @@ import java.util.Set;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener{
+public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener, PopShowDaylist.OnDialogCancelListener {
 
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private ViewModelCalendar viewModelCalendar;
     private DBHelper db;
     private String userID;
+    private CalendarDay selecDay;
 
     private MaterialCalendarView calendarView;
     private TextView targetAmount, totalExpenseTV, ableAmount;
@@ -100,6 +101,9 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         });
         // 잔액 설정
         ableAmount = binding.AbleAmount;
+
+        // 총 합 금액 설정
+        totalExpenseTV = binding.TotalExpense;
 
         // CheckBox
         checkBoxCard = binding.CheckBoxCard;
@@ -270,7 +274,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 total += amountValue;
             }
         }
-        totalExpenseTV = binding.TotalExpense;
+
         totalExpenseTV.setText(decimalFormat.format(total));
     }
 
@@ -316,13 +320,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         String dateKey = date.getYear() +"-"+ strMon +"-"+ strDay;
         List<AmountItem> amountList = new ArrayList<>();
         amountList = db.getDateItems(userID, dateKey);
+        selecDay = date;
 
         if (amountList != null){
             Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
             PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
             popShowDaylist.setUserId(userID);
             popShowDaylist.setDb(db);
-            popShowDaylist.show(getChildFragmentManager(), "특정날짜");
+            popShowDaylist.setTargetFragment(this, 0);
+            popShowDaylist.show(getParentFragmentManager(), "특정날짜");
         }
         else {
             Log.d("showDateAmount", "null amountList");
@@ -330,6 +336,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     }
 
     private void showMonthAmount(CalendarDay date) {
+        adapter.clearItems();
         String strMon = String.format("%02d", date.getMonth());
         String dateKey = date.getYear() +"-"+ strMon;
 
@@ -381,5 +388,13 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             }
             adapter.removeDateItem(po -1);
         }
+    }
+
+    @Override
+    public void onDialogCancel() {
+        Toast.makeText(getContext(), "ok", Toast.LENGTH_SHORT).show();
+        showMonthAmount(selecDay);
+        sumTotalExpense();
+        ableExpense();
     }
 }

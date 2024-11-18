@@ -1,6 +1,8 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -46,6 +48,12 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     private ArrayList<AmountItem> amountList;
     private String selectDate;
     private String userId;
+    private boolean isAddList = false;
+
+    public interface OnDialogCancelListener {
+        void onDialogCancel();
+    }
+    private OnDialogCancelListener dListener;
 
     public static PopShowDaylist newInstance(ArrayList<AmountItem> amountDay, String date) {
         PopShowDaylist popShowDaylist = new PopShowDaylist();
@@ -70,6 +78,10 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         if(getArguments() != null) {
             amountList = getArguments().getParcelableArrayList("amountDay");
             selectDate = getArguments().getString("selectDate");
+        }
+
+        if (isAddList && getTargetFragment() instanceof OnDialogCancelListener) {
+            dListener = (OnDialogCancelListener) getTargetFragment();
         }
     }
 
@@ -201,7 +213,10 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         }).attachToRecyclerView(recyclerView);
 
         // 버튼 클릭 처리
-        view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> {
+            onCancel(getDialog());
+            dismiss();
+        });
         view.findViewById(R.id.AddADDBtn).setOnClickListener(v -> showAddItem());
 
         return binding.getRoot();
@@ -211,6 +226,16 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+
+    @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        super.onCancel(dialog);
+        if (dListener != null) {
+            dListener.onDialogCancel();
+        }
+
     }
 
     // 캘린더 뷰
@@ -234,6 +259,9 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     public void onItemAdded(AmountItem item) {
         // db에 item 등록
         db.addItem(userId, item);
+        amountList.add(item);
+
+        isAddList = true;
 
         // recycler뷰 업데이트
         updateRecyclerView();

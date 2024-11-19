@@ -167,8 +167,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp">
+        android:layout_height="match_parent">
 
         <Button
             android:id="@+id/ButtonAdd"
@@ -184,7 +183,8 @@
             android:id="@+id/RecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="5dp"/>
+            android:padding="5dp"
+            android:overScrollMode="always"/>
 
     </FrameLayout>
 

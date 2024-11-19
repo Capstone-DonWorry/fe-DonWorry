@@ -32,6 +32,7 @@ import com.example.capstone_donworry.databinding.PopShowDaylistBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,8 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     private String selectDate;
     private String userId;
     private boolean isAddList = false;
+    private int recomAmount;
+    private DecimalFormat decimalFormat;
 
     public interface OnDialogCancelListener {
         void onDialogCancel();
@@ -70,6 +73,9 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     public void setDb(DBHelper db) {
         this.db = db;
     }
+    public void setrecom(int recomAmount) {
+        this.recomAmount = recomAmount;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,7 +86,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
             selectDate = getArguments().getString("selectDate");
         }
 
-        if (isAddList && getTargetFragment() instanceof OnDialogCancelListener) {
+        if (getTargetFragment() instanceof OnDialogCancelListener) {
             dListener = (OnDialogCancelListener) getTargetFragment();
         }
     }
@@ -123,6 +129,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
         // 팝업창 레이아웃 사용
         View view = inflater.inflate(R.layout.pop_show_daylist, container, false);
         if (view == null) {
@@ -132,6 +139,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         }
 
         binding = PopShowDaylistBinding.bind(view);
+        decimalFormat = new DecimalFormat("#,###");
 
         // recyclerView 설정
         recyclerView = binding.DayRecyclerView;
@@ -146,6 +154,11 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         // 날짜 입력
         TextView dateTextView = binding.DayTextView;
         dateTextView.setText(selectDate);
+
+        // 추천 금액 입력
+        TextView dailyRecomAmount = binding.DailyRecommendedAmount;
+        String dailyAmount = decimalFormat.format(recomAmount);
+        dailyRecomAmount.setText(dailyAmount);
 
         updateRecyclerView();
 
@@ -232,7 +245,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
-        if (dListener != null) {
+        if (dListener != null && isAddList) {
             dListener.onDialogCancel();
         }
 
@@ -261,10 +274,10 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         db.addItem(userId, item);
         amountList.add(item);
 
-        isAddList = true;
-
         // recycler뷰 업데이트
         updateRecyclerView();
+        isAddList = true;
+        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
     }
 
     // 리사이클러 뷰 업데이트

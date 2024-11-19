@@ -80,7 +80,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
             selectDate = getArguments().getString("selectDate");
         }
 
-        if (isAddList && getTargetFragment() instanceof OnDialogCancelListener) {
+        if (getTargetFragment() instanceof OnDialogCancelListener) {
             dListener = (OnDialogCancelListener) getTargetFragment();
         }
     }
@@ -123,6 +123,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
         // 팝업창 레이아웃 사용
         View view = inflater.inflate(R.layout.pop_show_daylist, container, false);
         if (view == null) {
@@ -232,7 +233,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
-        if (dListener != null) {
+        if (dListener != null && isAddList) {
             dListener.onDialogCancel();
         }
 
@@ -261,10 +262,10 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         db.addItem(userId, item);
         amountList.add(item);
 
-        isAddList = true;
-
         // recycler뷰 업데이트
         updateRecyclerView();
+        isAddList = true;
+        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
     }
 
     // 리사이클러 뷰 업데이트

@@ -32,6 +32,7 @@ import com.example.capstone_donworry.databinding.PopShowDaylistBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,8 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     private String selectDate;
     private String userId;
     private boolean isAddList = false;
+    private int recomAmount;
+    private DecimalFormat decimalFormat;
 
     public interface OnDialogCancelListener {
         void onDialogCancel();
@@ -69,6 +72,9 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     }
     public void setDb(DBHelper db) {
         this.db = db;
+    }
+    public void setrecom(int recomAmount) {
+        this.recomAmount = recomAmount;
     }
 
     @Override
@@ -133,6 +139,7 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         }
 
         binding = PopShowDaylistBinding.bind(view);
+        decimalFormat = new DecimalFormat("#,###");
 
         // recyclerView 설정
         recyclerView = binding.DayRecyclerView;
@@ -147,6 +154,11 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         // 날짜 입력
         TextView dateTextView = binding.DayTextView;
         dateTextView.setText(selectDate);
+
+        // 추천 금액 입력
+        TextView dailyRecomAmount = binding.DailyRecommendedAmount;
+        String dailyAmount = decimalFormat.format(recomAmount);
+        dailyRecomAmount.setText(dailyAmount);
 
         updateRecyclerView();
 

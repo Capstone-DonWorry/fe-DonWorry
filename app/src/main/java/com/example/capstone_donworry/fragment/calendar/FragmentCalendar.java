@@ -32,6 +32,7 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +49,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private ViewModelCalendar viewModelCalendar;
     private DBHelper db;
     private String userID;
-    private CalendarDay selecDay;
+    private CalendarDay selectDay;
 
     private MaterialCalendarView calendarView;
     private TextView targetAmount, totalExpenseTV, ableAmount;
@@ -320,13 +321,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         String dateKey = date.getYear() +"-"+ strMon +"-"+ strDay;
         List<AmountItem> amountList = new ArrayList<>();
         amountList = db.getDateItems(userID, dateKey);
-        selecDay = date;
+        selectDay = date;
+        int recomAmount = calDailyRecommendedAmount(date);
 
         if (amountList != null){
             Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
             PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
             popShowDaylist.setUserId(userID);
             popShowDaylist.setDb(db);
+            popShowDaylist.setrecom(recomAmount);
             popShowDaylist.setTargetFragment(this, 0);
             popShowDaylist.show(getParentFragmentManager(), "특정날짜");
         }
@@ -357,6 +360,28 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             Log.d("showMonthAmount", item.getDate() + dateKey);
         }
 
+    }
+
+    // 추천 금액 계산
+    private int calDailyRecommendedAmount(CalendarDay date) {
+        int calDailyRecom = 0;
+        if (date != null) {
+            int year = date.getYear();
+            int month = date.getMonth();
+
+            // 마지막 날짜 계산
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year, month-1, 1);
+            int monthLastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+            int currentDay = date.getDay();
+            int remainDay = monthLastDay - currentDay + 1;
+
+            // 하루 추천 금액 계산
+            calDailyRecom = Integer.parseInt(ableAmount.getText().toString().replace(",","")) / remainDay ;
+        }
+
+        return calDailyRecom;
     }
 
     private void deleteItemDot(int position){
@@ -393,7 +418,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     @Override
     public void onDialogCancel() {
         Toast.makeText(getContext(), "ok", Toast.LENGTH_SHORT).show();
-        showMonthAmount(selecDay);
+        showMonthAmount(selectDay);
         sumTotalExpense();
         ableExpense();
     }

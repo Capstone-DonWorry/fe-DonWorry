@@ -23,9 +23,9 @@ import java.util.List;
 public class CalendarDeco {
 
     private static final HashMap<CalendarDay, String> dateTextMap = new HashMap<>();
-    public static void addText(CalendarDay day, String text) {
-        dateTextMap.put(day, text);
-    }
+//    public static void addText(CalendarDay day, String text) {
+//        dateTextMap.put(day, text);
+//    }
     // 현재 날짜
     public static DayViewDecorator todayViewDecorator (Context context) {
         return new DayViewDecorator() {
@@ -82,18 +82,18 @@ public class CalendarDeco {
         };
     }
 
-    // 데코 삭제
-    public static DayViewDecorator removeDecorator() {
-        return new DayViewDecorator() {
-            @Override
-            public boolean shouldDecorate(CalendarDay day) {
-                return false;
-            }
-
-            @Override
-            public void decorate(DayViewFacade view) {
-
-            }
-        };
-    }
+//    // 데코 삭제
+//    public static DayViewDecorator removeDecorator() {
+//        return new DayViewDecorator() {
+//            @Override
+//            public boolean shouldDecorate(CalendarDay day) {
+//                return false;
+//            }
+//
+//            @Override
+//            public void decorate(DayViewFacade view) {
+//
+//            }
+//        };
+//    }
 }

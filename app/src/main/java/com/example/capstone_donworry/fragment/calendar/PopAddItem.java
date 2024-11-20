@@ -31,6 +31,11 @@ public class PopAddItem extends DialogFragment {
     private View viewLine;
     private LinearLayout viewLayout;
     private ItemAddListener itemAddListener;
+    private String settingDate;
+
+    public void setSettingDate(String date) {
+        this.settingDate = date;
+    }
 
     @Override
     public void onStart() {
@@ -98,7 +103,10 @@ public class PopAddItem extends DialogFragment {
         viewLayout = view.findViewById(R.id.visibleLayout);
         dateTextView = view.findViewById(R.id.AddDate);
 
-        // TODO:입력 받은 값 받아오기
+        // date 설정
+        if (settingDate != null && !settingDate.isEmpty()) {
+            dateTextView.setText(settingDate);
+        }
 
         // card/cash 체크 박스 선택 시 이벤트
         cardCheck.setOnClickListener(checkC);
@@ -110,6 +118,8 @@ public class PopAddItem extends DialogFragment {
             @Override
             public void onClick(View view) {
                 PopAddDate popAddDate = new PopAddDate();
+                popAddDate.setInitDate(settingDate);// 초기 날짜 설정
+
                 popAddDate.setTargetFragment(PopAddItem.this, 0); // 현재 Fragment를 Target으로 설정
                 popAddDate.show(getParentFragmentManager(), "날짜 선택");
             }

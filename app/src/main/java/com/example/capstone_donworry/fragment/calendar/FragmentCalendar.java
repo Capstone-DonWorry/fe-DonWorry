@@ -48,7 +48,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     AmountAdapter adapter;
     private ViewModelCalendar viewModelCalendar;
     private DBHelper db;
-    private String userID;
+    private String userID, currentDay;
     private CalendarDay selectDay;
 
     private MaterialCalendarView calendarView;
@@ -58,9 +58,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private DayViewDecorator todayViewDecorator, sundayDecorator, saturdayDecorator;
     private DecimalFormat decimalFormat;
     private Map<String, CalendarTextDeco> dots;
-
-    private int currentYear;
-    private int currentMonth;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,10 +82,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         calendarView = binding.calendarView;
 
-        CalendarDay calendarDay = calendarView.getCurrentDate();
-        currentYear = calendarDay.getYear();
-        currentMonth = calendarDay.getMonth();
-
         // db 설정
         db = new DBHelper(getContext());
 
@@ -105,6 +98,13 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 총 합 금액 설정
         totalExpenseTV = binding.TotalExpense;
+
+        // 현재 날짜 설정
+        CalendarDay curDate = CalendarDay.today();
+        String curMon = String.format("%02d", curDate.getMonth());
+        String curDay = String.format("%02d", curDate.getDay());
+        currentDay = curDate.getYear() +"-"+ curMon +"-"+ curDay;
+        Toast.makeText(getContext(), String.valueOf(curDate), Toast.LENGTH_SHORT).show();
 
         // CheckBox
         checkBoxCard = binding.CheckBoxCard;
@@ -156,6 +156,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
                         // 삭제 후 점 업데이트
                         deleteItemDot(position);
+                        sumTotalExpense();
+                        ableExpense();
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -215,6 +217,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     // 항목추가 다이얼로그 표시
     private void showAddItem() {
         PopAddItem popAddItem = new PopAddItem();
+        popAddItem.setSettingDate(currentDay);// 현재 날짜 설정
         // FragmentCalendar를 타겟으로 설정
         popAddItem.setTargetFragment(this, 0);
         popAddItem.show(getParentFragmentManager(), "내용추가");

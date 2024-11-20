@@ -200,6 +200,8 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
                         // db 삭제
                         db.deleteItem(userId, deleteItem);
 
+                        isAddList = true;
+
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
                             @Override
@@ -251,19 +253,11 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
 
     }
 
-    // 캘린더 뷰
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        initView();
-//        initViewModel();
-    }
-
-
     // 항목추가 다이얼로그 표시
     private void showAddItem() {
         PopAddItem popAddItem = new PopAddItem();
         // FragmentCalendar를 타겟으로 설정
+        popAddItem.setSettingDate(selectDate);
         popAddItem.setTargetFragment(this, 0);
         popAddItem.show(getParentFragmentManager(), "내용추가");
     }
@@ -275,7 +269,9 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         amountList.add(item);
 
         // recycler뷰 업데이트
-        updateRecyclerView();
+        if (item.getDate() == selectDate) {
+            updateRecyclerView();
+        }
         isAddList = true;
         Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
     }
@@ -291,30 +287,5 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         // RecyclerView 업데이트
         adapter.notifyDataSetChanged();
 
-    }
-
-    // TODO: 일일 추천 금액 계산
-
-    private void initView() {
-
-    }
-
-    private void showDateAmount(CalendarDay date) {
-        String strMon = String.format("%02d", date.getMonth());
-        String strDay = String.format("%02d", date.getDay());
-        String dateKey = date.getYear() +"-"+ strMon +"-"+ strDay;
-        List<AmountItem> amountList = new ArrayList<>();
-        amountList = db.getDateItems(userId, dateKey);
-
-        if (amountList != null){
-            Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
-            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
-            popShowDaylist.setUserId(userId);
-            popShowDaylist.setDb(db);
-            popShowDaylist.show(getChildFragmentManager(), "특정날짜");
-        }
-        else {
-            Log.d("showDateAmount", "null amountList");
-        }
     }
 }

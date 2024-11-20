@@ -1,7 +1,6 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import com.example.capstone_donworry.R;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_DATE = 0;
@@ -146,8 +144,6 @@ public class AmountAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         String lastDate = "";
         for (AmountItem item : newItems) {
             String itemDate = item.getDate();
-            Log.d("fragmentU2", itemDate);
-            Log.d("fragmentU3", lastDate);
 
             if (!itemDate.equals(lastDate)){
                 addDateItem(new DateItem(itemDate));

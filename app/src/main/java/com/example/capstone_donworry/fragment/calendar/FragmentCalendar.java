@@ -1,6 +1,5 @@
 package com.example.capstone_donworry.fragment.calendar;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,10 +33,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -48,7 +44,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     AmountAdapter adapter;
     private ViewModelCalendar viewModelCalendar;
     private DBHelper db;
-    private String userID;
+    private String userID, currentDay;
     private CalendarDay selectDay;
 
     private MaterialCalendarView calendarView;
@@ -58,9 +54,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     private DayViewDecorator todayViewDecorator, sundayDecorator, saturdayDecorator;
     private DecimalFormat decimalFormat;
     private Map<String, CalendarTextDeco> dots;
-
-    private int currentYear;
-    private int currentMonth;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,10 +78,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         calendarView = binding.calendarView;
 
-        CalendarDay calendarDay = calendarView.getCurrentDate();
-        currentYear = calendarDay.getYear();
-        currentMonth = calendarDay.getMonth();
-
         // db 설정
         db = new DBHelper(getContext());
 
@@ -105,6 +94,12 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 총 합 금액 설정
         totalExpenseTV = binding.TotalExpense;
+
+        // 현재 날짜 설정
+        CalendarDay curDate = CalendarDay.today();
+        String curMon = String.format("%02d", curDate.getMonth());
+        String curDay = String.format("%02d", curDate.getDay());
+        currentDay = curDate.getYear() +"-"+ curMon +"-"+ curDay;
 
         // CheckBox
         checkBoxCard = binding.CheckBoxCard;
@@ -156,6 +151,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
                         // 삭제 후 점 업데이트
                         deleteItemDot(position);
+                        sumTotalExpense();
+                        ableExpense();
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -215,6 +212,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     // 항목추가 다이얼로그 표시
     private void showAddItem() {
         PopAddItem popAddItem = new PopAddItem();
+        popAddItem.setSettingDate(currentDay);// 현재 날짜 설정
         // FragmentCalendar를 타겟으로 설정
         popAddItem.setTargetFragment(this, 0);
         popAddItem.show(getParentFragmentManager(), "내용추가");
@@ -325,7 +323,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         int recomAmount = calDailyRecommendedAmount(date);
 
         if (amountList != null){
-            Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
             PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
             popShowDaylist.setUserId(userID);
             popShowDaylist.setDb(db);
@@ -344,20 +341,17 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         String dateKey = date.getYear() +"-"+ strMon;
 
         List<AmountItem> dateAmount = db.getMonthItems(userID, dateKey);
-//        Log.d("showDateAmount", userID);
 
         // 날짜 순서로 내림차순 정렬
         Collections.sort(dateAmount, (item1, item2) ->
             item2.getDate().compareTo(item1.getDate()));
 
         adapter.updateItems(dateAmount);
-        Log.d("fragmentU", "fragment update");
 
         for (AmountItem item : dateAmount) {
             CalendarTextDeco deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate());
             calendarView.addDecorator(deco);
             dots.put(item.getDate(), deco);
-            Log.d("showMonthAmount", item.getDate() + dateKey);
         }
 
     }
@@ -417,7 +411,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
     @Override
     public void onDialogCancel() {
-        Toast.makeText(getContext(), "ok", Toast.LENGTH_SHORT).show();
         showMonthAmount(selectDay);
         sumTotalExpense();
         ableExpense();

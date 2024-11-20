@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.capstone_donworry.CustomComma;
 import com.example.capstone_donworry.R;
@@ -31,6 +32,11 @@ public class PopAddItem extends DialogFragment {
     private View viewLine;
     private LinearLayout viewLayout;
     private ItemAddListener itemAddListener;
+    private String settingDate;
+
+    public void setSettingDate(String date) {
+        this.settingDate = date;
+    }
 
     @Override
     public void onStart() {
@@ -98,7 +104,10 @@ public class PopAddItem extends DialogFragment {
         viewLayout = view.findViewById(R.id.visibleLayout);
         dateTextView = view.findViewById(R.id.AddDate);
 
-        // TODO:입력 받은 값 받아오기
+        // date 설정
+        if (settingDate != null && !settingDate.isEmpty()) {
+            dateTextView.setText(settingDate);
+        }
 
         // card/cash 체크 박스 선택 시 이벤트
         cardCheck.setOnClickListener(checkC);
@@ -110,6 +119,8 @@ public class PopAddItem extends DialogFragment {
             @Override
             public void onClick(View view) {
                 PopAddDate popAddDate = new PopAddDate();
+                popAddDate.setInitDate(settingDate);// 초기 날짜 설정
+
                 popAddDate.setTargetFragment(PopAddItem.this, 0); // 현재 Fragment를 Target으로 설정
                 popAddDate.show(getParentFragmentManager(), "날짜 선택");
             }
@@ -119,24 +130,32 @@ public class PopAddItem extends DialogFragment {
         view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.AddNEXTBtn).setOnClickListener(v -> {
             String contents = contentEdit.getText().toString();
-            int amount = Integer.parseInt(amountEdit.getText().toString().replace(",", ""));
+            String strAmount = amountEdit.getText().toString().replace(",", "");
             String bank = bankEdit.getText().toString();
             String card = cardCheck.isChecked() ? "카드" : "현금";
             String date = dateTextView.getText().toString();
 
-            PopAddCategory popAddCategory = new PopAddCategory();
+            // 빈 항목이 있는지 체크
+            if (contents.isEmpty() || strAmount.isEmpty() || bank.isEmpty() || (!cardCheck.isChecked() && !cashCheck.isChecked())) {
+                // 빈 칸이 있을 경우 경고 메시지 띄우기
+                Toast.makeText(getActivity(), "모든 항목을 입력해주세요.", Toast.LENGTH_SHORT).show();
+            }else {
+                int amount = Integer.parseInt(strAmount);
 
-            // Bundle을 이용한 데이터 전달
-            Bundle args = new Bundle();
-            args.putString("content", contents);
-            args.putInt("amount", amount);
-            args.putString("bank", bank);
-            args.putString("card", card);
-            args.putString("date", date);
-            popAddCategory.setArguments(args);
+                PopAddCategory popAddCategory = new PopAddCategory();
 
-            popAddCategory.setTargetFragment(PopAddItem.this, 0);
-            popAddCategory.show(getParentFragmentManager(), "카테고리 선택");
+                // Bundle을 이용한 데이터 전달
+                Bundle args = new Bundle();
+                args.putString("content", contents);
+                args.putInt("amount", amount);
+                args.putString("bank", bank);
+                args.putString("card", card);
+                args.putString("date", date);
+                popAddCategory.setArguments(args);
+
+                popAddCategory.setTargetFragment(PopAddItem.this, 0);
+                popAddCategory.show(getParentFragmentManager(), "카테고리 선택");
+            }
         });
 
         return view;
@@ -184,9 +203,7 @@ public class PopAddItem extends DialogFragment {
     // AmountItem 생성
     public void createAmountItem(String content, int amount, String card, String bank, String date, String category) {
 
-//        Toast.makeText(getActivity(), "createAmountItem"+content + category, Toast.LENGTH_SHORT).show();
         if (itemAddListener != null) {
-//            Toast.makeText(getActivity(), "null"+content + category, Toast.LENGTH_SHORT).show();
             AmountItem item = new AmountItem(content, date, card, bank, category, amount);
             itemAddListener.onItemAdded(item);
             dismiss();

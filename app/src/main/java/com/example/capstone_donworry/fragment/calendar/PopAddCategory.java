@@ -141,7 +141,6 @@ public class PopAddCategory extends DialogFragment {
             selectCategory("기타");
         });
 
-        //TODO: 카테고리 입력&저장 기능
         plusBtn.setOnClickListener(v -> {
             resetCategoryButton();
         });
@@ -151,16 +150,20 @@ public class PopAddCategory extends DialogFragment {
             itemAddListener = (PopAddItem.ItemAddListener) getTargetFragment();
         }
         // 버튼 클릭 처리
-        //TODO:확인 버튼 클릭 시 데이터 저장
         view.findViewById(R.id.AddBackBtn).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.AddOKBtn).setOnClickListener(v -> {
-            if(getTargetFragment()instanceof PopAddItem) {
-                PopAddItem targetFragment = (PopAddItem) getTargetFragment();
-                targetFragment.createAmountItem(content, amount, card, bank, date, selectedCategory);
-
-//                Toast.makeText(getActivity(), content + selectedCategory, Toast.LENGTH_SHORT).show();
+            // 카테고리가 선택 확인
+            if (selectedCategory == null || selectedCategory.isEmpty()) {
+                // 카테고리가 선택되지 않았을 경우 경고 메시지 표시
+                Toast.makeText(getActivity(), "카테고리를 선택해주세요.", Toast.LENGTH_SHORT).show();
+            } else {
+                // 카테고리 처리
+                if (getTargetFragment() instanceof PopAddItem) {
+                    PopAddItem targetFragment = (PopAddItem) getTargetFragment();
+                    targetFragment.createAmountItem(content, amount, card, bank, date, selectedCategory);
+                }
+                dismiss();
             }
-            dismiss();
         });
 
         return view;

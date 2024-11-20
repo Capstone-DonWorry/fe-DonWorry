@@ -1,7 +1,6 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,13 +14,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,12 +27,9 @@ import com.example.capstone_donworry.DBHelper;
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.PopShowDaylistBinding;
 import com.google.android.material.snackbar.Snackbar;
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -129,7 +123,6 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
         // 팝업창 레이아웃 사용
         View view = inflater.inflate(R.layout.pop_show_daylist, container, false);
         if (view == null) {
@@ -172,9 +165,6 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
                 popDetail.show(getChildFragmentManager(), "세부내역");
 
-
-                // 토스트 메시지 확인
-//                Toast.makeText(getActivity(), item.getAmount(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -199,6 +189,8 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
                         adapter.notifyItemRemoved(position);
                         // db 삭제
                         db.deleteItem(userId, deleteItem);
+
+                        isAddList = true;
 
                         // 복구
                         Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
@@ -251,19 +243,11 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
 
     }
 
-    // 캘린더 뷰
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        initView();
-//        initViewModel();
-    }
-
-
     // 항목추가 다이얼로그 표시
     private void showAddItem() {
         PopAddItem popAddItem = new PopAddItem();
         // FragmentCalendar를 타겟으로 설정
+        popAddItem.setSettingDate(selectDate);
         popAddItem.setTargetFragment(this, 0);
         popAddItem.show(getParentFragmentManager(), "내용추가");
     }
@@ -275,9 +259,10 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         amountList.add(item);
 
         // recycler뷰 업데이트
-        updateRecyclerView();
+        if (item.getDate() == selectDate) {
+            updateRecyclerView();
+        }
         isAddList = true;
-        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
     }
 
     // 리사이클러 뷰 업데이트
@@ -291,30 +276,5 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         // RecyclerView 업데이트
         adapter.notifyDataSetChanged();
 
-    }
-
-    // TODO: 일일 추천 금액 계산
-
-    private void initView() {
-
-    }
-
-    private void showDateAmount(CalendarDay date) {
-        String strMon = String.format("%02d", date.getMonth());
-        String strDay = String.format("%02d", date.getDay());
-        String dateKey = date.getYear() +"-"+ strMon +"-"+ strDay;
-        List<AmountItem> amountList = new ArrayList<>();
-        amountList = db.getDateItems(userId, dateKey);
-
-        if (amountList != null){
-            Log.d("showDateAmount", "Amount List for"+dateKey+":"+amountList);
-            PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
-            popShowDaylist.setUserId(userId);
-            popShowDaylist.setDb(db);
-            popShowDaylist.show(getChildFragmentManager(), "특정날짜");
-        }
-        else {
-            Log.d("showDateAmount", "null amountList");
-        }
     }
 }

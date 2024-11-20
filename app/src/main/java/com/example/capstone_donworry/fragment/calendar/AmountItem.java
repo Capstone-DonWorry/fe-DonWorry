@@ -5,8 +5,6 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-import java.io.Serializable;
-
 public class AmountItem extends Item implements Parcelable {
     private long uid;
     private String content;

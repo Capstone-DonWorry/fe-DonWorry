@@ -15,13 +15,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.capstone_donworry.MainActivity;
 import com.example.capstone_donworry.R;
+
+import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 
 public class PopDetailItem extends DialogFragment {
+    private TextView nameTextView, dateTextView, cardTextView, bankTextView, categoryTextView, amountTextView;
     private static final String DETAIL_ITEM = "detailItem";
 
     public static PopDetailItem newInstance(AmountItem item){
@@ -81,12 +88,12 @@ public class PopDetailItem extends DialogFragment {
         AmountItem item = (AmountItem) getArguments().getParcelable(DETAIL_ITEM);
 
         // UI text 설정
-        TextView nameTextView = view.findViewById(R.id.DetailName);
-        TextView dateTextView = view.findViewById(R.id.DetailDate);
-        TextView cardTextView = view.findViewById(R.id.DetailCard);
-        TextView bankTextView = view.findViewById(R.id.DetailBank);
-        TextView categoryTextView = view.findViewById(R.id.DetailCategory);
-        TextView amountTextView = view.findViewById(R.id.DetailAmount);
+        nameTextView = view.findViewById(R.id.DetailName);
+        dateTextView = view.findViewById(R.id.DetailDate);
+        cardTextView = view.findViewById(R.id.DetailCard);
+        bankTextView = view.findViewById(R.id.DetailBank);
+        categoryTextView = view.findViewById(R.id.DetailCategory);
+        amountTextView = view.findViewById(R.id.DetailAmount);
 
         // text 설정
         if (item != null) {
@@ -102,7 +109,79 @@ public class PopDetailItem extends DialogFragment {
         // 버튼 클릭 처리
         view.findViewById(R.id.DetailOKBtn).setOnClickListener(v -> dismiss());
 
+        // 가게명 데이터 수정
+        setEditTextView(nameTextView, "가게명 수정");
+
+        // 날짜 데이터 수정
+        dateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopAddDate popAddDate = new PopAddDate();
+
+                String currentDate = dateTextView.getText().toString();
+                popAddDate.setInitDate(currentDate);
+                popAddDate.setTargetFragment(PopDetailItem.this, 0);
+                popAddDate.show(getParentFragmentManager(), "날짜 선택");
+            }
+        });
+
+        // 카드 데이터 수정
+        setEditTextView(cardTextView, "카드 수정");
+
+        // 은행 데이터 수정
+        if (cardTextView.getText().toString().equals("카드")) {
+            setEditTextView(bankTextView, "은행 수정");
+        }
+
+        // 카테고리 데이터 수정
+        setEditTextView(categoryTextView, "카테고리 수정");
+
+        // 지출 데이터 수정
+        setEditTextView(amountTextView, "지출 수정");
+
         return view;
+    }
+
+    // EditText로 전환
+    private void setEditTextView(final TextView textView, final String hint){
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TextView를 EditText로 변경
+                final EditText editText = new EditText(getContext());
+                editText.setText(textView.getText());
+                editText.setHint(hint);
+                editText.setSelection(editText.length()); // 텍스트 끝으로 커서 설정
+
+                LinearLayout parentLayout = (LinearLayout) textView.getParent();
+
+                // textView와 같은 크기로 EditText 설정
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();
+                editText.setLayoutParams(params);
+
+                parentLayout.removeView(textView);
+                parentLayout.addView(editText);
+
+                // edit 수정 후 db 수정
+                editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View view, boolean hasFocus) {
+                        if (!hasFocus) {
+                            String newText = editText.getText().toString().trim();
+                            textView.setText(newText); // 수정된 텍스트
+                            // db 추가
+                            parentLayout.removeView(editText);
+                            parentLayout.addView(textView);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    // 날짜 TextView 설정
+    public void updateDate(String date) {
+        dateTextView.setText(date);
     }
 
 }

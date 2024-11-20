@@ -35,7 +35,6 @@ public class PopDetailItem extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-//        Log.d("PopDetailItem", "DialogFragment started");
         // Dialog의 윈도우 설정
         Dialog dialog = getDialog();
         if (dialog != null) {
@@ -47,12 +46,10 @@ public class PopDetailItem extends DialogFragment {
 
                 // 화면 크기의 90%를 계산
                 int width = (int) (displayMetrics.widthPixels * 0.9);
-//                int height = (int) (displayMetrics.heightPixels * 0.9);
 
                 // Dialog의 크기 설정
                 WindowManager.LayoutParams layoutParams = window.getAttributes();
                 layoutParams.width = width;
-//                layoutParams.height = height;
                 window.setAttributes(layoutParams);
             }
         }
@@ -83,10 +80,6 @@ public class PopDetailItem extends DialogFragment {
 
         AmountItem item = (AmountItem) getArguments().getParcelable(DETAIL_ITEM);
 
-
-        // 로그 출력
-//        Log.d("PopDetailItem", "onCreateView called"+item.getBank());
-
         // UI text 설정
         TextView nameTextView = view.findViewById(R.id.DetailName);
         TextView dateTextView = view.findViewById(R.id.DetailDate);
@@ -104,9 +97,6 @@ public class PopDetailItem extends DialogFragment {
             categoryTextView.setText(item.getCategory());
             DecimalFormat decimalFormat = new DecimalFormat("#,###");
             amountTextView.setText(decimalFormat.format(item.getAmount()));
-            // 로그 확인
-            Log.d("PopDetailItem", "Setting name: " + item.getContent());
-            Log.d("PopDetailItem", "Getting name: " + nameTextView.getText());
         }
 
         // 버튼 클릭 처리
@@ -114,7 +104,5 @@ public class PopDetailItem extends DialogFragment {
 
         return view;
     }
-    // TODO:입력한 데이터로 내용 추가
-    // TODO:입력한 데이터로 내용 변경
 
 }

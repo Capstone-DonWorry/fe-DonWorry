@@ -5,9 +5,6 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 public class CalendarTextDeco implements DayViewDecorator {
     private final int color;
     private final String dates;

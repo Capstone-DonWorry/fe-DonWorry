@@ -26,8 +26,6 @@ public class ViewModelCalendar extends ViewModel {
     }
 
     public void setExpenseGoal(String goal) {
-
-        Log.d("expenseGoal", "viewmodel: " + goal);
         expenseGoal.setValue(goal);
     }
 

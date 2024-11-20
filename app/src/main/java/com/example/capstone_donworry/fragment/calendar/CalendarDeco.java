@@ -2,8 +2,6 @@ package com.example.capstone_donworry.fragment.calendar;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.style.ForegroundColorSpan;
 
@@ -13,19 +11,11 @@ import com.example.capstone_donworry.R;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
-import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 public class CalendarDeco {
 
-    private static final HashMap<CalendarDay, String> dateTextMap = new HashMap<>();
-//    public static void addText(CalendarDay day, String text) {
-//        dateTextMap.put(day, text);
-//    }
     // 현재 날짜
     public static DayViewDecorator todayViewDecorator (Context context) {
         return new DayViewDecorator() {
@@ -81,19 +71,4 @@ public class CalendarDeco {
             }
         };
     }
-
-//    // 데코 삭제
-//    public static DayViewDecorator removeDecorator() {
-//        return new DayViewDecorator() {
-//            @Override
-//            public boolean shouldDecorate(CalendarDay day) {
-//                return false;
-//            }
-//
-//            @Override
-//            public void decorate(DayViewFacade view) {
-//
-//            }
-//        };
-//    }
 }

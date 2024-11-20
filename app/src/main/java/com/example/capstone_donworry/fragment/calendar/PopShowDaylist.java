@@ -1,7 +1,6 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,13 +14,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,12 +27,9 @@ import com.example.capstone_donworry.DBHelper;
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.PopShowDaylistBinding;
 import com.google.android.material.snackbar.Snackbar;
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -129,7 +123,6 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
         // 팝업창 레이아웃 사용
         View view = inflater.inflate(R.layout.pop_show_daylist, container, false);
         if (view == null) {
@@ -172,9 +165,6 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
                 popDetail.show(getChildFragmentManager(), "세부내역");
 
-
-                // 토스트 메시지 확인
-//                Toast.makeText(getActivity(), item.getAmount(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -273,7 +263,6 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
             updateRecyclerView();
         }
         isAddList = true;
-        Toast.makeText(getContext(), isAddList+"ok" ,Toast.LENGTH_SHORT).show();
     }
 
     // 리사이클러 뷰 업데이트

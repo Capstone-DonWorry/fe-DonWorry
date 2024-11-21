@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.capstone_donworry.CustomComma;
+import com.example.capstone_donworry.DBHelper;
 import com.example.capstone_donworry.R;
 
 import java.text.DecimalFormat;
@@ -29,6 +30,8 @@ public class PopDetailItem extends DialogFragment {
     private TextView nameTextView, dateTextView, cardTextView, bankTextView, categoryTextView, amountTextView;
     private static final String DETAIL_ITEM = "detailItem";
     private DecimalFormat decimalFormat;
+    private AmountItem item;
+    private DBHelper dbHelper;
 
     public static PopDetailItem newInstance(AmountItem item){
         PopDetailItem fragment = new PopDetailItem();
@@ -84,7 +87,7 @@ public class PopDetailItem extends DialogFragment {
             Log.d("PopDetailItem", "View inflated successfully");
         }
 
-        AmountItem item = (AmountItem) getArguments().getParcelable(DETAIL_ITEM);
+        item = (AmountItem) getArguments().getParcelable(DETAIL_ITEM);
 
         // UI text 설정
         nameTextView = view.findViewById(R.id.DetailName);
@@ -104,6 +107,9 @@ public class PopDetailItem extends DialogFragment {
             decimalFormat = new DecimalFormat("#,###");
             amountTextView.setText(decimalFormat.format(item.getAmount()));
         }
+
+        // db 설정
+        dbHelper = new DBHelper(getContext());
 
         // 버튼 클릭 처리
         view.findViewById(R.id.DetailOKBtn).setOnClickListener(v -> dismiss());
@@ -126,7 +132,11 @@ public class PopDetailItem extends DialogFragment {
                                 String newText = editText.getText().toString().trim();
                                 nameTextView.setText(newText); // 수정된 텍스트
 
+                                // AmountItem 반영
+                                item.setContent(newText);
+
                                 // db 추가
+                                dbHelper.updateItem(item);
 
                                 editText.setVisibility(View.GONE);
                                 nameTextView.setVisibility(View.VISIBLE);
@@ -191,6 +201,9 @@ public class PopDetailItem extends DialogFragment {
                                                 bankTextView.setText(newText); // 수정된 텍스트
 
                                                 // db 추가
+                                                item.setCard(selectCard);
+                                                item.setBank(newText);
+                                                dbHelper.updateItem(item);
 
                                                 editText.setVisibility(View.GONE);
                                                 bankTextView.setVisibility(View.VISIBLE);
@@ -202,6 +215,9 @@ public class PopDetailItem extends DialogFragment {
                             } else if (selectCard.equals("현금")) {
                                 bankTextView.setText("");
                                 bankTextView.setVisibility(View.GONE);
+
+                                item.setCard(selectCard);
+                                dbHelper.updateItem(item);
                             }
 
                         })
@@ -230,6 +246,8 @@ public class PopDetailItem extends DialogFragment {
                                     bankTextView.setText(newText); // 수정된 텍스트
 
                                     // db 추가
+                                    item.setBank(newText);
+                                    dbHelper.updateItem(item);
 
                                     editText.setVisibility(View.GONE);
                                     bankTextView.setVisibility(View.VISIBLE);
@@ -274,7 +292,8 @@ public class PopDetailItem extends DialogFragment {
                             amountTextView.setText(decimalFormat.format(newIntAmount)); // 수정된 텍스트
 
                             // db 추가
-
+                            item.setAmount(newIntAmount);
+                            dbHelper.updateItem(item);
 
                             editText.setVisibility(View.GONE);
                             amountTextView.setVisibility(View.VISIBLE);
@@ -290,6 +309,8 @@ public class PopDetailItem extends DialogFragment {
     // 날짜 TextView 설정
     public void updateDate(String date) {
         dateTextView.setText(date);
+        item.setDate(date);
+        dbHelper.updateItem(item);
     }
 
     // 카드 설정
@@ -307,6 +328,8 @@ public class PopDetailItem extends DialogFragment {
     // 카테고리 TextView 설정
     public void updateCategory(String category) {
         categoryTextView.setText(category);
+        item.setCategory(category);
+        dbHelper.updateItem(item);
     }
 
 }

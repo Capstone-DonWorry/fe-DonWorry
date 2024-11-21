@@ -44,9 +44,17 @@ public class PopAddDate extends DialogFragment implements DatePickerDialog.OnDat
         String strDay = String.format("%02d", day);
         String selecDay = year + "-" + strMon + "-" + strDay;
 
-        PopAddItem targetFragment = (PopAddItem) getTargetFragment();
-        if(targetFragment != null) {
-            targetFragment.updateDate(selecDay);
+        if (getTargetFragment() instanceof PopAddItem) {
+            PopAddItem targetFragment = (PopAddItem) getTargetFragment();
+            if (targetFragment != null) {
+                targetFragment.updateDate(selecDay);
+            }
+
+        } else if (getTargetFragment() instanceof PopDetailItem) {
+            PopDetailItem targetFragment = (PopDetailItem) getTargetFragment();
+            if (targetFragment != null) {
+                targetFragment.updateDate(selecDay);
+            }
         }
     }
 }

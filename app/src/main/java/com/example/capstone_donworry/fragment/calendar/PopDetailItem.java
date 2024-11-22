@@ -12,12 +12,12 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.capstone_donworry.CustomComma;
@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 
 public class PopDetailItem extends DialogFragment {
     private TextView nameTextView, dateTextView, cardTextView, bankTextView, categoryTextView, amountTextView;
+    private EditText nameEditText,bankEditText, amountEditText;
     private static final String DETAIL_ITEM = "detailItem";
     private DecimalFormat decimalFormat;
     private AmountItem item;
@@ -89,6 +90,11 @@ public class PopDetailItem extends DialogFragment {
 
         item = (AmountItem) getArguments().getParcelable(DETAIL_ITEM);
 
+        // EditText
+        nameEditText = view.getRootView().findViewById(R.id.DetailNameEdit);
+        bankEditText = view.getRootView().findViewById(R.id.DetailBankEdit);
+        amountEditText = view.getRootView().findViewById(R.id.DetailAmountEdit);
+
         // UI text 설정
         nameTextView = view.findViewById(R.id.DetailName);
         dateTextView = view.findViewById(R.id.DetailDate);
@@ -118,18 +124,17 @@ public class PopDetailItem extends DialogFragment {
         nameTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final EditText editText = view.getRootView().findViewById(R.id.DetailNameEdit);
-                if (editText != null) {
-                    editText.setVisibility(View.VISIBLE);
-                    editText.setText(nameTextView.getText().toString());
+                if (nameEditText != null) {
+                    nameEditText.setVisibility(View.VISIBLE);
+                    nameEditText.setText(nameTextView.getText().toString());
                     nameTextView.setVisibility(View.GONE);
 
                     // edit 수정 후 db 수정
-                    editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    nameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                         @Override
                         public void onFocusChange(View view, boolean hasFocus) {
                             if (!hasFocus) {
-                                String newText = editText.getText().toString().trim();
+                                String newText = nameEditText.getText().toString().trim();
                                 nameTextView.setText(newText); // 수정된 텍스트
 
                                 // AmountItem 반영
@@ -138,12 +143,35 @@ public class PopDetailItem extends DialogFragment {
                                 // db 추가
                                 dbHelper.updateItem(item);
 
-                                editText.setVisibility(View.GONE);
+                                nameEditText.setVisibility(View.GONE);
                                 nameTextView.setVisibility(View.VISIBLE);
                             }
                         }
                     });
                 }
+            }
+        });
+        // 화면 터치 시 자동 저장
+        view.setOnTouchListener(new View.OnTouchListener(){
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (nameEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(nameEditText, motionEvent)) {
+                    String newText = nameEditText.getText().toString().trim();
+
+                    nameTextView.setText(newText); // 수정된 텍스트
+
+                    // AmountItem 반영
+                    item.setContent(newText);
+
+                    // db 추가
+                    dbHelper.updateItem(item);
+
+                    nameEditText.setVisibility(View.GONE);
+                    nameTextView.setVisibility(View.VISIBLE);
+                    return true; // 이벤트 처리 완료
+                }
+                return false; // 다른 부분에서 터치 처리
             }
         });
 
@@ -185,19 +213,18 @@ public class PopDetailItem extends DialogFragment {
                             if (selectCard.equals("카드")) {
                                 bankTextView.setVisibility(View.VISIBLE);
 
-                                final EditText editText = view.getRootView().findViewById(R.id.DetailBankEdit);
-                                if (editText != null){
-                                    editText.setVisibility(View.VISIBLE);
-                                    editText.setText("");
+                                if (bankEditText != null){
+                                    bankEditText.setVisibility(View.VISIBLE);
+                                    bankEditText.setText("");
                                     bankTextView.setVisibility(View.GONE);
-                                    editText.requestFocus();
+                                    bankEditText.requestFocus();
 
                                     // edit 수정 후 db 수정
-                                    editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                                    bankEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                                         @Override
                                         public void onFocusChange(View view, boolean hasFocus) {
                                             if (!hasFocus) {
-                                                String newText = editText.getText().toString().trim();
+                                                String newText = bankEditText.getText().toString().trim();
                                                 bankTextView.setText(newText); // 수정된 텍스트
 
                                                 // db 추가
@@ -205,7 +232,7 @@ public class PopDetailItem extends DialogFragment {
                                                 item.setBank(newText);
                                                 dbHelper.updateItem(item);
 
-                                                editText.setVisibility(View.GONE);
+                                                bankEditText.setVisibility(View.GONE);
                                                 bankTextView.setVisibility(View.VISIBLE);
                                             }
                                         }
@@ -231,25 +258,24 @@ public class PopDetailItem extends DialogFragment {
             bankTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final EditText editText = view.getRootView().findViewById(R.id.DetailBankEdit);
-                    if (editText != null) {
-                        editText.setVisibility(View.VISIBLE);
-                        editText.setText(bankTextView.getText().toString());
+                    if (bankEditText != null) {
+                        bankEditText.setVisibility(View.VISIBLE);
+                        bankEditText.setText(bankTextView.getText().toString());
                         bankTextView.setVisibility(View.GONE);
 
                         // edit 수정 후 db 수정
-                        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        bankEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                             @Override
                             public void onFocusChange(View view, boolean hasFocus) {
                                 if (!hasFocus) {
-                                    String newText = editText.getText().toString().trim();
+                                    String newText = bankEditText.getText().toString().trim();
                                     bankTextView.setText(newText); // 수정된 텍스트
 
                                     // db 추가
                                     item.setBank(newText);
                                     dbHelper.updateItem(item);
 
-                                    editText.setVisibility(View.GONE);
+                                    bankEditText.setVisibility(View.GONE);
                                     bankTextView.setVisibility(View.VISIBLE);
                                 }
                             }
@@ -260,6 +286,30 @@ public class PopDetailItem extends DialogFragment {
         } else {
             bankTextView.setVisibility(View.GONE);
         }
+
+        // 화면 터치 시 자동 저장
+        view.setOnTouchListener(new View.OnTouchListener(){
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (bankEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(bankEditText, motionEvent)) {
+                    String newText = bankEditText.getText().toString().trim();
+
+                    bankEditText.setText(newText); // 수정된 텍스트
+
+                    // AmountItem 반영
+                    item.setBank(newText);
+
+                    // db 추가
+                    dbHelper.updateItem(item);
+
+                    bankEditText.setVisibility(View.GONE);
+                    bankTextView.setVisibility(View.VISIBLE);
+                    return true; // 이벤트 처리 완료
+                }
+                return false; // 다른 부분에서 터치 처리
+            }
+        });
 
         // 카테고리 데이터 수정
         categoryTextView.setOnClickListener(new View.OnClickListener() {
@@ -276,18 +326,17 @@ public class PopDetailItem extends DialogFragment {
         amountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final EditText editText = view.getRootView().findViewById(R.id.DetailAmountEdit);
-                editText.addTextChangedListener(new CustomComma(editText));
-                editText.setVisibility(View.VISIBLE);
-                editText.setText(amountTextView.getText().toString().replace(",", ""));
+                amountEditText.addTextChangedListener(new CustomComma(amountEditText));
+                amountEditText.setVisibility(View.VISIBLE);
+                amountEditText.setText(amountTextView.getText().toString().replace(",", ""));
                 amountTextView.setVisibility(View.GONE);
 
                 // edit 수정 후 db 수정
-                editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                amountEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View view, boolean hasFocus) {
                         if (!hasFocus) {
-                            String newTextAmount = editText.getText().toString().trim().replace(",", "");
+                            String newTextAmount = amountEditText.getText().toString().trim().replace(",", "");
                             int newIntAmount = Integer.parseInt(newTextAmount);
                             amountTextView.setText(decimalFormat.format(newIntAmount)); // 수정된 텍스트
 
@@ -295,11 +344,34 @@ public class PopDetailItem extends DialogFragment {
                             item.setAmount(newIntAmount);
                             dbHelper.updateItem(item);
 
-                            editText.setVisibility(View.GONE);
+                            amountEditText.setVisibility(View.GONE);
                             amountTextView.setVisibility(View.VISIBLE);
                         }
                     }
                 });
+            }
+        });
+        // 화면 터치 시 자동 저장
+        view.setOnTouchListener(new View.OnTouchListener(){
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (amountEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(amountEditText, motionEvent)) {
+                    String newTextAmount = amountEditText.getText().toString().trim().replace(",", "");
+                    int newIntAmount = Integer.parseInt(newTextAmount);
+                    amountTextView.setText(decimalFormat.format(newIntAmount));
+
+                    // AmountItem 반영
+                    item.setAmount(newIntAmount);
+
+                    // db 추가
+                    dbHelper.updateItem(item);
+
+                    amountEditText.setVisibility(View.GONE);
+                    amountTextView.setVisibility(View.VISIBLE);
+                    return true; // 이벤트 처리 완료
+                }
+                return false; // 다른 부분에서 터치 처리
             }
         });
 
@@ -332,4 +404,16 @@ public class PopDetailItem extends DialogFragment {
         dbHelper.updateItem(item);
     }
 
+    // EditText 터치 확인
+    private boolean isEditTextTouched(EditText editText, MotionEvent event) {
+        int[] location = new int[2];
+        editText.getLocationOnScreen(location);
+
+        int left = location[0];
+        int top = location[1];
+        int right = left + editText.getWidth();
+        int bottom = top + editText.getHeight();
+
+        return event.getRawX() > left && event.getRawX() < right && event.getRawY() > top && event.getRawY() < bottom;
+    }
 }

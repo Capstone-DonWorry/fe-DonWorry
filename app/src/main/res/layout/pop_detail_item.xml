@@ -29,26 +29,42 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/DetailName"
+            <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="가게명"
-                android:textColor="@color/black_gray"
-                android:textStyle="bold"
-                android:textSize="14sp"/>
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/DetailName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="가게명"
+                    android:textColor="@color/black_gray"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:gravity="start" />
+                <EditText
+                    android:id="@+id/DetailNameEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:hint="가게명 수정"
+                    android:textColor="@color/black_gray"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:gravity="start"/>
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/DetailDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
                 android:text="거래날짜"
                 android:textColor="@color/black_gray"
-                android:textSize="12sp"/>
+                android:textSize="12sp"
+                android:gravity="end"
+                android:layout_weight="1"/>
         </LinearLayout>
 
         <View
@@ -61,26 +77,58 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/DetailCard"
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/DetailCard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="카드"
+                    android:textColor="@color/black_gray"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:gravity="start"/>
+                <EditText
+                    android:id="@+id/DetailCardEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:hint="카드 수정"
+                    android:textColor="@color/black_gray"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:gravity="start"/>
+            </FrameLayout>
+
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="카드"
-                android:textColor="@color/black_gray"
-                android:textStyle="bold"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:id="@+id/DetailBank"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="은행"
                 android:layout_weight="1"
-                android:gravity="right"
-                android:textColor="@color/black_gray"
-                android:textSize="12sp"/>
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/DetailBank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="은행"
+                    android:textColor="@color/black_gray"
+                    android:textSize="12sp"
+                    android:layout_gravity="end|center"/>
+                <EditText
+                    android:id="@+id/DetailBankEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="은행 수정"
+                    android:visibility="gone"
+                    android:textColor="@color/black_gray"
+                    android:textSize="12sp"
+                    android:layout_gravity="end"/>
+            </FrameLayout>
         </LinearLayout>
 
         <View
@@ -134,13 +182,37 @@
                 android:textStyle="bold"
                 android:textSize="14sp"/>
 
-            <TextView
-                android:id="@+id/DetailAmount"
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0원"
                 android:layout_weight="1"
-                android:gravity="right"
+                android:gravity="right">
+                <TextView
+                    android:id="@+id/DetailAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:layout_weight="1"
+                    android:layout_gravity="end"
+                    android:textColor="@color/black_gray"
+                    android:textSize="12sp"/>
+                <EditText
+                    android:id="@+id/DetailAmountEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="금액 수정"
+                    android:visibility="gone"
+                    android:layout_weight="1"
+                    android:layout_gravity="end"
+                    android:textColor="@color/black_gray"
+                    android:textSize="12sp"
+                    android:inputType="number"/>
+            </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="원"
+                android:layout_gravity="end"
                 android:textColor="@color/black_gray"
                 android:textSize="12sp"/>
         </LinearLayout>

@@ -183,10 +183,9 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // item 정보 업데이트
-    public int updateItem(String userid, AmountItem amountItem) {
+    public void updateItem(AmountItem amountItem) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(USERID, userid);
         values.put(COL_CONTENT, amountItem.getContent());
         values.put(COL_DATE, amountItem.getDate());
         values.put(COL_CARD, amountItem.getCard());
@@ -194,9 +193,11 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COL_CATEGORY, amountItem.getCategory());
         values.put(COL_AMOUNT, amountItem.getAmount());
 
-        String whereClause =  USERID + "=? AND " + COL_DATE + "=? AND " + COL_CONTENT + "=? AND " + UID + "=?";
-        String[] whereArgs = {userid, amountItem.getDate(), amountItem.getContent(), String.valueOf(amountItem.getUid())};
-        return db.update(item_TABLE_NAME, values, whereClause, whereArgs);
+        String whereClause =  UID + "=?";
+        String[] whereArgs = {String.valueOf(amountItem.getUid())};
+
+        db.update(item_TABLE_NAME, values, whereClause, whereArgs);
+        db.close();
     }
 
     // item 삭제

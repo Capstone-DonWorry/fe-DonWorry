@@ -38,14 +38,15 @@ import java.util.Map;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener, PopShowDaylist.OnDialogCancelListener {
+public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener, PopShowDaylist.OnDialogCancelListener, PopDetailItem.OnDialogCancelListener {
 
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private ViewModelCalendar viewModelCalendar;
     private DBHelper db;
-    private String userID, currentDay;
+    private String userID, currentDay, updateDate;
     private CalendarDay selectDay;
+    private int updatePosition;
 
     private MaterialCalendarView calendarView;
     private TextView targetAmount, totalExpenseTV, ableAmount;
@@ -121,14 +122,13 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             @Override
             public void onItemClick(AmountAdapter.ViewHolder holder, View view, int position) {
                 AmountItem item = adapter.getItem(position);
+                updateDate = item.getDate();
+                updatePosition = position;
 
-                if (item != null) {
-                    Log.d("FragmentCalendar", "Clicked item: " + item.getContent());
-                } else {
-                    Log.d("FragmentCalendar", "Item is null");
-                }
                 // 아이템 클릭시 팝업 창 띄우기
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
+                // FragmentCalendar를 타겟으로 설정
+                popDetail.setTargetFragment(FragmentCalendar.this, 0);
                 popDetail.show(getChildFragmentManager(), "세부내역");
             }
         });
@@ -414,5 +414,12 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         showMonthAmount(selectDay);
         sumTotalExpense();
         ableExpense();
+    }
+    @Override
+    public void onDialogUpdate() {
+        showMonthAmount(selectDay);
+        sumTotalExpense();
+        ableExpense();
+        updateDot(updateDate, updatePosition);
     }
 }

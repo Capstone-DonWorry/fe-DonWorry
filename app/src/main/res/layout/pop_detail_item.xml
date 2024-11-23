@@ -6,15 +6,33 @@
     android:layout_height="wrap_content"
     android:background="@drawable/round_shape_sky_blueline">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="25dp"
-        android:text="세부사항"
-        android:textColor="@color/black_gray"
-        android:textStyle="bold"
-        android:textSize="18sp"/>
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="25dp"
+            android:text="세부사항"
+            android:textColor="@color/black_gray"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="25dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="각 항목을 클릭하여 수정하세요"
+            android:textColor="@color/dark_gray"
+            android:textStyle="bold"
+            android:textSize="10sp"/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -211,6 +229,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
                 android:text="원"
                 android:layout_gravity="end"
                 android:textColor="@color/black_gray"

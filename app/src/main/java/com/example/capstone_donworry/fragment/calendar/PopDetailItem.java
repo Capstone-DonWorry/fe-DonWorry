@@ -34,6 +34,11 @@ public class PopDetailItem extends DialogFragment {
     private AmountItem item;
     private DBHelper dbHelper;
 
+    public interface OnDialogCancelListener {
+        void onDialogUpdate();
+    }
+    private PopDetailItem.OnDialogCancelListener updateListener;
+
     public static PopDetailItem newInstance(AmountItem item){
         PopDetailItem fragment = new PopDetailItem();
         Bundle args = new Bundle();
@@ -72,6 +77,9 @@ public class PopDetailItem extends DialogFragment {
         if (dialog.getWindow() != null) {
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        if (getTargetFragment() instanceof PopDetailItem.OnDialogCancelListener) {
+            updateListener = (PopDetailItem.OnDialogCancelListener) getTargetFragment();
         }
         return dialog;
     }
@@ -117,8 +125,13 @@ public class PopDetailItem extends DialogFragment {
         // db 설정
         dbHelper = new DBHelper(getContext());
 
-        // 버튼 클릭 처리
-        view.findViewById(R.id.DetailOKBtn).setOnClickListener(v -> dismiss());
+        // 확인 버튼 클릭 처리
+        view.findViewById(R.id.DetailOKBtn).setOnClickListener(v -> {
+            if (updateListener != null) {
+                updateListener.onDialogUpdate();
+            }
+            dismiss();
+        });
 
         // 가게명 데이터 수정
         nameTextView.setOnClickListener(new View.OnClickListener() {
@@ -169,6 +182,22 @@ public class PopDetailItem extends DialogFragment {
 
                     nameEditText.setVisibility(View.GONE);
                     nameTextView.setVisibility(View.VISIBLE);
+
+                    return true; // 이벤트 처리 완료
+                }
+                if (bankEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(bankEditText, motionEvent)) {
+                    String newText = bankEditText.getText().toString().trim();
+
+                    bankEditText.setText(newText); // 수정된 텍스트
+
+                    // AmountItem 반영
+                    item.setBank(newText);
+
+                    // db 추가
+                    dbHelper.updateItem(item);
+
+                    bankEditText.setVisibility(View.GONE);
+                    bankTextView.setVisibility(View.VISIBLE);
                     return true; // 이벤트 처리 완료
                 }
                 return false; // 다른 부분에서 터치 처리
@@ -287,29 +316,6 @@ public class PopDetailItem extends DialogFragment {
             bankTextView.setVisibility(View.GONE);
         }
 
-        // 화면 터치 시 자동 저장
-        view.setOnTouchListener(new View.OnTouchListener(){
-
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (bankEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(bankEditText, motionEvent)) {
-                    String newText = bankEditText.getText().toString().trim();
-
-                    bankEditText.setText(newText); // 수정된 텍스트
-
-                    // AmountItem 반영
-                    item.setBank(newText);
-
-                    // db 추가
-                    dbHelper.updateItem(item);
-
-                    bankEditText.setVisibility(View.GONE);
-                    bankTextView.setVisibility(View.VISIBLE);
-                    return true; // 이벤트 처리 완료
-                }
-                return false; // 다른 부분에서 터치 처리
-            }
-        });
 
         // 카테고리 데이터 수정
         categoryTextView.setOnClickListener(new View.OnClickListener() {
@@ -326,52 +332,23 @@ public class PopDetailItem extends DialogFragment {
         amountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                amountEditText.addTextChangedListener(new CustomComma(amountEditText));
-                amountEditText.setVisibility(View.VISIBLE);
-                amountEditText.setText(amountTextView.getText().toString().replace(",", ""));
-                amountTextView.setVisibility(View.GONE);
+                PopDetailAmount popDetailAmount = new PopDetailAmount();
 
-                // edit 수정 후 db 수정
-                amountEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                Bundle bundle = new Bundle();
+                bundle.putInt("currentAmount", item.getAmount());
+                popDetailAmount.setArguments(bundle);
+
+                // 금액 업데이트
+                popDetailAmount.setAmountUpdateListener(new PopDetailAmount.AmountUpdateListener() {
                     @Override
-                    public void onFocusChange(View view, boolean hasFocus) {
-                        if (!hasFocus) {
-                            String newTextAmount = amountEditText.getText().toString().trim().replace(",", "");
-                            int newIntAmount = Integer.parseInt(newTextAmount);
-                            amountTextView.setText(decimalFormat.format(newIntAmount)); // 수정된 텍스트
+                    public void onAmountUpdated(int updateAmount) {
+                        item.setAmount(updateAmount);
+                        amountTextView.setText(decimalFormat.format(updateAmount));
 
-                            // db 추가
-                            item.setAmount(newIntAmount);
-                            dbHelper.updateItem(item);
-
-                            amountEditText.setVisibility(View.GONE);
-                            amountTextView.setVisibility(View.VISIBLE);
-                        }
+                        dbHelper.updateItem(item);
                     }
                 });
-            }
-        });
-        // 화면 터치 시 자동 저장
-        view.setOnTouchListener(new View.OnTouchListener(){
-
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (amountEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(amountEditText, motionEvent)) {
-                    String newTextAmount = amountEditText.getText().toString().trim().replace(",", "");
-                    int newIntAmount = Integer.parseInt(newTextAmount);
-                    amountTextView.setText(decimalFormat.format(newIntAmount));
-
-                    // AmountItem 반영
-                    item.setAmount(newIntAmount);
-
-                    // db 추가
-                    dbHelper.updateItem(item);
-
-                    amountEditText.setVisibility(View.GONE);
-                    amountTextView.setVisibility(View.VISIBLE);
-                    return true; // 이벤트 처리 완료
-                }
-                return false; // 다른 부분에서 터치 처리
+                popDetailAmount.show(getParentFragmentManager(), "금액 수정");
             }
         });
 
@@ -414,6 +391,7 @@ public class PopDetailItem extends DialogFragment {
         int right = left + editText.getWidth();
         int bottom = top + editText.getHeight();
 
+        // 터치 역역이 EditText 영역 내일 경우 true
         return event.getRawX() > left && event.getRawX() < right && event.getRawY() > top && event.getRawY() < bottom;
     }
 }

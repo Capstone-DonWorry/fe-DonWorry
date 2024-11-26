@@ -61,6 +61,7 @@
                     android:textColor="@color/black_gray"
                     android:textStyle="bold"
                     android:textSize="14sp"
+                    android:background="?android:attr/selectableItemBackground"
                     android:gravity="start" />
                 <EditText
                     android:id="@+id/DetailNameEdit"
@@ -110,6 +111,7 @@
                     android:textColor="@color/black_gray"
                     android:textStyle="bold"
                     android:textSize="14sp"
+                    android:background="?android:attr/selectableItemBackground"
                     android:gravity="start"/>
                 <EditText
                     android:id="@+id/DetailCardEdit"
@@ -136,6 +138,7 @@
                     android:text="은행"
                     android:textColor="@color/black_gray"
                     android:textSize="12sp"
+                    android:background="?android:attr/selectableItemBackground"
                     android:layout_gravity="end|center"/>
                 <EditText
                     android:id="@+id/DetailBankEdit"
@@ -213,6 +216,7 @@
                     android:layout_weight="1"
                     android:layout_gravity="end"
                     android:textColor="@color/black_gray"
+                    android:background="?android:attr/selectableItemBackground"
                     android:textSize="12sp"/>
                 <EditText
                     android:id="@+id/DetailAmountEdit"

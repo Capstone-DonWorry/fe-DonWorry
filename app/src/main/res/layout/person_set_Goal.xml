@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="25dp"
-            android:text="금액 수정"
+            android:text="목표 금액 설정"
             android:textColor="@color/black_gray"
             android:textStyle="bold"
             android:textSize="18sp"/>
@@ -28,7 +28,7 @@
             android:layout_marginRight="25dp"
             android:layout_weight="1"
             android:gravity="end"
-            android:text="각 항목을 클릭하여 수정하세요"
+            android:text="목표 금액을 수정 해주세요"
             android:textColor="@color/dark_gray"
             android:textStyle="bold"
             android:textSize="10sp"/>
@@ -52,47 +52,30 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="지출"
+                android:text="현재 목표 금액"
                 android:textColor="@color/black_gray"
                 android:textStyle="bold"
                 android:textSize="14sp"/>
-
-            <FrameLayout
+            <TextView
+                android:id="@+id/CurrentExpenseGoal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="right">
-                <TextView
-                    android:id="@+id/DetailAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:layout_weight="1"
-                    android:layout_gravity="end"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:textColor="@color/black_gray"
-                    android:textSize="12sp"/>
-                <EditText
-                    android:id="@+id/DetailAmountEdit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="금액 수정"
-                    android:visibility="gone"
-                    android:layout_weight="1"
-                    android:layout_gravity="end"
-                    android:textColor="@color/black_gray"
-                    android:textSize="12sp"
-                    android:inputType="number"/>
-            </FrameLayout>
+                android:gravity="right"
+                android:text="0"
+                android:textColor="@color/black_gray"
+                android:textSize="14sp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="원"
-                android:layout_gravity="end"
                 android:layout_marginLeft="5dp"
+                android:text="원"
+                android:layout_gravity="end|center_vertical"
                 android:textColor="@color/black_gray"
                 android:textSize="12sp"/>
+
         </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="4px"
@@ -101,50 +84,31 @@
             android:layout_marginBottom="10dp"/>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/TwoPerson"
+            <EditText
+                android:id="@+id/NewExpenseGoal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/round_shape_gray"
-                android:text="1/2"
-                android:textColor="@color/dark_gray"
-                android:layout_margin="5dp"
-                android:layout_weight="1"/>
+                android:hint="목표 금액 수정"
+                android:layout_weight="1"
+                android:layout_gravity="end"
+                android:gravity="right"
+                android:textColor="@color/black_gray"
+                android:textSize="14sp"
+                android:background="?android:attr/selectableItemBackground"
+                android:inputType="number"/>
 
-            <Button
-                android:id="@+id/ThreePerson"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/round_shape_gray"
-                android:text="1/3"
-                android:textColor="@color/dark_gray"
-                android:layout_margin="5dp"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/FourPerson"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/round_shape_gray"
-                android:text="1/4"
-                android:textColor="@color/dark_gray"
-                android:layout_margin="5dp"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/NumPerson"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/round_shape_gray"
-                android:text="인원 수"
-                android:textColor="@color/dark_gray"
-                android:layout_margin="5dp"
-                android:layout_weight="1"/>
-
+                android:layout_marginLeft="5dp"
+                android:text="원"
+                android:layout_gravity="end|center_vertical"
+                android:textColor="@color/black_gray"
+                android:textSize="12sp"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -156,7 +120,7 @@
         android:background="@drawable/round_shape_mid_blue">
 
         <Button
-            android:id="@+id/CancelBtn"
+            android:id="@+id/NOBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -169,7 +133,7 @@
             android:layout_height="match_parent"
             android:background="@color/light_gray"/>
         <Button
-            android:id="@+id/AddOKBtn"
+            android:id="@+id/AddBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

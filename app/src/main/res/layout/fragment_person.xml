@@ -55,11 +55,13 @@
         android:layout_marginTop="20dp">
 
         <TextView
+            android:id="@+id/SetExpenseGoalBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="목표금액 설정"
             android:textSize="18sp"
             android:textColor="@color/black_gray"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_gravity="center"
             android:padding="15dp"/>
     </LinearLayout>

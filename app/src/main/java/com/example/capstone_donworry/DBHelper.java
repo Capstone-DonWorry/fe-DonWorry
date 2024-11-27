@@ -64,7 +64,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @SuppressLint("Range")
     public List<AmountItem> getMonthItems(String userid, String date) {
 //        Log.d("Database Path", context.getDatabasePath("donworry.db").getAbsolutePath());
-        Toast.makeText(this.context, "Month 아이템 호출", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this.context, "Month 아이템 호출", Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this.context, userid, Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME +
@@ -97,7 +97,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // db에 저장되어 있는 같은 날짜 항목 정보
     @SuppressLint("Range")
     public List<AmountItem> getDateItems(String userid, String date) {
-        Toast.makeText(this.context, "Date 아이템 호출", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this.context, "Date 아이템 호출", Toast.LENGTH_SHORT).show();
         List<AmountItem> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + USERID + " = ? AND " + COL_DATE + " = ?";
         SQLiteDatabase db = this.getReadableDatabase();
@@ -125,7 +125,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // db에 저장되어 있는 특정 항목 정보
     @SuppressLint("Range")
     public AmountItem getItem(String userid, AmountItem amountItem) {
-        Toast.makeText(this.context, "getItem 호출", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this.context, "getItem 호출", Toast.LENGTH_SHORT).show();
         AmountItem item = new AmountItem();
         String selectQuery = "SELECT * FROM " + item_TABLE_NAME + " WHERE " + USERID + " = ? AND " + COL_CONTENT + " = ? AND " + COL_DATE + " = ? AND " + UID + " = ?";
         String[] selectionArgs = {userid, amountItem.getContent(), amountItem.getDate(), String.valueOf(amountItem.getUid())};
@@ -168,7 +168,7 @@ public class DBHelper extends SQLiteOpenHelper {
             if (uid != -1) {
                 // UID 값은 삽입된 항목의 고유 ID
                 amountItem.setUid((int) uid);
-                Toast.makeText(this.context, "아이템 등록" + amountItem.getUid() + userid, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this.context, "아이템 등록" + amountItem.getUid() + userid, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this.context, "아이템 등록 실패", Toast.LENGTH_SHORT).show();
             }

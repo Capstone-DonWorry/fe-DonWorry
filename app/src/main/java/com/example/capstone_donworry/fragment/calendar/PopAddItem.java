@@ -136,7 +136,7 @@ public class PopAddItem extends DialogFragment {
             String date = dateTextView.getText().toString();
 
             // 빈 항목이 있는지 체크
-            if (contents.isEmpty() || strAmount.isEmpty() || bank.isEmpty() || (!cardCheck.isChecked() && !cashCheck.isChecked())) {
+            if (contents.isEmpty() || strAmount.isEmpty() || (!cardCheck.isChecked() && !cashCheck.isChecked())) {
                 // 빈 칸이 있을 경우 경고 메시지 띄우기
                 Toast.makeText(getActivity(), "모든 항목을 입력해주세요.", Toast.LENGTH_SHORT).show();
             }else {

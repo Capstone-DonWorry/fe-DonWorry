@@ -28,17 +28,16 @@ import java.text.DecimalFormat;
 
 public class PopDetailItem extends DialogFragment {
     private TextView nameTextView, dateTextView, cardTextView, bankTextView, categoryTextView, amountTextView;
-    private EditText nameEditText,bankEditText, amountEditText;
+    private EditText nameEditText,bankEditText;
     private static final String DETAIL_ITEM = "detailItem";
     private DecimalFormat decimalFormat;
     private AmountItem item;
     private DBHelper dbHelper;
 
     public interface OnDialogCancelListener {
-        void onDialogUpdate();
+        void onDialogUpdate(String date);
     }
     private PopDetailItem.OnDialogCancelListener updateListener;
-
     public static PopDetailItem newInstance(AmountItem item){
         PopDetailItem fragment = new PopDetailItem();
         Bundle args = new Bundle();
@@ -101,7 +100,6 @@ public class PopDetailItem extends DialogFragment {
         // EditText
         nameEditText = view.getRootView().findViewById(R.id.DetailNameEdit);
         bankEditText = view.getRootView().findViewById(R.id.DetailBankEdit);
-        amountEditText = view.getRootView().findViewById(R.id.DetailAmountEdit);
 
         // UI text 설정
         nameTextView = view.findViewById(R.id.DetailName);
@@ -123,12 +121,11 @@ public class PopDetailItem extends DialogFragment {
         }
 
         // db 설정
-        dbHelper = new DBHelper(getContext());
-
-        // 확인 버튼 클릭 처리
+        dbHelper = new DBHelper(getContext());       // 확인 버튼 클릭 처리
         view.findViewById(R.id.DetailOKBtn).setOnClickListener(v -> {
             if (updateListener != null) {
-                updateListener.onDialogUpdate();
+                String date = dateTextView.getText().toString();
+                updateListener.onDialogUpdate(date);
             }
             dismiss();
         });
@@ -182,20 +179,15 @@ public class PopDetailItem extends DialogFragment {
 
                     nameEditText.setVisibility(View.GONE);
                     nameTextView.setVisibility(View.VISIBLE);
-
                     return true; // 이벤트 처리 완료
                 }
                 if (bankEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(bankEditText, motionEvent)) {
                     String newText = bankEditText.getText().toString().trim();
-
                     bankEditText.setText(newText); // 수정된 텍스트
-
                     // AmountItem 반영
                     item.setBank(newText);
-
                     // db 추가
                     dbHelper.updateItem(item);
-
                     bankEditText.setVisibility(View.GONE);
                     bankTextView.setVisibility(View.VISIBLE);
                     return true; // 이벤트 처리 완료
@@ -315,8 +307,6 @@ public class PopDetailItem extends DialogFragment {
         } else {
             bankTextView.setVisibility(View.GONE);
         }
-
-
         // 카테고리 데이터 수정
         categoryTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -333,18 +323,15 @@ public class PopDetailItem extends DialogFragment {
             @Override
             public void onClick(View view) {
                 PopDetailAmount popDetailAmount = new PopDetailAmount();
-
                 Bundle bundle = new Bundle();
                 bundle.putInt("currentAmount", item.getAmount());
                 popDetailAmount.setArguments(bundle);
-
                 // 금액 업데이트
                 popDetailAmount.setAmountUpdateListener(new PopDetailAmount.AmountUpdateListener() {
                     @Override
                     public void onAmountUpdated(int updateAmount) {
                         item.setAmount(updateAmount);
                         amountTextView.setText(decimalFormat.format(updateAmount));
-
                         dbHelper.updateItem(item);
                     }
                 });

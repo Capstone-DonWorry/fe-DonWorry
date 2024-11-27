@@ -1,6 +1,7 @@
 package com.example.capstone_donworry.fragment.calendar;
 
 import android.graphics.Canvas;
+import android.hardware.camera2.CameraExtensionSession;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -129,7 +131,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
                 // FragmentCalendar를 타겟으로 설정
                 popDetail.setTargetFragment(FragmentCalendar.this, 0);
-                popDetail.show(getChildFragmentManager(), "세부내역");
+                popDetail.show(getFragmentManager(), "세부내역");
             }
         });
 
@@ -171,10 +173,10 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
                 new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                         .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), R.color.err_red))
-                                .addSwipeLeftActionIcon(R.drawable.baseline_delete_forever_24)
-                                        .addSwipeLeftLabel("삭제")
-                                                .setSwipeLeftLabelColor(ContextCompat.getColor(getContext(), R.color.white))
-                                                        .create().decorate();
+                        .addSwipeLeftActionIcon(R.drawable.baseline_delete_forever_24)
+                        .addSwipeLeftLabel("삭제")
+                        .setSwipeLeftLabelColor(ContextCompat.getColor(getContext(), R.color.white))
+                        .create().decorate();
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         }).attachToRecyclerView(recyclerView);
@@ -235,9 +237,26 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         if (!dots.containsKey(date)) {
             // 해당 날짜 점 표시
-            CalendarTextDeco deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date);
+            CalendarTextDeco deco;
+
+            int totalDayAmount = 0;
+            List<AmountItem> itemsDay = db.getDateItems(userID, date);
+
+            for (AmountItem dayItem : itemsDay) {
+                totalDayAmount += dayItem.getAmount();
+            }
+
+            // 추천 금액 계산
+            int recomAmount = calDailyRecommendedAmount(stringToCalendarDay(date));
+
+            // 추천 금액 실제 금액 비교
+            if (recomAmount >= totalDayAmount) {
+                deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), date);
+            } else {
+                deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_red), date);
+            }
             calendarView.addDecorator(deco);
-            dots.put(date, deco);
+            dots.put(item.getDate(), deco);
         }
     }
 
@@ -250,7 +269,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 날짜 순서로 내림차순 정렬
         Collections.sort(existItems, (item1, item2) ->
-                    item2.getDate().compareTo(item1.getDate()));
+                item2.getDate().compareTo(item1.getDate()));
 
         adapter.updateItems(existItems);
 
@@ -302,6 +321,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         ableExpense();
         sumTotalExpense();
 
+        changeColor();
+
         calendarView.setOnMonthChangedListener(((widget, date) -> {
             showMonthAmount(date);
             sumTotalExpense(); // 월 별경 시 총 금액 변경
@@ -323,6 +344,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         int recomAmount = calDailyRecommendedAmount(date);
 
         if (amountList != null){
+            // 팝업 다이얼로그 일일 리스트
             PopShowDaylist popShowDaylist = PopShowDaylist.newInstance((ArrayList<AmountItem>) amountList, dateKey);
             popShowDaylist.setUserId(userID);
             popShowDaylist.setDb(db);
@@ -344,16 +366,27 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 날짜 순서로 내림차순 정렬
         Collections.sort(dateAmount, (item1, item2) ->
-            item2.getDate().compareTo(item1.getDate()));
+                item2.getDate().compareTo(item1.getDate()));
 
         adapter.updateItems(dateAmount);
 
-        for (AmountItem item : dateAmount) {
-            CalendarTextDeco deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate());
-            calendarView.addDecorator(deco);
-            dots.put(item.getDate(), deco);
-        }
+        changeColor();
+//        for (AmountItem item : dateAmount) {
+//            CalendarTextDeco deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), item.getDate());
+//            calendarView.addDecorator(deco);
+//            dots.put(item.getDate(), deco);
+//        }
 
+    }
+
+    // string을 CalendarDay로 변경
+    private CalendarDay stringToCalendarDay(String dateString) {
+        String[] parts = dateString.split("-");
+        int year = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+        int day = Integer.parseInt(parts[2]);
+
+        return CalendarDay.from(year, month, day);
     }
 
     // 추천 금액 계산
@@ -373,9 +406,39 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
             // 하루 추천 금액 계산
             calDailyRecom = Integer.parseInt(ableAmount.getText().toString().replace(",","")) / remainDay ;
+            Log.d("dotColor", String.valueOf(calDailyRecom)+"-"+String.valueOf(date)+"-"+String.valueOf(remainDay)+"-"+ableAmount.getText().toString());
         }
 
         return calDailyRecom;
+    }
+
+    // 금액 초과시 점 색깔 변경
+    private void changeColor() {
+        CalendarTextDeco deco;
+
+        for (AmountItem item : adapter.getItems()) {
+            String dateString = item.getDate();
+            // 사용 금액 총 합 계산
+            int totalDayAmount = 0;
+            List<AmountItem> itemsDay = db.getDateItems(userID, dateString);
+
+            for (AmountItem dayItem : itemsDay) {
+                totalDayAmount += dayItem.getAmount();
+            }
+
+            // 추천 금액 계산
+            int recomAmount = calDailyRecommendedAmount(stringToCalendarDay(dateString));
+
+            // 추천 금액 실제 금액 비교
+            if (recomAmount >= totalDayAmount) {
+                deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_blue), dateString);
+            } else {
+                deco = new CalendarTextDeco(ContextCompat.getColor(getContext(), R.color.text_red), dateString);
+            }
+            calendarView.addDecorator(deco);
+            dots.put(item.getDate(), deco);
+        }
+
     }
 
     private void deleteItemDot(int position){
@@ -416,8 +479,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         ableExpense();
     }
     @Override
-    public void onDialogUpdate() {
-        showMonthAmount(selectDay);
+    public void onDialogUpdate(String date) {
+        showMonthAmount(stringToCalendarDay(date));
         sumTotalExpense();
         ableExpense();
         updateDot(updateDate, updatePosition);

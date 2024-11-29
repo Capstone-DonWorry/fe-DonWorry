@@ -218,17 +218,6 @@
                     android:textColor="@color/black_gray"
                     android:background="?android:attr/selectableItemBackground"
                     android:textSize="12sp"/>
-                <EditText
-                    android:id="@+id/DetailAmountEdit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="금액 수정"
-                    android:visibility="gone"
-                    android:layout_weight="1"
-                    android:layout_gravity="end"
-                    android:textColor="@color/black_gray"
-                    android:textSize="12sp"
-                    android:inputType="number"/>
             </FrameLayout>
             <TextView
                 android:layout_width="wrap_content"

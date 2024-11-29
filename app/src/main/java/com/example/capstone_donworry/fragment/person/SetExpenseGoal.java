@@ -38,6 +38,7 @@ public class SetExpenseGoal extends DialogFragment {
 
     private ViewModelCalendar shareViewModel;
 
+
 //    private int currentAmount;
     private DecimalFormat decimalFormat;
     private String userID;
@@ -149,5 +150,5 @@ public class SetExpenseGoal extends DialogFragment {
 
         return view;
     }
-}
 
+}

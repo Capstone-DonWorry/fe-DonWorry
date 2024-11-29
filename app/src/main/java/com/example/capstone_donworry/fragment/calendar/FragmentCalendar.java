@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -130,7 +131,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 PopDetailItem popDetail = PopDetailItem.newInstance(item);
                 // FragmentCalendar를 타겟으로 설정
                 popDetail.setTargetFragment(FragmentCalendar.this, 0);
-                popDetail.show(getChildFragmentManager(), "세부내역");
+                popDetail.show(getFragmentManager(), "세부내역");
             }
         });
 
@@ -172,10 +173,10 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
                 new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                         .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), R.color.err_red))
-                                .addSwipeLeftActionIcon(R.drawable.baseline_delete_forever_24)
-                                        .addSwipeLeftLabel("삭제")
-                                                .setSwipeLeftLabelColor(ContextCompat.getColor(getContext(), R.color.white))
-                                                        .create().decorate();
+                        .addSwipeLeftActionIcon(R.drawable.baseline_delete_forever_24)
+                        .addSwipeLeftLabel("삭제")
+                        .setSwipeLeftLabelColor(ContextCompat.getColor(getContext(), R.color.white))
+                        .create().decorate();
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         }).attachToRecyclerView(recyclerView);
@@ -268,7 +269,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 날짜 순서로 내림차순 정렬
         Collections.sort(existItems, (item1, item2) ->
-                    item2.getDate().compareTo(item1.getDate()));
+                item2.getDate().compareTo(item1.getDate()));
 
         adapter.updateItems(existItems);
 
@@ -365,7 +366,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // 날짜 순서로 내림차순 정렬
         Collections.sort(dateAmount, (item1, item2) ->
-            item2.getDate().compareTo(item1.getDate()));
+                item2.getDate().compareTo(item1.getDate()));
 
         adapter.updateItems(dateAmount);
 
@@ -478,8 +479,8 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         ableExpense();
     }
     @Override
-    public void onDialogUpdate() {
-        showMonthAmount(selectDay);
+    public void onDialogUpdate(String date) {
+        showMonthAmount(stringToCalendarDay(date));
         sumTotalExpense();
         ableExpense();
         updateDot(updateDate, updatePosition);

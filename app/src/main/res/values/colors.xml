@@ -18,7 +18,15 @@
     <color name="err_red">#FFD91B1B</color>
 
     <color name="text_green">#FF56FF71</color>
-    
+
+    <color name="chart1">#FFA5D4FF</color>
+    <color name="chart2">#FFFFB3E6</color>
+    <color name="chart3">#FFFFEB99</color>
+    <color name="chart4">#FF99FF99</color>
+    <color name="chart5">#FFFFD699</color>
+    <color name="chart6">#FFD6A0FF</color>
+    <color name="chart7">#FFFFB266</color>
+
     <color name="transparency">#000000FF</color>
 
 </resources>

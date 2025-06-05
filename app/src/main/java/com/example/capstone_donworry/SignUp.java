@@ -19,7 +19,7 @@ public class SignUp extends AppCompatActivity {
     private EditText InputID, InputPassword, InputRePassword;
     private Button SignUPNextBtn;
 
-    public String loginId, pw;
+    public String loginId, pw, pwcheck;
     public Context context;
 
     @Override
@@ -80,11 +80,13 @@ public class SignUp extends AppCompatActivity {
                 // 회원가입 처리
                 loginId = InputID.getText().toString().trim();
                 pw = InputPassword.getText().toString().trim();
+                pwcheck = RightPassword.getText().toString().trim();
 
 
                 Intent intent = new Intent(getApplicationContext(), InitSetting.class);
                 intent.putExtra("loginId", loginId);
-                intent.putExtra("pw", pw);
+                intent.putExtra("password", pw);
+                intent.putExtra("passwordCheck", pwcheck);
 
                 startActivity(intent);
             }

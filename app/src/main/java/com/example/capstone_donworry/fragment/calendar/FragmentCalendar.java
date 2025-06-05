@@ -1,8 +1,15 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import static android.graphics.Color.*;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.hardware.camera2.CameraExtensionSession;
+import android.os.Build;
 import android.os.Bundle;
+import com.example.capstone_donworry.fragment.calendar.LabelDecorator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -22,6 +30,11 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.capstone_donworry.DBHelper;
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
@@ -29,6 +42,10 @@ import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -64,6 +81,94 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         // Activity에서 ViewModel 가져오기 - 같은 인스턴스 공유
         viewModelCalendar = new ViewModelProvider(requireActivity()).get(ViewModelCalendar.class);
+    }
+    private void initView() {
+        todayViewDecorator = CalendarDeco.todayViewDecorator(requireContext());
+        sundayDecorator = CalendarDeco.sundayDecorator();
+        saturdayDecorator = CalendarDeco.saturdayDecorator();
+
+        calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
+
+        showMonthAmount(calendarView.getCurrentDate());
+        ableExpense();
+        sumTotalExpense();
+
+        changeColor();
+
+        calendarView.setOnMonthChangedListener(((widget, date) -> {
+            showMonthAmount(date);
+            sumTotalExpense();
+
+            int year = date.getYear();
+            int month = date.getMonth();
+
+            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+            String token = sharedPreferences.getString("token", "");
+
+            if (token.isEmpty()) {
+                Log.e("MonthlyRequest", "토큰이 비어있습니다");
+                return;
+            }
+
+            String url = "http://10.0.2.2:8080/api/calendar/monthly?year=" + year + "&month=" + month;
+
+            Response.Listener<String> responseListener = response -> {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    JSONArray dailySummaries = data.getJSONArray("dailySummaries");
+
+                    for (int i = 0; i < dailySummaries.length(); i++) {
+                        JSONObject day = dailySummaries.getJSONObject(i);
+                        String dateStr = day.getString("date");
+                        int target = day.getInt("targetAmount");
+                        int spent = day.getInt("totalSpent");
+                        int expected = day.getInt("expectedSpent");
+
+                        Log.d("서버 응답", dateStr + " - 목표:" + target + ", 지출:" + spent + ", 예상:" + expected);
+
+                        CalendarDay calDay = stringToCalendarDay(dateStr);
+
+                        String label = "목:" + target + "\n지:" + spent + "\n예:" + expected;
+                        int color = spent > target ? Color.RED : Color.BLUE;
+
+                        LabelDecorator deco = new LabelDecorator(calDay, label, color);
+                        calendarView.addDecorator(deco);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            };
+
+            Response.ErrorListener errorListener = error -> {
+                Log.e("MonthlyRequest", "에러 발생: " + error.toString());
+            };
+
+            StringRequest request = new StringRequest(Request.Method.GET, url, responseListener, errorListener) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+
+            RequestQueue queue = Volley.newRequestQueue(requireContext());
+            queue.add(request);
+        }));
+
+        calendarView.setOnDateChangedListener(((widget, date, selected) -> {
+            showDateAmount(date);
+        }));
+    }
+
+    private CalendarDay stringToCalendarDay(String dateString) {
+        String[] parts = dateString.split("-");
+        int year = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+        int day = Integer.parseInt(parts[2]);
+
+        return CalendarDay.from(year, month, day);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -309,30 +414,30 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         int target = Integer.parseInt(targetAmount.getText().toString().replace(",", ""));
         ableAmount.setText(decimalFormat.format(target - total));
     }
-
-    private void initView() {
-        todayViewDecorator = CalendarDeco.todayViewDecorator(requireContext());
-        sundayDecorator = CalendarDeco.sundayDecorator();
-        saturdayDecorator = CalendarDeco.saturdayDecorator();
-
-        calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
-
-        showMonthAmount(calendarView.getCurrentDate());
-        ableExpense();
-        sumTotalExpense();
-
-        changeColor();
-
-        calendarView.setOnMonthChangedListener(((widget, date) -> {
-            showMonthAmount(date);
-            sumTotalExpense(); // 월 별경 시 총 금액 변경
-        }));
-
-        // 날짜 변경 시 처리
-        calendarView.setOnDateChangedListener(((widget, date, selected) -> {
-            showDateAmount(date);
-        }));
-    }
+//
+//    private void initView() {
+//        todayViewDecorator = CalendarDeco.todayViewDecorator(requireContext());
+//        sundayDecorator = CalendarDeco.sundayDecorator();
+//        saturdayDecorator = CalendarDeco.saturdayDecorator();
+//
+//        calendarView.addDecorators(todayViewDecorator, sundayDecorator, saturdayDecorator);
+//
+//        showMonthAmount(calendarView.getCurrentDate());
+//        ableExpense();
+//        sumTotalExpense();
+//
+//        changeColor();
+//
+//        calendarView.setOnMonthChangedListener(((widget, date) -> {
+//            showMonthAmount(date);
+//            sumTotalExpense(); // 월 별경 시 총 금액 변경
+//        }));
+//
+//        // 날짜 변경 시 처리
+//        calendarView.setOnDateChangedListener(((widget, date, selected) -> {
+//            showDateAmount(date);
+//        }));
+//    }
 
     private void showDateAmount(CalendarDay date) {
         String strMon = String.format("%02d", date.getMonth());
@@ -377,16 +482,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 //            dots.put(item.getDate(), deco);
 //        }
 
-    }
-
-    // string을 CalendarDay로 변경
-    private CalendarDay stringToCalendarDay(String dateString) {
-        String[] parts = dateString.split("-");
-        int year = Integer.parseInt(parts[0]);
-        int month = Integer.parseInt(parts[1]);
-        int day = Integer.parseInt(parts[2]);
-
-        return CalendarDay.from(year, month, day);
     }
 
     // 추천 금액 계산

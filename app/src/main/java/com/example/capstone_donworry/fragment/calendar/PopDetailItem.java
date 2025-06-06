@@ -11,37 +11,36 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.capstone_donworry.CustomComma;
-import com.example.capstone_donworry.DBHelper;
 import com.example.capstone_donworry.R;
 
 import java.text.DecimalFormat;
 
 public class PopDetailItem extends DialogFragment {
     private TextView nameTextView, dateTextView, cardTextView, bankTextView, categoryTextView, amountTextView;
-    private EditText nameEditText,bankEditText;
+    private EditText nameEditText, bankEditText;
     private static final String DETAIL_ITEM = "detailItem";
     private DecimalFormat decimalFormat;
     private AmountItem item;
-    private DBHelper dbHelper;
 
     public interface OnDialogCancelListener {
         void onDialogUpdate(String date);
     }
-    private PopDetailItem.OnDialogCancelListener updateListener;
-    public static PopDetailItem newInstance(AmountItem item){
+
+    public static PopDetailItem newInstance(AmountItem item) {
         PopDetailItem fragment = new PopDetailItem();
         Bundle args = new Bundle();
-        args.putParcelable(DETAIL_ITEM, item); // 아이템 데이터 전달
+        args.putParcelable(DETAIL_ITEM, item);
         fragment.setArguments(args);
         return fragment;
     }
@@ -49,19 +48,13 @@ public class PopDetailItem extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        // Dialog의 윈도우 설정
         Dialog dialog = getDialog();
         if (dialog != null) {
             Window window = dialog.getWindow();
             if (window != null) {
-                // 디바이스의 화면 크기를 가져오기 위한 DisplayMetrics 객체 생성
                 DisplayMetrics displayMetrics = new DisplayMetrics();
                 requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-                // 화면 크기의 90%를 계산
                 int width = (int) (displayMetrics.widthPixels * 0.9);
-
-                // Dialog의 크기 설정
                 WindowManager.LayoutParams layoutParams = window.getAttributes();
                 layoutParams.width = width;
                 window.setAttributes(layoutParams);
@@ -77,308 +70,195 @@ public class PopDetailItem extends DialogFragment {
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        if (getTargetFragment() instanceof PopDetailItem.OnDialogCancelListener) {
-            updateListener = (PopDetailItem.OnDialogCancelListener) getTargetFragment();
-        }
         return dialog;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.pop_detail_item, container, false);
+        item = getArguments().getParcelable(DETAIL_ITEM);
 
-        // 팝업창 레이아웃 사용
-        View view = inflater.inflate(R.layout.pop_detail_item, container, false);
-        if (view == null) {
-            Log.d("PopDetailItem", "View inflation failed");
-        } else {
-            Log.d("PopDetailItem", "View inflated successfully");
-        }
+        nameEditText = rootView.findViewById(R.id.DetailNameEdit);
+        bankEditText = rootView.findViewById(R.id.DetailBankEdit);
+        nameTextView = rootView.findViewById(R.id.DetailName);
+        dateTextView = rootView.findViewById(R.id.DetailDate);
+        cardTextView = rootView.findViewById(R.id.DetailCard);
+        bankTextView = rootView.findViewById(R.id.DetailBank);
+        categoryTextView = rootView.findViewById(R.id.DetailCategory);
+        amountTextView = rootView.findViewById(R.id.DetailAmount);
 
-        item = (AmountItem) getArguments().getParcelable(DETAIL_ITEM);
-
-        // EditText
-        nameEditText = view.getRootView().findViewById(R.id.DetailNameEdit);
-        bankEditText = view.getRootView().findViewById(R.id.DetailBankEdit);
-
-        // UI text 설정
-        nameTextView = view.findViewById(R.id.DetailName);
-        dateTextView = view.findViewById(R.id.DetailDate);
-        cardTextView = view.findViewById(R.id.DetailCard);
-        bankTextView = view.findViewById(R.id.DetailBank);
-        categoryTextView = view.findViewById(R.id.DetailCategory);
-        amountTextView = view.findViewById(R.id.DetailAmount);
-
-        // text 설정
         if (item != null) {
             nameTextView.setText(item.getContent());
             dateTextView.setText(item.getDate());
-            cardTextView.setText(item.getCard());
-            bankTextView.setText(item.getBank());
+            cardTextView.setText("CARD".equals(item.getCard()) ? "카드" : "현금");
+            bankTextView.setText("CARD".equals(item.getCard()) ? (item.getBank().equals("null") || item.getBank().isEmpty() ? "없음" : item.getBank()) : "");
             categoryTextView.setText(item.getCategory());
             decimalFormat = new DecimalFormat("#,###");
             amountTextView.setText(decimalFormat.format(item.getAmount()));
         }
 
-        // db 설정
-        dbHelper = new DBHelper(getContext());       // 확인 버튼 클릭 처리
-        view.findViewById(R.id.DetailOKBtn).setOnClickListener(v -> {
-            if (updateListener != null) {
-                String date = dateTextView.getText().toString();
-                updateListener.onDialogUpdate(date);
+        if (!"카드".equals(cardTextView.getText().toString())) {
+            bankTextView.setVisibility(View.GONE);
+        }
+
+        rootView.findViewById(R.id.DetailOKBtn).setOnClickListener(okButton -> {
+            if (onUpdateListener != null) {
+                if (!"카드".equals(cardTextView.getText().toString())) {
+                    item.setBank(null);
+                }
+                item.setCard("카드".equals(cardTextView.getText().toString()) ? "CARD" : "CASH");
+                onUpdateListener.onUpdate(item);
             }
             dismiss();
         });
 
-        // 가게명 데이터 수정
-        nameTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (nameEditText != null) {
-                    nameEditText.setVisibility(View.VISIBLE);
-                    nameEditText.setText(nameTextView.getText().toString());
-                    nameTextView.setVisibility(View.GONE);
+        nameTextView.setOnClickListener(nameClick -> {
+            nameEditText.setVisibility(View.VISIBLE);
+            nameEditText.setText(nameTextView.getText().toString());
+            nameTextView.setVisibility(View.GONE);
+        });
 
-                    // edit 수정 후 db 수정
-                    nameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                        @Override
-                        public void onFocusChange(View view, boolean hasFocus) {
-                            if (!hasFocus) {
-                                String newText = nameEditText.getText().toString().trim();
-                                nameTextView.setText(newText); // 수정된 텍스트
+        nameEditText.setOnEditorActionListener((editView, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                String newText = nameEditText.getText().toString().trim();
+                nameTextView.setText(newText);
+                item.setContent(newText);
+                nameEditText.setVisibility(View.GONE);
+                nameTextView.setVisibility(View.VISIBLE);
+                return true;
+            }
+            return false;
+        });
 
-                                // AmountItem 반영
-                                item.setContent(newText);
+        rootView.setOnTouchListener((touchView, motionEvent) -> {
+            if (nameEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(nameEditText, motionEvent)) {
+                String newText = nameEditText.getText().toString().trim();
+                nameTextView.setText(newText);
+                item.setContent(newText);
+                nameEditText.setVisibility(View.GONE);
+                nameTextView.setVisibility(View.VISIBLE);
+                return true;
+            }
+            if (bankEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(bankEditText, motionEvent)) {
+                String newText = bankEditText.getText().toString().trim();
+                item.setBank(newText);
+                bankTextView.setText(newText.isEmpty() ? " " : newText);
+                bankEditText.setVisibility(View.GONE);
+                bankTextView.setVisibility(View.VISIBLE);
+                return true;
+            }
+            return false;
+        });
 
-                                // db 추가
-                                dbHelper.updateItem(item);
+        dateTextView.setOnClickListener(dateClick -> {
+            PopAddDate popAddDate = new PopAddDate();
+            popAddDate.setInitDate(dateTextView.getText().toString());
+            popAddDate.setTargetFragment(PopDetailItem.this, 0);
+            popAddDate.show(getParentFragmentManager(), "날짜 선택");
+        });
 
-                                nameEditText.setVisibility(View.GONE);
-                                nameTextView.setVisibility(View.VISIBLE);
-                            }
+        cardTextView.setOnClickListener(cardClick -> {
+            final String[] options = {"카드", "현금"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("결제 방법 선택")
+                    .setSingleChoiceItems(options, getCheckedItem(), (dialogInterface, which) -> {
+                        String selectCard = options[which];
+                        cardTextView.setText(selectCard);
+                        item.setCard("카드".equals(selectCard) ? "CARD" : "CASH");
+                        Log.i("PopDetailItem", "getBank() = " + item.getBank());
+                        Log.i("PopDetailItem", "getCard() = " + item.getCard());
+                        if ("CARD".equals(item.getCard())) {
+                            bankTextView.setText(item.getBank() == null || item.getBank().equals("null") ? "은행명" : item.getBank());
+                            bankTextView.setVisibility(View.VISIBLE);
+                            bankEditText.setVisibility(View.GONE);
+                        } else {
+                            item.setBank("");  // bank null로 초기화
+                            bankTextView.setText("");
+                            bankTextView.setVisibility(View.GONE);
+                            bankEditText.setVisibility(View.GONE);
                         }
-                    });
-                }
-            }
-        });
-        // 화면 터치 시 자동 저장
-        view.setOnTouchListener(new View.OnTouchListener(){
-
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (nameEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(nameEditText, motionEvent)) {
-                    String newText = nameEditText.getText().toString().trim();
-
-                    nameTextView.setText(newText); // 수정된 텍스트
-
-                    // AmountItem 반영
-                    item.setContent(newText);
-
-                    // db 추가
-                    dbHelper.updateItem(item);
-
-                    nameEditText.setVisibility(View.GONE);
-                    nameTextView.setVisibility(View.VISIBLE);
-                    return true; // 이벤트 처리 완료
-                }
-                if (bankEditText.getVisibility() == View.VISIBLE && !isEditTextTouched(bankEditText, motionEvent)) {
-                    String newText = bankEditText.getText().toString().trim();
-                    bankEditText.setText(newText); // 수정된 텍스트
-                    // AmountItem 반영
-                    item.setBank(newText);
-                    // db 추가
-                    dbHelper.updateItem(item);
-                    bankEditText.setVisibility(View.GONE);
-                    bankTextView.setVisibility(View.VISIBLE);
-                    return true; // 이벤트 처리 완료
-                }
-                return false; // 다른 부분에서 터치 처리
-            }
+                    })
+                    .setNegativeButton("확인", null)
+                    .show();
         });
 
-        // 날짜 데이터 수정
-        dateTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PopAddDate popAddDate = new PopAddDate();
 
-                String currentDate = dateTextView.getText().toString();
-                popAddDate.setInitDate(currentDate);
-                popAddDate.setTargetFragment(PopDetailItem.this, 0);
-                popAddDate.show(getParentFragmentManager(), "날짜 선택");
-            }
-        });
+        bankTextView.setOnClickListener(bankClick -> {
+            if ("카드".equals(cardTextView.getText().toString()) && bankEditText != null) {
+                bankEditText.setVisibility(View.VISIBLE);
+                bankEditText.setText(item.getBank() == null || item.getBank().equals("null") ? "" : item.getBank());
+                bankTextView.setVisibility(View.GONE);
 
-        // 카드 데이터 수정
-        cardTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final String[] options = {"카드", "현금"};
-                boolean[] checkedCard = new boolean[options.length];
-
-                if (cardTextView.getText().toString().equals("카드")) {
-                    checkedCard[0] = true;
-                } else if (cardTextView.getText().toString().equals("현금")) {
-                    checkedCard[1] = true;
-
-                }
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("결제 방법 선택")
-                        .setSingleChoiceItems(options, getCheckedItem(), (dialogInterface, which) -> {
-                            // 선택 항목 반영
-                            String selectCard = options[which];
-                            cardTextView.setText(selectCard);
-
-                            // 은행 설정 여부
-                            if (selectCard.equals("카드")) {
-                                bankTextView.setVisibility(View.VISIBLE);
-
-                                if (bankEditText != null){
-                                    bankEditText.setVisibility(View.VISIBLE);
-                                    bankEditText.setText("");
-                                    bankTextView.setVisibility(View.GONE);
-                                    bankEditText.requestFocus();
-
-                                    // edit 수정 후 db 수정
-                                    bankEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                                        @Override
-                                        public void onFocusChange(View view, boolean hasFocus) {
-                                            if (!hasFocus) {
-                                                String newText = bankEditText.getText().toString().trim();
-                                                bankTextView.setText(newText); // 수정된 텍스트
-
-                                                // db 추가
-                                                item.setCard(selectCard);
-                                                item.setBank(newText);
-                                                dbHelper.updateItem(item);
-
-                                                bankEditText.setVisibility(View.GONE);
-                                                bankTextView.setVisibility(View.VISIBLE);
-                                            }
-                                        }
-                                    });
-                                }
-
-                            } else if (selectCard.equals("현금")) {
-                                bankTextView.setText("");
-                                bankTextView.setVisibility(View.GONE);
-
-                                item.setCard(selectCard);
-                                dbHelper.updateItem(item);
-                            }
-
-                        })
-                        .setNegativeButton("확인", null)
-                        .show();
-            }
-        });
-
-        // 은행 데이터 수정
-        if (cardTextView.getText().toString().equals("카드")) {
-            bankTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (bankEditText != null) {
-                        bankEditText.setVisibility(View.VISIBLE);
-                        bankEditText.setText(bankTextView.getText().toString());
-                        bankTextView.setVisibility(View.GONE);
-
-                        // edit 수정 후 db 수정
-                        bankEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                            @Override
-                            public void onFocusChange(View view, boolean hasFocus) {
-                                if (!hasFocus) {
-                                    String newText = bankEditText.getText().toString().trim();
-                                    bankTextView.setText(newText); // 수정된 텍스트
-
-                                    // db 추가
-                                    item.setBank(newText);
-                                    dbHelper.updateItem(item);
-
-                                    bankEditText.setVisibility(View.GONE);
-                                    bankTextView.setVisibility(View.VISIBLE);
-                                }
-                            }
-                        });
+                bankEditText.setOnEditorActionListener((editView, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_DONE ||
+                            (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                        String newText = bankEditText.getText().toString().trim();
+                        item.setBank(newText);  // 모델에 반영
+                        bankTextView.setText(newText.isEmpty() ? " " : newText);  // 빈 문자열은 공백 처리
+                        bankEditText.setVisibility(View.GONE);
+                        bankTextView.setVisibility(View.VISIBLE);
+                        return true;
                     }
-                }
-            });
-        } else {
-            bankTextView.setVisibility(View.GONE);
-        }
-        // 카테고리 데이터 수정
-        categoryTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PopDetailCategory popDetailCategory = new PopDetailCategory();
-
-                popDetailCategory.setTargetFragment(PopDetailItem.this, 0);
-                popDetailCategory.show(getParentFragmentManager(), "카테고리 선택");
-            }
-        });
-
-        // 지출 데이터 수정
-        amountTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PopDetailAmount popDetailAmount = new PopDetailAmount();
-                Bundle bundle = new Bundle();
-                bundle.putInt("currentAmount", item.getAmount());
-                popDetailAmount.setArguments(bundle);
-                // 금액 업데이트
-                popDetailAmount.setAmountUpdateListener(new PopDetailAmount.AmountUpdateListener() {
-                    @Override
-                    public void onAmountUpdated(int updateAmount) {
-                        item.setAmount(updateAmount);
-                        amountTextView.setText(decimalFormat.format(updateAmount));
-                        dbHelper.updateItem(item);
-                    }
+                    return false;
                 });
-                popDetailAmount.show(getParentFragmentManager(), "금액 수정");
             }
         });
 
-        return view;
+
+        categoryTextView.setOnClickListener(categoryClick -> {
+            PopDetailCategory popDetailCategory = new PopDetailCategory();
+            popDetailCategory.setTargetFragment(PopDetailItem.this, 0);
+            popDetailCategory.show(getParentFragmentManager(), "카테고리 선택");
+        });
+
+        amountTextView.setOnClickListener(amountClick -> {
+            PopDetailAmount popDetailAmount = new PopDetailAmount();
+            Bundle bundle = new Bundle();
+            bundle.putInt("currentAmount", item.getAmount());
+            popDetailAmount.setArguments(bundle);
+            popDetailAmount.setAmountUpdateListener(updateAmount -> {
+                item.setAmount(updateAmount);
+                amountTextView.setText(decimalFormat.format(updateAmount));
+            });
+            popDetailAmount.show(getParentFragmentManager(), "금액 수정");
+        });
+
+        return rootView;
     }
 
-    // 날짜 TextView 설정
     public void updateDate(String date) {
         dateTextView.setText(date);
         item.setDate(date);
-        dbHelper.updateItem(item);
     }
 
-    // 카드 설정
     private int getCheckedItem() {
         String currentText = cardTextView.getText().toString();
-
-        if("카드".equals(currentText)) {
-            return 0;
-        } else if ("현금".equals(currentText)) {
-            return 1;
-        }
-        return -1;
+        return "카드".equals(currentText) ? 0 : 1;
     }
 
-    // 카테고리 TextView 설정
     public void updateCategory(String category) {
         categoryTextView.setText(category);
         item.setCategory(category);
-        dbHelper.updateItem(item);
     }
 
-    // EditText 터치 확인
     private boolean isEditTextTouched(EditText editText, MotionEvent event) {
         int[] location = new int[2];
         editText.getLocationOnScreen(location);
-
         int left = location[0];
         int top = location[1];
         int right = left + editText.getWidth();
         int bottom = top + editText.getHeight();
-
-        // 터치 역역이 EditText 영역 내일 경우 true
         return event.getRawX() > left && event.getRawX() < right && event.getRawY() > top && event.getRawY() < bottom;
+    }
+
+    public interface OnUpdateListener {
+        void onUpdate(AmountItem updatedItem);
+    }
+
+    private OnUpdateListener onUpdateListener;
+
+    public void setOnUpdateListener(OnUpdateListener listener) {
+        this.onUpdateListener = listener;
     }
 }

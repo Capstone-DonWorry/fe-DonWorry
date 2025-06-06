@@ -33,30 +33,38 @@ import java.util.ArrayList;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAddListener{
+public class PopShowDaylist extends DialogFragment implements PopAddItem.ItemAddListener {
 
     RecyclerView recyclerView;
     AmountAdapter adapter;
     private PopShowDaylistBinding binding;
-    private DBHelper db;
 
     private ArrayList<AmountItem> amountList;
     private String selectDate;
     private String userId;
     private boolean isAddList = false;
-    private int recomAmount;
+
+    private long recomAmount;
+    private long totalSpent;
+    private long expectedSpent;
+
     private DecimalFormat decimalFormat;
 
     public interface OnDialogCancelListener {
         void onDialogCancel();
+        void onItemAdded(AmountItem item);
     }
+
     private OnDialogCancelListener dListener;
 
-    public static PopShowDaylist newInstance(ArrayList<AmountItem> amountDay, String date) {
+    public static PopShowDaylist newInstance(ArrayList<AmountItem> amountDay, String date, long recomAmount, long totalSpent, long expectedSpent) {
         PopShowDaylist popShowDaylist = new PopShowDaylist();
         Bundle args = new Bundle();
         args.putParcelableArrayList("amountDay", amountDay);
         args.putString("selectDate", date);
+        args.putLong("recomAmount", recomAmount);
+        args.putLong("totalSpent", totalSpent);
+        args.putLong("expectedSpent", expectedSpent);
         popShowDaylist.setArguments(args);
         return popShowDaylist;
     }
@@ -64,20 +72,17 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     public void setUserId(String userId) {
         this.userId = userId;
     }
-    public void setDb(DBHelper db) {
-        this.db = db;
-    }
-    public void setrecom(int recomAmount) {
-        this.recomAmount = recomAmount;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             amountList = getArguments().getParcelableArrayList("amountDay");
             selectDate = getArguments().getString("selectDate");
+            recomAmount = getArguments().getLong("recomAmount", 0);
+            totalSpent = getArguments().getLong("totalSpent", 0);
+            expectedSpent = getArguments().getLong("expectedSpent", 0);
         }
 
         if (getTargetFragment() instanceof OnDialogCancelListener) {
@@ -88,19 +93,15 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
     @Override
     public void onStart() {
         super.onStart();
-        // Dialog의 윈도우 설정
         Dialog dialog = getDialog();
         if (dialog != null) {
             Window window = dialog.getWindow();
             if (window != null) {
-                // 디바이스의 화면 크기를 가져오기 위한 DisplayMetrics 객체 생성
                 DisplayMetrics displayMetrics = new DisplayMetrics();
                 requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-                // 화면 크기의 90%를 계산
+                // 화면 너비의 90%로 고정
                 int width = (int) (displayMetrics.widthPixels * 0.9);
-
-                // Dialog의 크기 설정
                 WindowManager.LayoutParams layoutParams = window.getAttributes();
                 layoutParams.width = width;
                 window.setAttributes(layoutParams);
@@ -108,131 +109,91 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         }
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
-        if (dialog.getWindow() != null) {
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-        return dialog;
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        // 팝업창 레이아웃 사용
-        View view = inflater.inflate(R.layout.pop_show_daylist, container, false);
-        if (view == null) {
-            Log.d("PopAddItem", "View inflation failed");
-        } else {
-            Log.d("PopAddItem", "View inflated successfully");
-        }
-
-        binding = PopShowDaylistBinding.bind(view);
+        binding = PopShowDaylistBinding.inflate(inflater, container, false);
         decimalFormat = new DecimalFormat("#,###");
 
-        // recyclerView 설정
         recyclerView = binding.DayRecyclerView;
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-
-        // adapter 설정
-        adapter = new AmountAdapter(getActivity().getApplicationContext());
-
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new AmountAdapter(getContext());
         recyclerView.setAdapter(adapter);
 
-        // 날짜 입력
-        TextView dateTextView = binding.DayTextView;
-        dateTextView.setText(selectDate);
+        // 날짜
+        binding.DayTextView.setText(selectDate);
 
-        // 추천 금액 입력
-        TextView dailyRecomAmount = binding.DailyRecommendedAmount;
-        String dailyAmount = decimalFormat.format(recomAmount);
-        dailyRecomAmount.setText(dailyAmount);
+        // 금액 표시
+        binding.DailyRecommendedAmount.setText(decimalFormat.format(recomAmount) + " 원");
+        binding.TotalSpent.setText(decimalFormat.format(totalSpent) + " 원");
+        binding.ExpectedSpent.setText(decimalFormat.format(expectedSpent) + " 원");
 
         updateRecyclerView();
 
-        // 아이템 이벤트 처리
-        adapter.setOnClickListener(new AmountAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(AmountAdapter.ViewHolder holder, View view, int position) {
-                AmountItem item = adapter.getItem(position);
+        // 클릭 리스너
+        adapter.setOnClickListener((holder, view, position) -> {
+            AmountItem item = adapter.getItem(position);
+            PopDetailItem popDetail = PopDetailItem.newInstance(item);
 
-                // 아이템 클릭시 팝업 창 띄우기
-                PopDetailItem popDetail = PopDetailItem.newInstance(item);
-                popDetail.show(getChildFragmentManager(), "세부내역");
-
-            }
-        });
-
-        // 아이템 삭제
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-
-                switch(direction) {
-                    case ItemTouchHelper.LEFT:
-                        // 삭제할 아이템 담아두기
-                        AmountItem deleteItem = adapter.getItem(position);
-
-                        // 삭제
-                        adapter.removeItem(position);
-                        adapter.notifyItemRemoved(position);
-                        // db 삭제
-                        db.deleteItem(userId, deleteItem);
-
-                        isAddList = true;
-
-                        // 복구
-                        Snackbar.make(recyclerView, deleteItem.getContent()+"삭제 했습니다.", Snackbar.LENGTH_LONG).setAction("취소", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                db.addItem(userId, deleteItem);
-                                updateRecyclerView();
-                            }
-                        }).show();
-                        break;
+            popDetail.setOnUpdateListener(updatedItem -> {
+                if (getTargetFragment() instanceof FragmentCalendar) {
+                    ((FragmentCalendar) getTargetFragment()).updateExpense(updatedItem);
                 }
-            }
 
-            @Override
-            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                // 리스트 업데이트
+                amountList.set(position, updatedItem);
+                adapter.notifyItemChanged(position);
+                updateRecyclerView();
+            });
 
-                new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                        .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), R.color.err_red))
-                        .addSwipeLeftActionIcon(R.drawable.baseline_delete_forever_24)
-                        .addSwipeLeftLabel("삭제")
-                        .setSwipeLeftLabelColor(ContextCompat.getColor(getContext(), R.color.white))
-                        .create().decorate();
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        }).attachToRecyclerView(recyclerView);
-
-        // 버튼 클릭 처리
-        view.findViewById(R.id.AddNOBtn).setOnClickListener(v -> {
-            onCancel(getDialog());
-            dismiss();
+            popDetail.show(getChildFragmentManager(), "세부내역");
         });
-        view.findViewById(R.id.AddADDBtn).setOnClickListener(v -> showAddItem());
+
+        // 버튼
+        binding.AddNOBtn.setOnClickListener(v -> dismiss());
+        binding.AddADDBtn.setOnClickListener(v -> showAddItem());
 
         return binding.getRoot();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    private void showAddItem() {
+        PopAddItem popAddItem = new PopAddItem();
+        popAddItem.setSettingDate(selectDate);
+        popAddItem.setTargetFragment(this, 0);
+        popAddItem.show(getParentFragmentManager(), "내용추가");
     }
 
+    public void onItemAdded(AmountItem item) {
+        amountList.add(item);
+        updateRecyclerView();
+        isAddList = true;
+
+        if (dListener != null) {
+            dListener.onItemAdded(item);
+        }
+    }
+
+    private void updateRecyclerView() {
+        adapter.items.clear();
+        adapter.items.addAll(amountList);
+        adapter.notifyDataSetChanged();
+
+        // 프론트에서 임시로 금액 정보 업데이트
+        int totalSpent = 0;
+        for (AmountItem it : amountList) {
+            totalSpent += it.getAmount();
+        }
+
+        long expectedSpent = 0; // 예: 예상지출 로직 따로 없다면 0 유지
+        long recommendedAmount = recomAmount; // 기존 추천 금액 유지 (또는 재계산 가능)
+
+        // 금액 표시 UI 업데이트
+        binding.TotalSpent.setText(decimalFormat.format(totalSpent) + " 원");
+        binding.ExpectedSpent.setText(decimalFormat.format(expectedSpent) + " 원");
+        binding.DailyRecommendedAmount.setText(decimalFormat.format(recommendedAmount) + " 원");
+
+        isAddList = true;
+    }
 
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
@@ -240,41 +201,11 @@ public class PopShowDaylist  extends DialogFragment implements PopAddItem.ItemAd
         if (dListener != null && isAddList) {
             dListener.onDialogCancel();
         }
-
     }
 
-    // 항목추가 다이얼로그 표시
-    private void showAddItem() {
-        PopAddItem popAddItem = new PopAddItem();
-        // FragmentCalendar를 타겟으로 설정
-        popAddItem.setSettingDate(selectDate);
-        popAddItem.setTargetFragment(this, 0);
-        popAddItem.show(getParentFragmentManager(), "내용추가");
-    }
-
-    // 아이템 추가
-    public void onItemAdded(AmountItem item) {
-        // db에 item 등록
-        db.addItem(userId, item);
-        amountList.add(item);
-
-        // recycler뷰 업데이트
-        if (item.getDate() == selectDate) {
-            updateRecyclerView();
-        }
-        isAddList = true;
-    }
-
-    // 리사이클러 뷰 업데이트
-    private void updateRecyclerView() {
-        adapter.items.clear();
-
-        for (AmountItem item : amountList) {
-            adapter.addItem(item);
-        }
-
-        // RecyclerView 업데이트
-        adapter.notifyDataSetChanged();
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

@@ -1,6 +1,6 @@
 package com.example.capstone_donworry;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -9,122 +9,115 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InitSetting extends AppCompatActivity {
-    private FirebaseAuth firebaseAuth; // 파이어 베이스 인증
-    private DatabaseReference databaseReference; // 실시간 데이터 베이스
 
-    private String loginId, pw;
-    private EditText InputMoney, InputNickName;
-    private EditText InputAge;
+    private EditText InputMoney, InputAge, InputNickName;
     private Button SignUPBtn;
-    public Context context;
+    private Context context;
+    private String loginId, pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init_setting);
 
-        // 스택에서 제거할 액티비티를 리스트에 저장
         StartPage startPage = new StartPage();
         startPage.actList().add(this);
 
         context = this;
 
-        // 회원가입 처리
+        // 이전 화면에서 받은 값
         Intent intent = getIntent();
         loginId = intent.getStringExtra("loginId");
-        pw = intent.getStringExtra("pw");
+        pw = intent.getStringExtra("password");
 
-        // ID 값 찾기
-        InputMoney = (EditText) findViewById(R.id.InputMoney);
-        InputMoney.addTextChangedListener(new CustomComma(InputMoney));
-        InputNickName = (EditText) findViewById(R.id.InputNickName);
-        InputAge = (EditText) findViewById(R.id.InputAge);
+        // 뷰 연결
+        InputMoney = findViewById(R.id.InputMoney);
+        InputAge = findViewById(R.id.InputAge);
+        InputNickName = findViewById(R.id.InputNickName);
+        SignUPBtn = findViewById(R.id.SignUPBtn);
 
-        SignUPBtn = (Button) findViewById(R.id.SignUPBtn);
+        // 버튼 활성화 로직 연결 (중요!!)
+        setupTextWatchers();
 
         // 뒤로가기 버튼
-        ImageView BackArrow = (ImageView) findViewById(R.id.BackArrow);
-        BackArrow.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), SignUp.class);
-                startActivity(intent);
+        ImageView BackArrow = findViewById(R.id.BackArrow);
+        BackArrow.setOnClickListener(v -> {
+            Intent backIntent = new Intent(getApplicationContext(), SignUp.class);
+            startActivity(backIntent);
+            finish();
+        });
+
+        // 회원가입 버튼 클릭 시
+        SignUPBtn.setOnClickListener(v -> {
+            int expenseGoal = Integer.parseInt(InputMoney.getText().toString().replace(",", ""));
+            int age = Integer.parseInt(InputAge.getText().toString());
+            String nickName = InputNickName.getText().toString().trim();
+            int ageGroup = (age / 10 * 10);
+
+            Response.Listener<String> responseListener = response -> {
+                Log.d("회원가입", "서버 응답 수신: " + response);
+                Toast.makeText(getApplicationContext(), "회원 가입 성공! 로그인 페이지로 이동합니다.", Toast.LENGTH_SHORT).show();
+
+                // ✅ 여기만 수정!
+                Intent loginIntent = new Intent(getApplicationContext(), Login.class); // ← 너의 로그인 Activity
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(loginIntent);
                 finish();
-            }
-        });
+            };
 
-        // 회원 가입 버튼
-        SignUPBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int expenseGoal = Integer.parseInt(InputMoney.getText().toString().replace(",", ""));
-                int age = Integer.parseInt(InputAge.getText().toString());
-                String nickName = InputNickName.getText().toString().trim();
-                Toast.makeText(getApplicationContext(), expenseGoal + nickName+ age+ loginId+ pw, Toast.LENGTH_SHORT).show();
+            RegisterRequest registerRequest = new RegisterRequest(
+                    loginId, pw, pw, nickName, age, expenseGoal, responseListener
+            );
 
-                Response.Listener<String> responseListener = new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            boolean success = jsonObject.getBoolean("success");
-                            if (success) {
-                                Toast.makeText(getApplicationContext(), "회원 가입 성공", Toast.LENGTH_SHORT).show();
-
-                                Intent intent = new Intent(getApplicationContext(), Login.class);
-                                startActivity(intent);
-                            } else {
-                                Toast.makeText(getApplicationContext(), "회원 가입 실패", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                };
-                // Volley를 이용해서 서버로 요청
-                RegisterRequest registerRequest = new RegisterRequest(loginId, pw, nickName, age, expenseGoal, responseListener);
-                RequestQueue queue = Volley.newRequestQueue(context);
-                queue.add(registerRequest);
-            }
-        });
-
-        // editText 리스너
-        InputNickName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @SuppressLint("UseCompatLoadingForColorStateLists")
-            @Override
-            public void afterTextChanged(Editable s) {
-                SignUPBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
-                SignUPBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
-                SignUPBtn.setEnabled(true);
-            }
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(registerRequest);
         });
     }
 
+    private void setupTextWatchers() {
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                String money = InputMoney.getText().toString().trim();
+                String age = InputAge.getText().toString().trim();
+                String nickname = InputNickName.getText().toString().trim();
+
+                boolean isAllFilled = !money.isEmpty() && !age.isEmpty() && !nickname.isEmpty();
+
+                if (isAllFilled) {
+                    SignUPBtn.setEnabled(true);
+                    SignUPBtn.setBackgroundResource(R.drawable.round_shape_mid_blue);
+                    SignUPBtn.setTextColor(context.getResources().getColorStateList(R.color.white));
+                } else {
+                    SignUPBtn.setEnabled(false);
+                    SignUPBtn.setBackgroundResource(R.drawable.round_shape_gray);
+                    SignUPBtn.setTextColor(context.getResources().getColorStateList(R.color.dark_gray));
+                }
+            }
+
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        };
+
+        InputMoney.addTextChangedListener(watcher);
+        InputAge.addTextChangedListener(watcher);
+        InputNickName.addTextChangedListener(watcher);
+    }
 }

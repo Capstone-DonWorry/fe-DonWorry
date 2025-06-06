@@ -216,6 +216,7 @@ public class PopDetailAmount extends DialogFragment {
     private void resetBtn(Button btn) {
         isBtnClicked = false;
         amountTextView.setText(decimalFormat.format(currentAmount));
+        newIntAmount = currentAmount;
         btn.setBackgroundResource(R.drawable.round_shape_gray);
         btn.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
     }

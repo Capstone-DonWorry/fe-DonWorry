@@ -50,6 +50,18 @@ public class PopDetailCategory extends DialogFragment {
         }
     }
 
+    // 리스너 인터페이스 정의
+    public interface OnUpdateListener {
+        void onUpdate(AmountItem updatedItem);
+    }
+
+    private OnUpdateListener updateListener;
+
+    public void setOnUpdateListener(OnUpdateListener listener) {
+        this.updateListener = listener;
+    }
+
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

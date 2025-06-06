@@ -202,7 +202,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                     daily.setDailyGoal(dayJson.getLong("dailyGoal"));
                     daily.setDailyTotalExpense(dayJson.getLong("dailyTotalExpense"));
                     daily.setDailyTotalExpectedExpense(dayJson.getLong("dailyTotalExpectedExpense"));
-                    daily.setDailyLevel(dayJson.getInt("dailyGoal"));
+                    daily.setDailyLevel(dayJson.getInt("dailyLevel"));
 
                     List<Expense> expenseList = new ArrayList<>();
                     JSONArray expenses = dayJson.getJSONArray("dailyExpenseList");

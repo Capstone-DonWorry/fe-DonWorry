@@ -1,9 +1,0 @@
-<!-- res/menu/fab_menu.xml -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/menu_add_card"
-        android:title="카드 지출 추가" />
-    <item
-        android:id="@+id/menu_add_cash"
-        android:title="현금 지출 추가" />
-</menu>

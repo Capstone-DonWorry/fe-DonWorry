@@ -7,6 +7,7 @@ import android.widget.DatePicker;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import java.util.Calendar;
 
@@ -18,6 +19,7 @@ public class PopAddDate extends DialogFragment implements DatePickerDialog.OnDat
     public void setInitDate(String date){
         this.initDate = date;
     }
+
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         final Calendar calendar = Calendar.getInstance();
@@ -40,21 +42,19 @@ public class PopAddDate extends DialogFragment implements DatePickerDialog.OnDat
     }
 
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        String strMon = String.format("%02d", month+1);
+        String strMon = String.format("%02d", month + 1);
         String strDay = String.format("%02d", day);
         String selecDay = year + "-" + strMon + "-" + strDay;
 
-        if (getTargetFragment() instanceof PopAddItem) {
-            PopAddItem targetFragment = (PopAddItem) getTargetFragment();
-            if (targetFragment != null) {
-                targetFragment.updateDate(selecDay);
-            }
-
-        } else if (getTargetFragment() instanceof PopDetailItem) {
-            PopDetailItem targetFragment = (PopDetailItem) getTargetFragment();
-            if (targetFragment != null) {
-                targetFragment.updateDate(selecDay);
-            }
+        Fragment targetFragment = getTargetFragment();
+        if (targetFragment instanceof PopAddItem) {
+            ((PopAddItem) targetFragment).updateDate(selecDay);
+        } else if (targetFragment instanceof PopDetailItem) {
+            ((PopDetailItem) targetFragment).updateDate(selecDay);
+        } else if (targetFragment instanceof PopAddExpectedItem) {
+            ((PopAddExpectedItem) targetFragment).updateDate(selecDay);
+        } else if (targetFragment instanceof PopDetailExpectedItem) {  // ✅ 추가 필요
+            ((PopDetailExpectedItem) targetFragment).updateDate(selecDay);
         }
     }
 }

@@ -92,13 +92,13 @@ public class FragmentChart extends Fragment {
         List<AmountItem> items = dbHelper.getMonthItems(userID, dateKey);
 
         // 카테고리별 금액
-        HashMap<String, Integer> categorySums = new HashMap<>();
+        HashMap<String, Long> categorySums = new HashMap<>();
 
         // 합계 계산
         for (AmountItem item : items) {
             String category = item.getCategory();
-            int amount = item.getAmount();
-            categorySums.put(category, categorySums.getOrDefault(category, 0) + amount);
+            long amount = item.getAmount();
+            categorySums.put(category, categorySums.getOrDefault(category, 0L) + amount);
         }
 
         ArrayList<PieEntry> entries = new ArrayList<>();

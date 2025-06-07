@@ -8,16 +8,14 @@ import androidx.annotation.NonNull;
 public class AmountItem extends Item implements Parcelable {
     private long uid;
     private String content;
-    private String date;
     private String card;
     private String bank;
     private String category;
-    private int amount;
+    private long amount;
 
     public AmountItem() {
-        super(Item.TYPE_AMOUNT);
+        super(Item.TYPE_AMOUNT, "");
         this.content = "";
-        this.date = "";
         this.card = "";
         this.bank = "";
         this.category = "";
@@ -25,9 +23,8 @@ public class AmountItem extends Item implements Parcelable {
     }
 
     public AmountItem(String content, String date, String card, String bank, String category, int amount) {
-        super(Item.TYPE_AMOUNT);
+        super(Item.TYPE_AMOUNT, date);
         this.content = content;
-        this.date = date;
         this.card = card;
         this.bank = bank;
         this.category = category;
@@ -35,10 +32,9 @@ public class AmountItem extends Item implements Parcelable {
     }
 
     protected AmountItem(Parcel in) {
-        super(Item.TYPE_AMOUNT);
+        super(Item.TYPE_AMOUNT, in.readString());
         uid = in.readLong();
         content = in.readString();
-        date = in.readString();
         card = in.readString();
         bank = in.readString();
         category = in.readString();
@@ -73,14 +69,6 @@ public class AmountItem extends Item implements Parcelable {
         this.content = content;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
     public String getCard() {
         return card;
     }
@@ -105,11 +93,11 @@ public class AmountItem extends Item implements Parcelable {
         this.category = category;
     }
 
-    public int getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 
@@ -122,10 +110,14 @@ public class AmountItem extends Item implements Parcelable {
     public void writeToParcel(@NonNull Parcel parcel, int i) {
         parcel.writeLong(uid);
         parcel.writeString(content);
-        parcel.writeString(date);
         parcel.writeString(card);
         parcel.writeString(bank);
         parcel.writeString(category);
-        parcel.writeInt(amount);
+        parcel.writeLong(amount);
+    }
+
+    @Override
+    public int getType() {
+        return Item.TYPE_AMOUNT;
     }
 }

@@ -29,21 +29,21 @@ public class PopDetailAmount extends DialogFragment {
     private TextView amountTextView;
     private EditText amountEditText;
     private Button twoBtn, threeBtn, fourBtn, numBtn, cancelBtn, addOkBtn;
-    private int currentAmount;
+    private long currentAmount;
     private DecimalFormat decimalFormat;
     private String newTextAmount;
-    private int newIntAmount;
+    private long newIntAmount;
     private AmountUpdateListener listener;
     private boolean isBtnClicked = false;
     // 금액 업데이트
     public interface AmountUpdateListener {
-        void onAmountUpdated(int updateAmount);
+        void onAmountUpdated(long updateAmount);
     }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            currentAmount = getArguments().getInt("currentAmount", 0);
+            currentAmount = getArguments().getLong("currentAmount", 0L);
         }
     }
     @Override

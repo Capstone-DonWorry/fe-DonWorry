@@ -14,9 +14,9 @@
 
     <fragment
         android:id="@+id/navigation_chart"
-        android:name="com.example.capstone_donworry.fragment.chart.FragmentChart"
+        android:name="com.example.capstone_donworry.fragment.chart.StatisticsFragment"
         android:label="@string/title_chart"
-        tools:layout="@layout/fragment_chart" />
+        tools:layout="@layout/fragment_statistics" />
 
     <fragment
         android:id="@+id/navigation_message"

@@ -215,7 +215,7 @@ public class PopDetailItem extends DialogFragment {
         amountTextView.setOnClickListener(amountClick -> {
             PopDetailAmount popDetailAmount = new PopDetailAmount();
             Bundle bundle = new Bundle();
-            bundle.putInt("currentAmount", item.getAmount());
+            bundle.putLong("currentAmount", item.getAmount());
             popDetailAmount.setArguments(bundle);
             popDetailAmount.setAmountUpdateListener(updateAmount -> {
                 item.setAmount(updateAmount);

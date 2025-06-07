@@ -9,9 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,21 +24,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.capstone_donworry.R;
-import com.example.capstone_donworry.fragment.calendar.AmountAdapter;
-import com.example.capstone_donworry.fragment.calendar.CalendarDeco;
-import com.example.capstone_donworry.fragment.calendar.CalendarTextDeco;
-import com.example.capstone_donworry.fragment.calendar.CustomDayDecorator;
 import com.example.capstone_donworry.databinding.FragmentCalendarBinding;
-import com.example.capstone_donworry.fragment.calendar.AmountItem;
 import com.example.capstone_donworry.model.DailySummary;
 import com.example.capstone_donworry.model.ExpectedExpense;
 import com.example.capstone_donworry.model.Expense;
 import com.example.capstone_donworry.model.MonthlySummary;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
@@ -49,6 +45,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,21 +53,31 @@ import java.util.Map;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener, PopShowDaylist.OnDialogCancelListener, PopDetailItem.OnDialogCancelListener {
+public class FragmentCalendar extends Fragment implements PopAddExpectedItem.ItemAddListener, PopAddItem.ItemAddListener, PopShowDaylist.OnDialogCancelListener, PopDetailItem.OnDialogCancelListener {
     private FragmentCalendarBinding binding;
+    // 클래스에 추가
+    private final Map<CalendarDay, CustomDayDecorator> decoratorMap = new HashMap<>();
     private RecyclerView recyclerView;
-    private AmountAdapter adapter;
+    private MixedAmountAdapter adapter;
+
     private MaterialCalendarView calendarView;
     private TextView ableAmount, targetAmount, totalExpenseTV;
     private DecimalFormat decimalFormat = new DecimalFormat("#,###");
     private ViewModelCalendar viewModelCalendar;
     private String userID;
     private Map<String, CalendarTextDeco> dots = new HashMap<>();
-    private CalendarDay selectDay;
+    private CalendarDay selectDay = null;
 
     private CheckBox checkBoxCard, checkBoxCash;
 
     private MonthlySummary monthlySummary;
+
+    private PopShowDaylist popShowDaylist;
+
+    private boolean shouldShowPopup = true;
+
+    private boolean isReturningFromEdit = false;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,7 +86,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
         recyclerView = binding.RecyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new AmountAdapter(getContext());
+        adapter = new MixedAmountAdapter(getContext());
         recyclerView.setAdapter(adapter);
 
         calendarView = binding.calendarView;
@@ -101,12 +108,22 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         dots = new HashMap<>();
 
         adapter.setOnClickListener((holder, view, position) -> {
-            AmountItem item = adapter.getItem(position);
-            PopDetailItem popDetail = PopDetailItem.newInstance(item);
-            popDetail.setTargetFragment(FragmentCalendar.this, 0);
-            popDetail.setOnUpdateListener(FragmentCalendar.this::updateExpense);
-            popDetail.show(getParentFragmentManager(), "세부내역");
+            Item item = adapter.getItem(position);
+            if (item instanceof AmountItem) {
+                AmountItem amountItem = (AmountItem) item;
+                PopDetailItem popDetail = PopDetailItem.newInstance(amountItem);
+                popDetail.setTargetFragment(FragmentCalendar.this, 0);
+                popDetail.setOnUpdateListener(FragmentCalendar.this::updateExpense);
+                popDetail.show(getParentFragmentManager(), "세부내역");
+            } else if (item instanceof AmountExpectedItem) {
+                AmountExpectedItem expectedItem = (AmountExpectedItem) item;
+                PopDetailExpectedItem popExpected = PopDetailExpectedItem.newInstance(expectedItem);
+                popExpected.setTargetFragment(FragmentCalendar.this, 0);
+                popExpected.setOnUpdateListener(FragmentCalendar.this::updateExpectedExpense);
+                popExpected.show(getParentFragmentManager(), "예상세부내역");
+            }
         });
+
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
@@ -117,9 +134,18 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
-                AmountItem deleteItem = adapter.getItem(position);
+                Item deleteItem = adapter.getItem(position);
 
-                Snackbar.make(recyclerView, deleteItem.getContent() + " 삭제했습니다.", Snackbar.LENGTH_LONG)
+                String content;
+                if (deleteItem instanceof AmountItem) {
+                    content = ((AmountItem) deleteItem).getContent();
+                } else if (deleteItem instanceof AmountExpectedItem) {
+                    content = ((AmountExpectedItem) deleteItem).getContent();
+                } else {
+                    content = "항목";
+                }
+
+                Snackbar.make(recyclerView, content + " 삭제했습니다.", Snackbar.LENGTH_LONG)
                         .setAction("취소", v -> updateRecycler(deleteItem))
                         .show();
             }
@@ -136,7 +162,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             }
         }).attachToRecyclerView(recyclerView);
 
-        binding.ButtonAdd.setOnClickListener(v -> showAddItem());
+        //binding.b.setOnClickListener(v -> showAddItem());
 
         return root;
     }
@@ -150,6 +176,25 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             userID = user;
             initView();
         });
+        TextView btnExpense = view.findViewById(R.id.btn_add_expense);
+        TextView btnExpected = view.findViewById(R.id.btn_add_expected);
+        FrameLayout menuContainer = view.findViewById(R.id.menuContainer);
+        TextView btnMenu = view.findViewById(R.id.btnShowAddMenu);
+
+        btnMenu.setOnClickListener(v -> {
+            menuContainer.setVisibility(menuContainer.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+        });
+
+        btnExpense.setOnClickListener(e -> {
+            showAddItem();
+            menuContainer.setVisibility(View.GONE);
+        });
+
+        btnExpected.setOnClickListener(e -> {
+            showAddExpectedItem();
+            menuContainer.setVisibility(View.GONE);
+        });
+
     }
 
     private void initView() {
@@ -167,7 +212,9 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     }
 
     private void fetchMonthlySummary(int year, int month, Runnable onComplete) {
+        Log.i("temp" , "temp");
         adapter.clearItems();
+
         String url = "http://10.0.2.2:8080/api/calendar/monthly?year=" + year + "&month=" + month;
         SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
         String token = prefs.getString("token", "");
@@ -188,10 +235,12 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 summary.setCardExpenses(data.getLong("cardExpenses"));
                 summary.setCashExpenses(data.getLong("cashExpenses"));
 
+                long totalRealExpense = summary.getCardExpenses() + summary.getCashExpenses();
+                totalExpenseTV.setText(decimalFormat.format(totalRealExpense));
+
                 JSONObject daysObj = data.getJSONObject("days");
                 Map<String, DailySummary> daysMap = new HashMap<>();
-
-                List<AmountItem> totalList = new ArrayList<>();
+                List<Item> totalList = new ArrayList<>();
 
                 Iterator<String> keys = daysObj.keys();
                 while (keys.hasNext()) {
@@ -220,7 +269,6 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         exp.setBankName(e.optString("bankName", ""));
                         expenseList.add(exp);
 
-                        // 리스트에 추가
                         AmountItem item = new AmountItem();
                         item.setUid(exp.getId());
                         item.setContent(exp.getTitle());
@@ -245,9 +293,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                             expected.setDate(LocalDate.parse(ex.getString("date")));
                         }
                         expectedList.add(expected);
+
+                        AmountExpectedItem expectedItem = new AmountExpectedItem();
+                        expectedItem.setId(expected.getId());
+                        expectedItem.setContent(expected.getDetails());
+                        expectedItem.setAmount(expected.getAmount());
+                        expectedItem.setDate(expected.getDate().toString());
+                        totalList.add(expectedItem);
                     }
                     daily.setDailyExpectedList(expectedList);
-
                     daysMap.put(dateKey, daily);
                 }
 
@@ -261,18 +315,21 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         CalendarDeco.saturdayDecorator()
                 );
 
-                for (String dateKey : daysMap.keySet()) {
-                    DailySummary ds = daysMap.get(dateKey);
-                    CalendarDay cd = stringToCalendarDay(dateKey);
-                    calendarView.addDecorator(new CustomDayDecorator(cd, ds.getDailyTotalExpense().intValue(), ds.getDailyGoal().intValue(), ds.getDailyLevel()));
+                decoratorMap.clear();
+                for (Map.Entry<String, DailySummary> entry : daysMap.entrySet()) {
+                    CalendarDay day = stringToCalendarDay(entry.getKey());
+                    int level = entry.getValue().getDailyLevel();
+                    calendarView.addDecorator(new CustomDayDecorator(day, level));
                 }
+                Log.i("fetchList", "totalList" + totalList.size());
+                adapter.updateItems(new ArrayList<>(totalList));
 
-                adapter.updateItems(totalList);
+                onComplete.run();
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }, error -> Log.e("fetchMonthlySummary", "error: " + error)) {
+        }, error -> Log.e("fetchMonthlySummary", "❌ error: " + error.getMessage())) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
@@ -280,52 +337,31 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                 return headers;
             }
         };
+
         Volley.newRequestQueue(requireContext()).add(request);
-    }
-
-    private CalendarDay stringToCalendarDay(String dateString) {
-        String[] parts = dateString.split("-");
-        return CalendarDay.from(
-                Integer.parseInt(parts[0]),
-                Integer.parseInt(parts[1]),
-                Integer.parseInt(parts[2])
-        );
-    }
-
-    private void showAddItem() {
-        PopAddItem popAddItem = new PopAddItem();
-        popAddItem.setTargetFragment(this, 0);
-        popAddItem.show(getParentFragmentManager(), "내용추가");
-    }
-
-    private void updateRecycler(AmountItem item) {
-        List<AmountItem> items = adapter.getItems();
-        items.add(item);
-        Collections.sort(items, (a, b) -> b.getDate().compareTo(a.getDate()));
-        adapter.updateItems(items);
-        sumTotalExpense();
     }
 
 
     private void showDateAmount(CalendarDay date) {
-        selectDay = date; // 선택된 날짜 저장
+        if (date == null || monthlySummary == null) return;
 
-        String strMon = String.format("%02d", date.getMonth());
-        String strDay = String.format("%02d", date.getDay());
-        String dateKey = date.getYear() + "-" + strMon + "-" + strDay;
+        selectDay = date;  // 현재 선택된 날짜 저장
 
-        if (monthlySummary == null || monthlySummary.getDays() == null) {
-            Log.w("showDateAmount", "월별 데이터가 아직 로딩되지 않음");
-            return;
-        }
+        String key = date.getYear() + "-" +
+                String.format("%02d", date.getMonth()) + "-" +
+                String.format("%02d", date.getDay());
 
-        DailySummary daySummary = monthlySummary.getDays().get(dateKey);
+        DailySummary daySummary = monthlySummary.getDays().get(key);
+
         if (daySummary == null) {
-            Log.w("showDateAmount", "선택한 날짜에 해당하는 데이터 없음: " + dateKey);
+            Log.w("POPUP", "해당 날짜에 대한 summary가 없음: " + selectDay);
             return;
         }
 
-        List<AmountItem> amountList = new ArrayList<>();
+        // amountList, expectedList 분리
+        ArrayList<AmountItem> amountList = new ArrayList<>();
+        ArrayList<AmountExpectedItem> expectedList = new ArrayList<>();
+
         for (Expense expense : daySummary.getDailyExpenseList()) {
             AmountItem item = new AmountItem();
             item.setUid(expense.getId());
@@ -338,34 +374,190 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
             amountList.add(item);
         }
 
-        long recomAmount = daySummary.getDailyGoal();
-        long totalSpent = daySummary.getDailyTotalExpense();
-        long expectedSpent = daySummary.getDailyTotalExpectedExpense();
+        for (ExpectedExpense expected : daySummary.getDailyExpectedList()) {
+            AmountExpectedItem item = new AmountExpectedItem();
+            item.setId(expected.getId());
+            item.setContent(expected.getDetails());
+            item.setAmount(expected.getAmount());
+            item.setDate(expected.getDate().toString());
+            expectedList.add(item);
+        }
 
-        // 팝업 다이얼로그 일일 리스트
-        PopShowDaylist popShowDaylist = PopShowDaylist.newInstance(
-                (ArrayList<AmountItem>) amountList,
-                dateKey,
-                recomAmount,
-                totalSpent,
-                expectedSpent
+        // showDateAmount 내부 일부
+        popShowDaylist = PopShowDaylist.newInstance(
+                amountList,
+                expectedList,
+                key,
+                daySummary.getDailyGoal(),
+                daySummary.getDailyTotalExpense(),
+                daySummary.getDailyTotalExpectedExpense()
         );
-        popShowDaylist.setUserId(userID);
-        popShowDaylist.setTargetFragment(this, 0);
-        popShowDaylist.show(getParentFragmentManager(), "특정날짜");
+        popShowDaylist.setTargetFragment(FragmentCalendar.this, 0);
+        popShowDaylist.show(getParentFragmentManager(), "DayListPopup");
+
+        selectDay = null;
     }
 
 
+    void updateExpense(AmountItem updatedItem) {
+        try {
+            JSONObject body = new JSONObject();
+            body.put("id", updatedItem.getUid());
+            body.put("title", updatedItem.getContent());
+            body.put("amount", updatedItem.getAmount());
+            body.put("expenseDate", updatedItem.getDate());
+
+            String payment = updatedItem.getCard();
+            if ("카드".equals(payment)) payment = "CARD";
+            else if ("현금".equals(payment)) payment = "CASH";
+            body.put("payment", payment);
+
+            String category = updatedItem.getCategory();
+            if (category != null && !category.matches("[A-Z_]+")) {
+                switch (category) {
+                    case "식비": category = "FOOD"; break;
+                    case "쇼핑": category = "SHOPPING"; break;
+                    case "여가": category = "LEISURE"; break;
+                    case "병원": category = "HEALTHCARE"; break;
+                    case "생활비": category = "LIVING"; break;
+                    case "교통비": category = "TRANSPORTATION"; break;
+                    default: category = "OTHER"; break;
+                }
+            }
+            body.put("category", category);
+            body.put("bankName", updatedItem.getBank());
+
+            SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+            String token = prefs.getString("token", "");
+
+            JsonObjectRequest putRequest = new JsonObjectRequest(
+                    Request.Method.PUT,
+                    "http://10.0.2.2:8080/api/expense/" + updatedItem.getUid(),
+                    body,
+                    response -> {
+                        Log.d("UPDATE_EXPECTED", "수정 성공!");
+                        Log.d("UPDATE_EXPECTED", "day!" + selectDay);
+                        int year = stringToCalendarDay(updatedItem.getDate()).getYear();
+                        int month = stringToCalendarDay(updatedItem.getDate()).getMonth();
+                        if (selectDay == null) {
+                            fetchMonthlySummary(year, month, () -> {
+                                updateItemInRecycler(updatedItem);
+                            });
+                        } else {
+                            fetchMonthlySummary(year, month, () -> {
+                                showDateAmount(selectDay);
+                                updateItemInRecycler(updatedItem);
+                            });
+                        }
+                    },
+                    error -> Log.e("UpdateExpense", "수정 실패: " + error.toString())
+            ) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Bearer " + token);
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            Volley.newRequestQueue(requireContext()).add(putRequest);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void updateExpectedExpense(AmountExpectedItem updatedItem) {
+        try {
+            JSONObject body = new JSONObject();
+            body.put("id", updatedItem.getId());
+            body.put("details", updatedItem.getContent());
+            body.put("amount", updatedItem.getAmount());
+            body.put("date", updatedItem.getDate());
+
+            SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+            String token = prefs.getString("token", "");
+
+            JsonObjectRequest putRequest = new JsonObjectRequest(
+                    Request.Method.PUT,
+                    "http://10.0.2.2:8080/api/expectedExpenditure/" + updatedItem.getId(),
+                    body,
+                    response -> {
+                        Log.d("UPDATE_EXPECTED", "수정 성공!");
+                        Log.d("UPDATE_EXPECTED", "id" + updatedItem.getId());
+                        Log.d("UPDATE_EXPECTED", "details" + updatedItem.getContent());
+                        Log.d("UPDATE_EXPECTED", "amount" + updatedItem.getAmount());
+                        Log.d("UPDATE_EXPECTED", "date" + updatedItem.getDate());
+
+                        int year = stringToCalendarDay(updatedItem.getDate()).getYear();
+                        int month = stringToCalendarDay(updatedItem.getDate()).getMonth();
+                        if (selectDay == null) {
+                            fetchMonthlySummary(year, month, () -> {
+                                updateExpectedItemInRecycler(updatedItem);
+                            });
+                        } else {
+                            fetchMonthlySummary(year, month, () -> {
+                                showDateAmount(selectDay);
+                                updateExpectedItemInRecycler(updatedItem);
+                            });
+                        }
+                    },
+                    error -> Log.e("UpdateExpectedExpense", "수정 실패: " + error.toString())
+            ) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Bearer " + token);
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            Volley.newRequestQueue(requireContext()).add(putRequest);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void showAddItem() {
+        PopAddItem popAddItem = new PopAddItem();
+        popAddItem.setTargetFragment(this, 0);
+        popAddItem.show(getParentFragmentManager(), "내용추가");
+    }
+
+    private void showAddExpectedItem() {
+        PopAddExpectedItem popAddExpectedItem = new PopAddExpectedItem();
+        popAddExpectedItem.setItemAddListener(this);
+        popAddExpectedItem.setTargetFragment(this, 0);
+        popAddExpectedItem.show(getParentFragmentManager(), "내용추가");
+    }
+
+    private CalendarDay stringToCalendarDay(String dateString) {
+        String[] parts = dateString.split("-");
+        return CalendarDay.from(
+                Integer.parseInt(parts[0]),
+                Integer.parseInt(parts[1]),
+                Integer.parseInt(parts[2])
+        );
+    }
 
     private long sumTotalExpense() {
         long total = 0;
         boolean isCardChecked = binding.CheckBoxCard.isChecked();
         boolean isCashChecked = binding.CheckBoxCash.isChecked();
 
-        for (AmountItem item : adapter.getItems()) {
-            if ((isCardChecked && "CARD".equals(item.getCard())) ||
-                    (isCashChecked && "CASH".equals(item.getCard()))) {
-                total += item.getAmount();
+        for (Item item : adapter.getItems()) {
+            if (item instanceof AmountItem) {
+                AmountItem amountItem = (AmountItem) item;
+
+                if ((isCardChecked && "CARD".equals(amountItem.getCard())) ||
+                        (isCashChecked && "CASH".equals(amountItem.getCard()))) {
+                    total += amountItem.getAmount();
+                }
             }
         }
 
@@ -373,10 +565,70 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         return total;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+
+    private void updateRecycler(Item item) {
+        List<Item> currentItems = new ArrayList<>(adapter.getItems()); // 복사본을 만들어!
+        currentItems.add(item);
+        Collections.sort(currentItems, (a, b) -> b.getDate().compareTo(a.getDate()));
+        adapter.updateItems(currentItems); // 완전 새 리스트로 전달
+
+        if (item instanceof AmountItem) {
+            sumTotalExpense();
+        }
+    }
+
+    private void updateItemInRecycler(AmountItem updatedItem) {
+        List<Item> allItems = adapter.getItems();
+        List<Item> updatedList = new ArrayList<>();
+
+        // 기존 리스트에서 같은 uid의 AmountItem을 찾아 교체
+        for (Item item : allItems) {
+            if (item instanceof AmountItem) {
+                AmountItem current = (AmountItem) item;
+                if (current.getUid() == updatedItem.getUid()) {
+                    updatedList.add(updatedItem);
+                } else {
+                    updatedList.add(current);
+                }
+            } else if (!(item instanceof DateItem)) {
+                updatedList.add(item); // 예상지출 등도 유지
+            }
+        }
+
+        // 날짜 기준 정렬
+        updatedList.sort((a, b) -> a.getDate().compareTo(b.getDate()));
+
+        // 어댑터에 반영
+        adapter.updateItems(updatedList);
+
+        totalExpenseTV.setText(decimalFormat.format(monthlySummary.getCardExpenses() + monthlySummary.getCashExpenses()));
+        ableAmount.setText(decimalFormat.format(monthlySummary.getRemaining()));
+    }
+
+    private void updateExpectedItemInRecycler(AmountExpectedItem updatedItem) {
+        List<Item> originalItems = adapter.getItems();
+        Log.i("size", "size " + originalItems.size());
+        List<Item> flatList = new ArrayList<>();
+
+        for (Item item : originalItems) {
+            if (item instanceof AmountExpectedItem) {
+                AmountExpectedItem current = (AmountExpectedItem) item;
+                if (current.getId() == updatedItem.getId()) {
+                    flatList.add(updatedItem);
+                } else {
+                    flatList.add(current);
+                }
+            } else if (item instanceof AmountItem) {
+                flatList.add(item);
+            }
+        }
+
+        flatList.sort(Comparator.comparing(Item::getDate));
+
+        adapter.updateItems(flatList);
+
+        totalExpenseTV.setText(decimalFormat.format(monthlySummary.getCardExpenses() + monthlySummary.getCashExpenses()));
+        ableAmount.setText(decimalFormat.format(monthlySummary.getRemaining()));
     }
 
     @Override
@@ -408,7 +660,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
             SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
             String token = prefs.getString("token", "");
-
+            Log.d("TOKEN_CHECK", "[fetchMonthlySummary] token: " + token);
             JsonObjectRequest postRequest = new JsonObjectRequest(
                     Request.Method.POST,
                     "http://10.0.2.2:8080/api/expense",
@@ -431,13 +683,54 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
 
             Volley.newRequestQueue(requireContext()).add(postRequest);
 
-            // 프론트에서도 임시로 즉시 업데이트
+            //프론트에서 업데이트
             updateRecycler(item);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void onExpectedItemAdded(AmountExpectedItem item) {
+        try {
+            JSONObject body = new JSONObject();
+            body.put("details", item.getContent());
+            body.put("amount", item.getAmount());
+            body.put("date", item.getDate());
+
+            SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+            String token = prefs.getString("token", "");
+            Log.d("TOKEN_CHECK", "[fetchMonthlySummary] token: " + token);
+            JsonObjectRequest postRequest = new JsonObjectRequest(
+                    Request.Method.POST,
+                    "http://10.0.2.2:8080/api/expectedExpenditure",
+                    body,
+                    response -> {
+                        // 성공 시 최신 데이터 다시 로딩
+                        CalendarDay today = calendarView.getCurrentDate();
+                        fetchMonthlySummary(today.getYear(), today.getMonth(), () -> {});
+                    },
+                    error -> Log.e("AddExpectedExpense", "추가 실패: " + error.toString())
+            ) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Bearer " + token);
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            Volley.newRequestQueue(requireContext()).add(postRequest);
+
+            updateRecycler(item);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void onDialogCancel() {
@@ -456,92 +749,15 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
     @Override
     public void onResume() {
         super.onResume();
-        if (selectDay != null) {
+        if (selectDay != null && !isReturningFromEdit) { // 🔥 조건 추가
             fetchMonthlySummary(selectDay.getYear(), selectDay.getMonth(), () -> {});
         }
+        isReturningFromEdit = false;
     }
 
-    void updateExpense(AmountItem updatedItem) {
-        try {
-            JSONObject body = new JSONObject();
-            body.put("id", updatedItem.getUid());
-            body.put("title", updatedItem.getContent());
-            body.put("amount", updatedItem.getAmount());
-            body.put("expenseDate", updatedItem.getDate());
-
-            String payment = updatedItem.getCard();
-            if ("카드".equals(payment)) payment = "CARD";
-            else if ("현금".equals(payment)) payment = "CASH";
-            body.put("payment", payment);
-
-            String category = updatedItem.getCategory();
-            if (category != null && !category.matches("[A-Z_]+")) {
-                switch (category) {
-                    case "식비": category = "FOOD"; break;
-                    case "쇼핑": category = "SHOPPING"; break;
-                    case "여가": category = "LEISURE"; break;
-                    case "병원": category = "HEALTHCARE"; break;
-                    case "생활비": category = "LIVING"; break;
-                    case "교통비": category = "TRANSPORTATION"; break;
-                    default: category = "OTHER"; break;
-                }
-            }
-
-            body.put("category", category);
-            body.put("bankName", updatedItem.getBank());
-
-            SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
-            String token = prefs.getString("token", "");
-
-            JsonObjectRequest putRequest = new JsonObjectRequest(
-                    Request.Method.PUT,
-                    "http://10.0.2.2:8080/api/expense/" + updatedItem.getUid(),
-                    body,
-                    response -> {
-                        if (selectDay != null) {
-                            fetchMonthlySummary(selectDay.getYear(), selectDay.getMonth(), () -> {
-                                showDateAmount(selectDay); // ✅ 반드시 fetch 후에 호출되어야 함!
-                            });
-                        }
-
-                        updateItemInRecycler(updatedItem);
-                    },
-                    error -> Log.e("UpdateExpense", "수정 실패: " + error.toString())
-            ) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<>();
-                    headers.put("Authorization", "Bearer " + token);
-                    headers.put("Content-Type", "application/json");
-                    return headers;
-                }
-            };
-
-            Volley.newRequestQueue(requireContext()).add(putRequest);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
-
-    private void updateItemInRecycler(AmountItem updatedItem) {
-        List<AmountItem> items = adapter.getItems();
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getUid() == (updatedItem.getUid())) {
-                items.set(i, updatedItem);  // 수정된 아이템 반영
-                break;
-            }
-        }
-
-        // 정렬 다시 하고 반영
-        Collections.sort(items, (a, b) -> a.getDate().compareTo(b.getDate()));
-
-        adapter.updateItems(items);
-
-        // 총 지출 및 잔액 업데이트
-        long total = sumTotalExpense();
-        long remaining = Long.parseLong(targetAmount.getText().toString().replace(",", "")) - total;
-        ableAmount.setText(decimalFormat.format(remaining));
-    }
-
 }

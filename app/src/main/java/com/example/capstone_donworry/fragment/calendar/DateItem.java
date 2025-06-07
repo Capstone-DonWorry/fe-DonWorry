@@ -1,17 +1,26 @@
 package com.example.capstone_donworry.fragment.calendar;
 
+import android.util.Log;
+
 public class DateItem extends Item{
-    private String date;
 
     public DateItem(String date) {
-        super(Item.TYPE_AMOUNT);
-        this.date = date;
+        super(Item.TYPE_DATE, date);
+    }
+
+    @Override
+    public int getType() {
+        return Item.TYPE_DATE;
     }
 
     public String getDate() {
-        String[] dateEdit = date.split("-");
-        String dateText = dateEdit[1] + "/" + dateEdit[2];
-        return dateText;
+        if (date == null || !date.contains("-")) {
+            return date;  // 또는 "invalid"
+        }
+
+        String[] parts = date.split("-");
+        if (parts.length < 3) return date;
+        return parts[1] + "/" + parts[2];
     }
 
     public void setDate(String date) {

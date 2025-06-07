@@ -1,0 +1,11 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <!-- 흰색 + 투명도 낮춤: FF = 100% 불투명, E6 = 약 90% -->
+            <solid android:color="#E6FFFFFF"/> <!-- 더 선명한 흰색 -->
+            <corners android:radius="12dp"/>
+            <stroke android:width="2dp" android:color="#BBBBBB"/>
+        </shape>
+    </item>
+</layer-list>
+

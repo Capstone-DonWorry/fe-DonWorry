@@ -182,7 +182,6 @@ public class PopAddItem extends DialogFragment {
                     cardCheck.setChecked(false);
                     viewLine.setVisibility(View.GONE);
                     viewLayout.setVisibility(View.GONE);
-                    // TODO: 현금 선택 시 기능 설정
                 }else {
 
                 }

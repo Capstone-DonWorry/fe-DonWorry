@@ -58,6 +58,9 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
 public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddListener, PopShowDaylist.OnDialogCancelListener, PopDetailItem.OnDialogCancelListener {
     private FragmentCalendarBinding binding;
+    // 클래스에 추가
+    private final Map<CalendarDay, CustomDayDecorator> decoratorMap = new HashMap<>();
+
     private RecyclerView recyclerView;
     private AmountAdapter adapter;
     private MaterialCalendarView calendarView;
@@ -261,10 +264,12 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
                         CalendarDeco.saturdayDecorator()
                 );
 
-                for (String dateKey : daysMap.keySet()) {
-                    DailySummary ds = daysMap.get(dateKey);
-                    CalendarDay cd = stringToCalendarDay(dateKey);
-                    calendarView.addDecorator(new CustomDayDecorator(cd, ds.getDailyTotalExpense().intValue(), ds.getDailyGoal().intValue(), ds.getDailyLevel()));
+                decoratorMap.clear();
+
+                for (Map.Entry<String, DailySummary> entry : daysMap.entrySet()) {
+                    CalendarDay day = stringToCalendarDay(entry.getKey());
+                    int level = entry.getValue().getDailyLevel(); // 🔥 null 방지 주의
+                    calendarView.addDecorator(new CustomDayDecorator(day, level));
                 }
 
                 adapter.updateItems(totalList);
@@ -541,6 +546,7 @@ public class FragmentCalendar extends Fragment implements PopAddItem.ItemAddList
         // 총 지출 및 잔액 업데이트
         long total = sumTotalExpense();
         long remaining = Long.parseLong(targetAmount.getText().toString().replace(",", "")) - total;
+        if(remaining < 0) remaining = 0;
         ableAmount.setText(decimalFormat.format(remaining));
     }
 

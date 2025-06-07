@@ -201,7 +201,6 @@ public class CategoryStatisticsFragment extends Fragment {
                             pieChart.invalidate();
                             categoryAdapter.updateData(new ArrayList<>());
                             categoryAdapter.notifyDataSetChanged();
-//                            Toast.makeText(getContext(), year + "년 " + month + "월 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 

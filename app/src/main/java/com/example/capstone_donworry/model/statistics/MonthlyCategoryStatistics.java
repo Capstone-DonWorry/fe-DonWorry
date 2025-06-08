@@ -6,10 +6,10 @@ public class MonthlyCategoryStatistics {
     private long totalExpense;
     private long goalAmount;
     private List<CategoryAmount> categoryExpenses;
-    private List<PaymentAmount> paymentMethodExpenses;
+    private List<PaymentExpense> paymentMethodExpenses;
     public long getTotalExpense() { return totalExpense; }
     public long getGoalAmount() { return goalAmount; }
     public List<CategoryAmount> getCategoryExpenses() { return categoryExpenses; }
-    public List<PaymentAmount> getPaymentMethodExpenses() { return paymentMethodExpenses; }
+    public List<PaymentExpense> getPaymentMethodExpenses() { return paymentMethodExpenses; }
 }
 

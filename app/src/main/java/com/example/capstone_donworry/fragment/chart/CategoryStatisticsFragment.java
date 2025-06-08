@@ -27,7 +27,7 @@ import com.example.capstone_donworry.databinding.FragmentCategoryBinding;
 import com.example.capstone_donworry.fragment.calendar.ViewModelCalendar;
 import com.example.capstone_donworry.model.statistics.CategoryAmount;
 import com.example.capstone_donworry.model.statistics.MonthlyCategoryStatistics;
-import com.example.capstone_donworry.model.statistics.PaymentAmount;
+import com.example.capstone_donworry.model.statistics.PaymentExpense;
 import com.example.capstone_donworry.model.statistics.MonthlyCategoryStatisticsResponse;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -175,9 +175,9 @@ public class CategoryStatisticsFragment extends Fragment {
                         TextView cardAmountText = binding.cardAmountText;
                         TextView cashAmountText = binding.cashAmountText;
 
-                        List<PaymentAmount> paymentExpenses = stats.getPaymentMethodExpenses();
+                        List<PaymentExpense> paymentExpenses = stats.getPaymentMethodExpenses();
                         if (paymentExpenses != null) {
-                            for (PaymentAmount p : paymentExpenses) {
+                            for (PaymentExpense p : paymentExpenses) {
                                 if ("CARD".equals(p.getPaymentMethod())) {
                                     cardAmount = p.getTotalAmount();
                                 } else if ("CASH".equals(p.getPaymentMethod())) {

@@ -17,8 +17,8 @@ public class StatisticsPagerAdapter extends FragmentStateAdapter {
                 return new CategoryStatisticsFragment();
             case 1:
                 return new WeeklyStatisticsFragment();
-//            case 2:
-//                return new ComparisonStatisticsFragment(); // 사용자 간 비교 페이지
+            case 2:
+                return new ComparisonStatisticsFragment(); // 사용자 간 비교 페이지
             default:
                 return new CategoryStatisticsFragment();
         }

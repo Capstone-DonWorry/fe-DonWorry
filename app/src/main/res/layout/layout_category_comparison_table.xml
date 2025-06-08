@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/categoryComparisonTable"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:stretchColumns="1,2"
+    android:padding="8dp"
+    android:background="@drawable/border_gray">
+
+    <!-- 제목 -->
+    <TableRow>
+        <TextView
+            android:layout_span="3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="가장 많이 지출한 카테고리 Top 3 👑"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
+    </TableRow>
+
+    <!-- 헤더 -->
+    <TableRow>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tv_myLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="나"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tv_avgLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="평균"
+            android:textStyle="bold"
+            android:gravity="center" />
+    </TableRow>
+
+    <!-- 항목 1 -->
+    <TableRow>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1" />
+
+        <TextView
+            android:id="@+id/tv_myCat1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="식비" />
+
+        <TextView
+            android:id="@+id/tv_avgCat1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="식비" />
+    </TableRow>
+
+    <!-- 항목 2 -->
+    <TableRow>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2" />
+
+        <TextView
+            android:id="@+id/tv_myCat2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="교통비" />
+
+        <TextView
+            android:id="@+id/tv_avgCat2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="문화생활" />
+    </TableRow>
+
+    <!-- 항목 3 -->
+    <TableRow>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3" />
+
+        <TextView
+            android:id="@+id/tv_myCat3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="의료/건강" />
+
+        <TextView
+            android:id="@+id/tv_avgCat3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="기타" />
+    </TableRow>
+</TableLayout>
+
+

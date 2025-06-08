@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ✅ 상단 파란 헤더 영역 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="#DFF0FF"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_currentMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6월"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#000000" />
+        </LinearLayout>
+
+        <!-- ✅ 나머지 본문 영역 (흰색 배경) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@android:color/white">
+
+            <!-- 목표 금액 기준 비교 헤더 -->
+            <TextView
+                android:id="@+id/tv_goalComparisonTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="목표 지출 금액 000,000 사용자 비교"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- 나 vs 평균 그래프 -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart_goal"
+                android:layout_width="match_parent"
+                android:layout_height="200dp" />
+
+            <!-- TOP3 테이블 (목표기준) -->
+            <include layout="@layout/layout_category_comparison_table"
+                android:id="@+id/include_goalTable" />
+
+            <!-- 연령대 기준 비교 -->
+            <TextView
+                android:id="@+id/tv_ageComparisonTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="총 지출 금액 00대 사용자 비교"
+                android:textSize="16sp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- 나 vs 연령대 평균 그래프 -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart_age"
+                android:layout_width="match_parent"
+                android:layout_height="200dp" />
+
+            <!-- TOP3 테이블 (연령대기준) -->
+            <include layout="@layout/layout_category_comparison_table"
+                android:id="@+id/include_ageTable" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

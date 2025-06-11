@@ -6,13 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.model.statistics.WeeklyStatistic;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -42,11 +43,21 @@ public class WeeklyStatisticsAdapter extends RecyclerView.Adapter<WeeklyStatisti
         }
 
         public void bind(WeeklyStatistic statistic, OnItemClickListener listener) {
-            // 색상은 임의로 주거나 범위에 따라 지정 가능
-            viewColorIndicator.setBackgroundColor(Color.parseColor("#FF4081")); // 임시 색상
+            viewColorIndicator.setBackgroundColor(Color.parseColor("#FF4081"));
 
-            String weekRange = statistic.getStartDate() + " ~ " + statistic.getEndDate();
-            textWeekRange.setText(weekRange);
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("M월 d일", Locale.KOREA);
+
+            try {
+                Date startDate = inputFormat.parse(statistic.getStartDate());
+                Date endDate = inputFormat.parse(statistic.getEndDate());
+
+                String weekRange = outputFormat.format(startDate) + " - " + outputFormat.format(endDate);
+                textWeekRange.setText(weekRange);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                textWeekRange.setText("날짜 오류");
+            }
 
             String expenseFormatted = String.format("%,d원", statistic.getTotalExpense());
             textTotalExpense.setText(expenseFormatted);

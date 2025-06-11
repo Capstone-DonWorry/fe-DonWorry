@@ -11,7 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.capstone_donworry.R;
 import com.example.capstone_donworry.model.statistics.WeeklyStatistic;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class WeeklySummaryAdapter extends RecyclerView.Adapter<WeeklySummaryAdapter.ViewHolder> {
     private List<WeeklyStatistic> data;
@@ -62,7 +66,20 @@ public class WeeklySummaryAdapter extends RecyclerView.Adapter<WeeklySummaryAdap
         }
 
         void bind(WeeklyStatistic item) {
-            tvWeekRange.setText(item.getStartDate() + " ~ " + item.getEndDate());
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("M월 d일", Locale.KOREA);
+
+            try {
+                Date startDate = inputFormat.parse(item.getStartDate());
+                Date endDate = inputFormat.parse(item.getEndDate());
+
+                String formattedRange = outputFormat.format(startDate) + " - " + outputFormat.format(endDate);
+                tvWeekRange.setText(formattedRange);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                tvWeekRange.setText("날짜 오류");
+            }
+
             tvTotalExpense.setText(item.getTotalExpense() + "원");
             itemView.setOnClickListener(v -> listener.onWeekClick(item));
         }

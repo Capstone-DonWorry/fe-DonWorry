@@ -136,16 +136,53 @@ public class FragmentCalendar extends Fragment implements PopAddExpectedItem.Ite
                 int position = viewHolder.getAdapterPosition();
                 Item deleteItem = adapter.getItem(position);
 
-                String content;
+                //어뎁터에서 삭제
+                adapter.removeItem(position);
+
                 if (deleteItem instanceof AmountItem) {
-                    content = ((AmountItem) deleteItem).getContent();
+                    long expenseId = ((AmountItem) deleteItem).getUid();
+                    String url = "http://10.0.2.2:8080/api/expense/" + expenseId;
+                    JsonObjectRequest deleteRequest = new JsonObjectRequest(
+                            Request.Method.DELETE,
+                            url,
+                            null,
+                            response -> Log.d("DELETE", "삭제 성공"),
+                            error -> Log.e("DELETE", "삭제 실패: " + error.toString())
+                    ) {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> headers = new HashMap<>();
+                            SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+                            String token = prefs.getString("token", "");
+                            headers.put("Authorization", "Bearer " + token);
+                            return headers;
+                        }
+                    };
+                    Volley.newRequestQueue(requireContext()).add(deleteRequest);
                 } else if (deleteItem instanceof AmountExpectedItem) {
-                    content = ((AmountExpectedItem) deleteItem).getContent();
-                } else {
-                    content = "항목";
+                    long expectedId = ((AmountExpectedItem) deleteItem).getId();
+                    String url = "http://10.0.2.2:8080/api/expectedExpenditure/" + expectedId;
+
+                    JsonObjectRequest deleteRequest = new JsonObjectRequest(
+                            Request.Method.DELETE,
+                            url,
+                            null,
+                            response -> Log.d("DELETE", "예상 삭제 성공"),
+                            error -> Log.e("DELETE", "예상 삭제 실패: " + error.toString())
+                    ) {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> headers = new HashMap<>();
+                            SharedPreferences prefs = requireContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+                            String token = prefs.getString("token", "");
+                            headers.put("Authorization", "Bearer " + token);
+                            return headers;
+                        }
+                    };
+                    Volley.newRequestQueue(requireContext()).add(deleteRequest);
                 }
 
-                Snackbar.make(recyclerView, content + " 삭제했습니다.", Snackbar.LENGTH_LONG)
+                Snackbar.make(recyclerView, "삭제했습니다.", Snackbar.LENGTH_LONG)
                         .setAction("취소", v -> updateRecycler(deleteItem))
                         .show();
             }

@@ -4,23 +4,24 @@
     android:layout_height="60dp"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:background="@drawable/underline_bottom">
 
     <View
         android:id="@+id/viewColorIndicator"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/blue_circle_shape" />
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginEnd="25dp"
+        android:background="@drawable/blue_rectangle_shape" />
 
     <TextView
         android:id="@+id/textWeekRange"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Week 1"
+        android:text="4월 5일 - 4월 11일"
         android:textColor="#444"
-        android:textSize="16sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/textTotalExpense"
@@ -28,6 +29,7 @@
         android:layout_height="wrap_content"
         android:text="30,000원"
         android:textStyle="bold"
-        android:textColor="#444"
-        android:textSize="17sp" />
+        android:textColor="#000000"
+        android:textSize="18sp" />
 </LinearLayout>
+

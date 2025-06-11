@@ -64,6 +64,8 @@ public class WeeklyStatisticsFragment extends Fragment {
     private TextView tvCashAmount;
     private TextView tv; // 총 지출
 
+    private TextView weekRangeText;
+
     private int currentYear;
     private int currentMonth;
 
@@ -87,6 +89,7 @@ public class WeeklyStatisticsFragment extends Fragment {
         tvCardAmount = root.findViewById(R.id.cardAmountText);
         tvCashAmount = root.findViewById(R.id.cashAmountText);
         tv = root.findViewById(R.id.totalExpenseText);
+        weekRangeText = root.findViewById(R.id.weekRangeText);
 
 
         queue = MyApplication.getInstance().getRequestQueue();
@@ -151,7 +154,7 @@ public class WeeklyStatisticsFragment extends Fragment {
     // 월 텍스트 업데이트
     private void updateMonthText(CalendarDay date) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(date.getYear(), date.getMonth() - 1, date.getDay()); // 월은 0부터 시작하니까 -1!
+        calendar.set(date.getYear(), date.getMonth() - 1, date.getDay()); // 월은 0부터 시작하니까 -1
 
         // 날짜 포맷 지정
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH);
@@ -162,6 +165,7 @@ public class WeeklyStatisticsFragment extends Fragment {
 
     private void fetchWeeklySummaryList(int year, int month) {
         Log.d("WeeklyFragment", "fetchWeeklySummaryList 호출 - year: " + year + ", month: " + month);
+        binding.tvCurrentMonth.setText(month);
 
         if (isLoading) return;
         isLoading = true;
@@ -198,9 +202,25 @@ public class WeeklyStatisticsFragment extends Fragment {
 
     // 주 선택 시 상세 데이터 호출
     private void onWeekSelected(WeeklyStatistic selectedWeek) {
-        long totalExpense = selectedWeek.getTotalExpense();
         clearWeeklyDetailViews();
+
+        long totalExpense = selectedWeek.getTotalExpense();
         tv.setText(totalExpense + "원");
+
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+        SimpleDateFormat outputFormat = new SimpleDateFormat("M월 d일", Locale.KOREA);
+
+        try {
+            Date startDate = inputFormat.parse(selectedWeek.getStartDate());
+            Date endDate = inputFormat.parse(selectedWeek.getEndDate());
+
+            String weekRange = outputFormat.format(startDate) + " - " + outputFormat.format(endDate);
+            weekRangeText.setText(weekRange);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            weekRangeText.setText("날짜 오류");
+        }
+
         fetchWeeklyDetail(selectedWeek.getStartDate(), selectedWeek.getEndDate());
 
     }

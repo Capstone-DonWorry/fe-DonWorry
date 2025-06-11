@@ -165,7 +165,7 @@ public class WeeklyStatisticsFragment extends Fragment {
 
     private void fetchWeeklySummaryList(int year, int month) {
         Log.d("WeeklyFragment", "fetchWeeklySummaryList 호출 - year: " + year + ", month: " + month);
-        binding.tvCurrentMonth.setText(month);
+        binding.tvCurrentMonth.setText(String.valueOf(month));
 
         if (isLoading) return;
         isLoading = true;

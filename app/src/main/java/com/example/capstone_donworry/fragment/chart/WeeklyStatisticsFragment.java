@@ -27,6 +27,7 @@ import com.example.capstone_donworry.model.statistics.PaymentExpense;
 import com.example.capstone_donworry.model.statistics.WeeklyDetail;
 import com.example.capstone_donworry.model.statistics.WeeklyStatistic;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -65,6 +66,7 @@ public class WeeklyStatisticsFragment extends Fragment {
     private TextView tv; // 총 지출
 
     private TextView weekRangeText;
+    private long dailyGoal;
 
     private int currentYear;
     private int currentMonth;
@@ -99,8 +101,7 @@ public class WeeklyStatisticsFragment extends Fragment {
         currentYear = cal.get(Calendar.YEAR);
         currentMonth = cal.get(Calendar.MONTH) + 1;
 
-        CalendarDay today = CalendarDay.from(currentYear, currentMonth, cal.get(Calendar.DAY_OF_MONTH));
-        updateMonthText(today);
+        updateMonthText(currentYear, currentMonth);
 
         fetchWeeklySummaryList(currentYear, currentMonth);
 
@@ -152,20 +153,20 @@ public class WeeklyStatisticsFragment extends Fragment {
     }
 
     // 월 텍스트 업데이트
-    private void updateMonthText(CalendarDay date) {
+    private void updateMonthText(int year, int month) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(date.getYear(), date.getMonth() - 1, date.getDay()); // 월은 0부터 시작하니까 -1
-
-        // 날짜 포맷 지정
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month - 1); // 주의: 0부터 시작
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH);
         String formattedDate = sdf.format(calendar.getTime());
 
         binding.tvCurrentMonth.setText(formattedDate);
     }
 
+
     private void fetchWeeklySummaryList(int year, int month) {
         Log.d("WeeklyFragment", "fetchWeeklySummaryList 호출 - year: " + year + ", month: " + month);
-        binding.tvCurrentMonth.setText(String.valueOf(month));
+        updateMonthText(currentYear, currentMonth);
 
         if (isLoading) return;
         isLoading = true;
@@ -204,11 +205,12 @@ public class WeeklyStatisticsFragment extends Fragment {
     private void onWeekSelected(WeeklyStatistic selectedWeek) {
         clearWeeklyDetailViews();
 
+        dailyGoal = selectedWeek.getDailyGoal();
         long totalExpense = selectedWeek.getTotalExpense();
         tv.setText(totalExpense + "원");
 
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
-        SimpleDateFormat outputFormat = new SimpleDateFormat("M월 d일", Locale.KOREA);
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MM월 dd일", Locale.getDefault());
 
         try {
             Date startDate = inputFormat.parse(selectedWeek.getStartDate());
@@ -277,6 +279,8 @@ public class WeeklyStatisticsFragment extends Fragment {
 
         tvCardAmount.setText("0원");
         tvCashAmount.setText("0원");
+        tv.setText("0원");
+        weekRangeText.setText(" ");
 
     }
 
@@ -294,7 +298,16 @@ public class WeeklyStatisticsFragment extends Fragment {
         for (int i = 0; i < dailyExpenses.size(); i++) {
             DailyExpense item = dailyExpenses.get(i);
             entries.add(new Entry(i, (float) item.getAmount()));
-            xLabels.add(item.getDate().substring(5)); // MM-DD만 표시
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                SimpleDateFormat outputFormat = new SimpleDateFormat("M.d", Locale.getDefault());
+                Date date = inputFormat.parse(item.getDate());
+                xLabels.add(outputFormat.format(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                xLabels.add("");
+            }
+
         }
 
         LineDataSet dataSet = new LineDataSet(entries, "일별 지출");
@@ -304,6 +317,7 @@ public class WeeklyStatisticsFragment extends Fragment {
         dataSet.setCircleRadius(4f);
         dataSet.setValueTextSize(10f);
         dataSet.setDrawFilled(true);
+        dataSet.setDrawCircleHole(false);
         dataSet.setFillColor(Color.parseColor("#C5CAE9"));
 
         LineData lineData = new LineData(dataSet);
@@ -312,6 +326,10 @@ public class WeeklyStatisticsFragment extends Fragment {
         chartDailyExpenses.getDescription().setEnabled(false);
         chartDailyExpenses.getLegend().setEnabled(false);
 
+
+        LimitLine targetLine = new LimitLine(10000, "");
+        targetLine.setLineColor(Color.RED);
+        targetLine.setLineWidth(2f);
 
         // X축 설정
         XAxis xAxis = chartDailyExpenses.getXAxis();
@@ -337,6 +355,8 @@ public class WeeklyStatisticsFragment extends Fragment {
         leftAxis.setDrawAxisLine(false);
         leftAxis.setDrawGridLines(false);
         leftAxis.setDrawLabels(false);
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.addLimitLine(targetLine);
 
         YAxis rightAxis = chartDailyExpenses.getAxisRight();
         rightAxis.setEnabled(false);

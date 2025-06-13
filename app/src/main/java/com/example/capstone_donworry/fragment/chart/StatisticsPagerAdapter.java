@@ -14,9 +14,9 @@ public class StatisticsPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 0:
-                return new CategoryStatisticsFragment();
-            case 1:
                 return new WeeklyStatisticsFragment();
+            case 1:
+                return new CategoryStatisticsFragment();
             case 2:
                 return new ComparisonStatisticsFragment(); // 사용자 간 비교 페이지
             default:
